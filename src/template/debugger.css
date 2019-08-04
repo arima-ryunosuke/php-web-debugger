@@ -1,0 +1,197 @@
+/**
+ * 共通的なものしか記述しない。モジュール個別のものは prepareInner で定義する。
+ * php include で読み込まれるので php タグに注意すること。
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    letter-spacing: 0;
+
+    font-size: 12px;
+    font-family: monospace;
+
+    box-sizing: border-box;
+}
+
+.debug_plugin {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+.debug_plugin label {
+    cursor: pointer;
+}
+
+.debug_plugin input[type="checkbox"],
+.debug_plugin input[type="radio"] {
+    vertical-align: middle;
+}
+
+.debug_plugin_parts.disabled .debug_plugin_switch {
+    opacity: 0.41;
+}
+
+.debug_plugin_switch {
+    color: #fff;
+    text-shadow: 2px 2px 4px #000;
+    box-shadow: 1px 1px 3px #000;
+    border-radius: 8px;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    line-height: 20px;
+    font-size: 16px;
+    text-align: center;
+    z-index: 1;
+}
+
+.debug_plugin_switch .debug_plugin_error {
+    line-height: 1.0;
+    font-size: 16px;
+    padding-left: 1px;
+    font-weight: bold;
+}
+
+.debug_plugin_switch .debug_plugin_title {
+    line-height: 1.0;
+    display: none;
+    padding: 0 8px;
+    margin-left: 20px;
+    box-shadow: 1px 1px 3px #000;
+    border-radius: 4px;
+    background-color: #aaa;
+
+    font-family: sans-serif;
+    font-size: 16px;
+    white-space: nowrap;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.debug_plugin_switch .debug_plugin_title span {
+    color: #ffb4b4
+}
+
+.debug_plugin_wrap {
+    display: none;
+    position: absolute;
+    background-color: #eee;
+    padding: 8px;
+    border: 1px solid #888;
+    top: 0;
+    left: 20px;
+    right: 0;
+}
+
+.debug_table {
+    background-color: #ffffff;
+    border-collapse: collapse;
+    empty-cells: show;
+    margin-bottom: 16px;
+}
+
+.debug_table td div.simple {
+    font-style: italic;
+}
+
+.debug_table.array_table td div.numeric {
+    text-align: right;
+}
+
+.debug_table.hash_table td div.numeric {
+    text-align: left;
+}
+
+.debug_table caption {
+    padding: 4px 8px;
+    text-align: left;
+    font-weight: bold;
+    background-color: #bbb;
+    white-space: nowrap;
+}
+
+.debug_table th, .debug_table td {
+    color: #000;
+    border: 1px solid #ccc;
+    padding: 2px 4px;
+}
+
+.debug_table th {
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+.debug_table th.asc:after,
+.debug_table th.desc:after {
+    margin-left: 4px;
+    font-size: 77%;
+}
+
+.debug_table th.asc:after {
+    content: "▲";
+}
+
+.debug_table th.desc:after {
+    content: "▼";
+}
+
+.debug_table td {
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.holdingdiv {
+    display: none;
+    white-space: pre-wrap;
+}
+
+.popupdiv {
+    position: absolute;
+    left: 0;
+    display: none;
+    min-width: 86%;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.popupdiv > * {
+    margin: 0 auto;
+    padding: 0;
+}
+
+.holding:active,
+.popup:active {
+    color: #990000;
+}
+
+.opened {
+    color: #990000;
+}
+
+.nowrap {
+    white-space: nowrap !important;
+}
+
+.prewrap {
+    white-space: pre-wrap;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.xdebug-var-dump small {
+    display: none;
+}

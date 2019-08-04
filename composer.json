@@ -1,0 +1,59 @@
+{
+  "config": {
+    "platform": {
+      "php": "7.1"
+    }
+  },
+  "name": "ryunosuke/php-web-debugger",
+  "type": "library",
+  "description": "web debugging tool",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "ryunosuke",
+      "email": "ryunosuke.arima@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ryunosuke\\WebDebugger\\": "src/WebDebugger"
+    },
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ryunosuke\\Test\\WebDebugger\\": "tests/Test"
+    },
+    "files": [
+      "tests/functions.php"
+    ]
+  },
+  "require": {
+  },
+  "require-dev": {
+    "ext-pdo": "*",
+    "phpunit/phpunit": "7.*",
+    "smarty/smarty": "3.*",
+    "ryunosuke/functions": "1.3.8"
+  },
+  "scripts": {
+    "build": [
+      "@export",
+      "@test"
+    ],
+    "export": [
+      "@php bin/export.php"
+    ],
+    "test": [
+      "vendor/bin/phpunit --configuration=tests/phpunit.xml"
+    ],
+    "post-install-cmd": [
+      "@export"
+    ],
+    "post-update-cmd": [
+      "@export"
+    ]
+  }
+}

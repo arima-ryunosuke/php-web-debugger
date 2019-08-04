@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.github.com/sebastianbergmann/phpunit/master/phpunit.xsd" bootstrap="bootstrap.php">
+    <testsuites>
+        <testsuite name="tests">
+            <directory>./Test/</directory>
+        </testsuite>
+    </testsuites>
+
+    <!--
+    <php>
+        <const name="PDO_HOST" value="localhost"/>
+        <const name="PDO_PORT" value="3306"/>
+        <const name="PDO_USERNAME" value=""/>
+        <const name="PDO_PASSWORD" value=""/>
+    </php>
+    <-->
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">../src/WebDebugger</directory>
+        </whitelist>
+    </filter>
+
+    <groups>
+        <exclude>
+            <group>exclude</group>
+        </exclude>
+    </groups>
+</phpunit>

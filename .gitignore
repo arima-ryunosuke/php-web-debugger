@@ -1,0 +1,5 @@
+/vendor
+/tests/coverage
+/tests/phpunit.xml
+/example/compiled/*
+!/example/compiled/.gitkeep
