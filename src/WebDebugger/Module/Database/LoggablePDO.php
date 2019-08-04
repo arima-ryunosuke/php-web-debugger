@@ -11,6 +11,12 @@ class LoggablePDO extends \PDO
     /** @var QueryLog[] */
     private $logs = [];
 
+    /**
+     * 対象クラスの PDO を返すようなメソッドを強制的に LoggablePDO を返すように置き換える
+     *
+     * @param string $class 置換対象クラス名
+     * @param string $method 置換対象メソッド名
+     */
     public static function replace($class, $method)
     {
         \ryunosuke\WebDebugger\class_replace($class, [
@@ -20,6 +26,12 @@ class LoggablePDO extends \PDO
         ]);
     }
 
+    /**
+     * 対象オブジェクトの PDO プロパティを強制的に LoggablePDO に置き換える
+     *
+     * @param object $object 置換対象オブジェクト
+     * @param string $property 置換対象プロパティ名（null 指定時は全プロパティから PDO を探す）
+     */
     public static function reflect($object, $property = null)
     {
         $refclass = new \ReflectionObject($object);
