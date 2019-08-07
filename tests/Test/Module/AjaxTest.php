@@ -6,6 +6,12 @@ use ryunosuke\WebDebugger\Module\Ajax;
 
 class AjaxTest extends AbstractTestCase
 {
+    function test_prepareOuter()
+    {
+        $module = new Ajax();
+        $this->assertContains('fetch', $module->prepareOuter());
+    }
+
     function test_gather()
     {
         $_SERVER['REQUEST_URI'] = '/';

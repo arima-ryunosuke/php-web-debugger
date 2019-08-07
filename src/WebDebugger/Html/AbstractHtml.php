@@ -7,7 +7,7 @@ abstract class AbstractHtml
 
     public function __toString()
     {
-        return $this->string;
+        return (string) $this->string;
     }
 
     /**

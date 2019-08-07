@@ -97,7 +97,7 @@ class Debugger
         }
 
         // リクエストファイルの返却
-        if ($this->request['is_internal'] && preg_match('#request-((\d{8})(\d{6}).(\d{1,}))#', $this->request['path'], $matches)) {
+        if ($this->request['is_internal'] && preg_match('#request-((\d{8})(\d{6}).(\d+))#', $this->request['path'], $matches)) {
             $dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $matches[2];
             $data = unserialize(file_get_contents($dir . DIRECTORY_SEPARATOR . $matches[1]));
             $stores = $data['stores'];
@@ -119,7 +119,7 @@ class Debugger
             }
 
             GlobalFunction::header('Content-Type: text/html');
-            ob_start();
+            ob_start('ob_gzhandler');
             require __DIR__ . '/../template/debugger.php';
             return GlobalFunction::response(ob_get_clean());
         }
