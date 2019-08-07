@@ -723,6 +723,52 @@ if (function_exists("ryunosuke\\WebDebugger\\array_map_method") && !defined("ryu
     define("ryunosuke\\WebDebugger\\array_map_method", "ryunosuke\\WebDebugger\\array_map_method");
 }
 
+if (!isset($excluded_functions["array_kmap"]) && (!function_exists("ryunosuke\\WebDebugger\\array_kmap") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_kmap"))->isInternal()))) {
+    /**
+     * キーも渡ってくる array_map
+     *
+     * `array_map($callback, $array, array_keys($array))` とほとんど変わりはない。
+     * 違いは下記。
+     *
+     * - 引数の順番が異なる（$array が先）
+     * - キーが死なない（array_map は複数配列を与えるとキーが死ぬ）
+     * - 配列だけでなく Traversable も受け入れる
+     * - callback の第3引数に 0 からの連番が渡ってくる
+     *
+     * Example:
+     * ```php
+     * // キー・値をくっつけるシンプルな例
+     * assertSame(array_kmap([
+     *     'k1' => 'v1',
+     *     'k2' => 'v2',
+     *     'k3' => 'v3',
+     * ], function($v, $k){return "$k:$v";}), [
+     *     'k1' => 'k1:v1',
+     *     'k2' => 'k2:v2',
+     *     'k3' => 'k3:v3',
+     * ]);
+     * ```
+     *
+     * @param iterable $array 対象配列
+     * @param callable $callback 評価クロージャ
+     * @return array $callback を通した新しい配列
+     */
+    function array_kmap($array, $callback)
+    {
+        $callback = func_user_func_array($callback);
+
+        $n = 0;
+        $result = [];
+        foreach ($array as $k => $v) {
+            $result[$k] = $callback($v, $k, $n++);
+        }
+        return $result;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\array_kmap") && !defined("ryunosuke\\WebDebugger\\array_kmap")) {
+    define("ryunosuke\\WebDebugger\\array_kmap", "ryunosuke\\WebDebugger\\array_kmap");
+}
+
 if (!isset($excluded_functions["array_each"]) && (!function_exists("ryunosuke\\WebDebugger\\array_each") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_each"))->isInternal()))) {
     /**
      * array_reduce の参照版（のようなもの）
@@ -2987,6 +3033,35 @@ if (!isset($excluded_functions["is_arrayable"]) && (!function_exists("ryunosuke\
 }
 if (function_exists("ryunosuke\\WebDebugger\\is_arrayable") && !defined("ryunosuke\\WebDebugger\\is_arrayable")) {
     define("ryunosuke\\WebDebugger\\is_arrayable", "ryunosuke\\WebDebugger\\is_arrayable");
+}
+
+if (!isset($excluded_functions["is_iterable"]) && (!function_exists("ryunosuke\\WebDebugger\\is_iterable") || (!true && (new \ReflectionFunction("ryunosuke\\WebDebugger\\is_iterable"))->isInternal()))) {
+    /**
+     * 変数が foreach で回せるか調べる
+     *
+     * オブジェクトの場合は \Traversable のみ。
+     * 要するに {@link http://php.net/manual/function.is-iterable.php is_iterable} の polyfill。
+     *
+     * Example:
+     * ```php
+     * assertTrue(is_iterable([1, 2, 3]));
+     * assertTrue(is_iterable((function () { yield 1; })()));
+     * assertFalse(is_iterable(1));
+     * assertFalse(is_iterable(new \stdClass()));
+     * ```
+     *
+     * @polyfill
+     *
+     * @param mixed $var 調べる値
+     * @return bool foreach で回せるなら true
+     */
+    function is_iterable($var)
+    {
+        return is_array($var) || $var instanceof \Traversable;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\is_iterable") && !defined("ryunosuke\\WebDebugger\\is_iterable")) {
+    define("ryunosuke\\WebDebugger\\is_iterable", "ryunosuke\\WebDebugger\\is_iterable");
 }
 
 if (!isset($excluded_functions["is_countable"]) && (!function_exists("ryunosuke\\WebDebugger\\is_countable") || (!true && (new \ReflectionFunction("ryunosuke\\WebDebugger\\is_countable"))->isInternal()))) {
