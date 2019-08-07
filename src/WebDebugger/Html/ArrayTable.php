@@ -5,13 +5,15 @@ class ArrayTable extends AbstractHtml
 {
     /**
      * @param string $caption テーブルキャプション
-     * @param array $values テーブル表示する配列
+     * @param iterable $values テーブル表示する配列
      * @param array $styles 個別スタイル
      */
-    public function __construct($caption, array $values, array $styles = [])
+    public function __construct($caption, iterable $values, array $styles = [])
     {
         // キーの和集合をヘッダとする
-        $headers = array_keys(array_reduce($values, function ($carry, $item) { return $carry + $item; }, []));
+        $headers = array_keys(\ryunosuke\WebDebugger\array_each($values, function (&$carry, $v) {
+            $carry += \ryunosuke\WebDebugger\arrayval($v, false);
+        }, []));
 
         ob_start();
         ?>

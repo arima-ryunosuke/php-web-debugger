@@ -5,11 +5,11 @@ class HashTable extends AbstractHtml
 {
     /**
      * @param string $caption テーブルキャプション
-     * @param array $values テーブル表示する配列
+     * @param iterable $values テーブル表示する配列
      * @param array $styles 個別スタイル
      * @param array $namevalue [Name => Value]
      */
-    public function __construct($caption, array $values, array $styles = [], array $namevalue = [])
+    public function __construct($caption, iterable $values, array $styles = [], array $namevalue = [])
     {
         $keyvalue = $namevalue ?: ['Name' => 'Value'];
         reset($keyvalue);

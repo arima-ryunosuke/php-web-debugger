@@ -33,4 +33,23 @@ class ArrayTableTest extends AbstractTestCase
         // color:red は2個
         $this->assertEquals(2, substr_count($table, 'color:red'));
     }
+
+    function test_collection()
+    {
+        $table = (string) new ArrayTable('foobar', new \ArrayObject([
+                new \ArrayObject(['a' => 'A']),
+                new \ArrayObject(['b' => 'B']),
+                new \ArrayObject(['c' => 'C']),
+                new \ArrayObject(['a' => 'A', 'b' => 'B', 'c' => 'C']),
+            ])
+        );
+
+        // caption は foobar
+        $this->assertContains('<caption>foobar</caption>', $table);
+
+        // ヘッダは和集合
+        $this->assertContains('<th class="nowrap">a</th>', $table);
+        $this->assertContains('<th class="nowrap">b</th>', $table);
+        $this->assertContains('<th class="nowrap">c</th>', $table);
+    }
 }
