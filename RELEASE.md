@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.1
+
+- [feature][Variable] モジュールを追加
+- [feature][ArrayTable] iterable に対応
+- [feature][Debugger] シリアライズできないオブジェクトも表示可能に修正
+
 ## 1.0.0
 
 - 公開
