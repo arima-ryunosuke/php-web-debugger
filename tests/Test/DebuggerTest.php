@@ -164,6 +164,7 @@ class DebuggerTest extends AbstractTestCase
         ob_end_flush();
         $headers = array_values(preg_grep('#^X-Debug-Ajax:#u', GlobalFunction::headers_list()));
         $this->assertEquals(1, preg_match('#^X-Debug-Ajax: (.+)#u', $headers[0], $m));
+        GlobalFunction::call_shutdown_function();
         return $m[1];
     }
 

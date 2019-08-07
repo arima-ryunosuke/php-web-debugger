@@ -112,8 +112,8 @@ class Debugger
                         'name'     => $module->getName(),
                         'color'    => $module->getColor(),
                         'disabled' => $module->isDisabled(),
-                        'error'    => $module->getError($stores[$name]),
-                        'html'     => $module->render($stores[$name]),
+                        'error'    => $stores[$name]['error'],
+                        'html'     => $stores[$name]['html'],
                     ];
                 }
             }
@@ -135,15 +135,25 @@ class Debugger
             $response_type = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
             $html_enable = in_array('html', $response_type);
             $console_enable = in_array('console', $response_type);
+            $stores = array_map_method($this->modules, 'gather');
 
-            // リクエストファイルの生成
-            $prepare = '';
-            $stores = [];
-            foreach ($this->modules as $name => $module) {
-                $prepare .= $module->prepareOuter();
-                $stores[$name] = $module->gather();
+            // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
+            if ($html_enable) {
+                GlobalFunction::register_shutdown_function(function () use ($request_dir, $request_id, $stores) {
+                    @mkdir($request_dir, 0777, true);
+                    file_put_contents($request_dir . DIRECTORY_SEPARATOR . $request_id, serialize([
+                        'request' => $this->request,
+                        'stores'  => array_kmap($stores, function ($v, $k) {
+                            return [
+                                'error' => $this->modules[$k]->getError($v),
+                                'html'  => $this->modules[$k]->render($v),
+                            ];
+                        }),
+                    ]));
+                });
             }
 
+            // js コンソールへの出力
             if ($console_enable) {
                 ChromeLogger::groupCollapsed($this->request['method'] . ' ' . $this->request['path']);
                 foreach ($this->modules as $name => $module) {
@@ -162,25 +172,6 @@ class Debugger
                 ChromeLogger::groupEnd();
                 ChromeLogger::send();
             }
-
-            // シリアライズする前にシリアル化不可のチェック
-            array_walk_recursive($stores, function (&$v) {
-                if (is_object($v)) {
-                    try {
-                        serialize($v);
-                    }
-                    catch (\Throwable $ex) {
-                        $v = get_class($v) . ':' . $ex->getMessage();
-                    }
-                }
-            });
-
-            // リクエストファイルの保存
-            @mkdir($request_dir, 0777, true);
-            file_put_contents($request_dir . DIRECTORY_SEPARATOR . $request_id, serialize([
-                'request' => $this->request,
-                'stores'  => $stores,
-            ]));
 
             // PRG パターンの抑止
             if ($this->options['stopprg'] && !$this->request['is_ajax'] && $this->request['method'] === 'POST' && preg_match('#^Location:(.+)$#mi', $headers, $matches)) {
@@ -225,6 +216,7 @@ class Debugger
                             })();
                         </script>
                     ";
+                    $prepare = implode('', array_map_method($this->modules, 'prepareOuter'));
                     $buffer = substr_replace($buffer, "{$prepare}{$iframe}</body>", $pos, strlen('</body>'));
                 }
             }

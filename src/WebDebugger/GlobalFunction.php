@@ -8,6 +8,8 @@ namespace ryunosuke\WebDebugger;
  * @method static void header_remove($header = null)
  * @method static array headers_list()
  * @method static bool headers_sent()
+ * @method static void register_shutdown_function(callable $callback, ...$mixed)
+ * @method static void call_shutdown_function()
  */
 class GlobalFunction
 {

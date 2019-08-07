@@ -12,6 +12,7 @@ if (false) {
 
 $that = new \stdClass();
 $that->headers = [];
+$that->shutdowns = [];
 
 \ryunosuke\WebDebugger\GlobalFunction::override('time', function () {
     return strtotime('2000/12/24 12:34:56');
@@ -30,6 +31,12 @@ $that->headers = [];
         $excepts = preg_grep('#^' . preg_quote($header, '#') . '#u', $that->headers);
         $that->headers = array_diff($that->headers, $excepts);
     }
+});
+\ryunosuke\WebDebugger\GlobalFunction::override('register_shutdown_function', function ($callback, ...$mixed) use ($that) {
+    $that->shutdowns[] = function () use ($callback, $mixed) { return $callback(...$mixed); };
+});
+\ryunosuke\WebDebugger\GlobalFunction::override('call_shutdown_function', function () use ($that) {
+    return (array_pop($that->shutdowns))();
 });
 \ryunosuke\WebDebugger\GlobalFunction::override('response', function ($content = '') {
     return $content;
