@@ -1239,6 +1239,79 @@ if (function_exists("ryunosuke\\WebDebugger\\get_object_properties") && !defined
     define("ryunosuke\\WebDebugger\\get_object_properties", "ryunosuke\\WebDebugger\\get_object_properties");
 }
 
+if (!isset($excluded_functions["file_set_contents"]) && (!function_exists("ryunosuke\\WebDebugger\\file_set_contents") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\file_set_contents"))->isInternal()))) {
+    /**
+     * ディレクトリも掘る file_put_contents
+     *
+     * 書き込みは一時ファイルと rename を使用してアトミックに行われる。
+     *
+     * Example:
+     * ```php
+     * file_set_contents(sys_get_temp_dir() . '/not/filename.ext', 'hoge');
+     * assertSame(file_get_contents(sys_get_temp_dir() . '/not/filename.ext'), 'hoge');
+     * ```
+     *
+     * @param string $filename 書き込むファイル名
+     * @param string $data 書き込む内容
+     * @param int $umask ディレクトリを掘る際の umask
+     * @return int 書き込まれたバイト数
+     */
+    function file_set_contents($filename, $data, $umask = 0002)
+    {
+        if (func_num_args() === 2) {
+            $umask = umask();
+        }
+
+        $filename = path_normalize($filename);
+
+        if (!is_dir($dirname = dirname($filename))) {
+            if (!@mkdir_p($dirname, $umask)) {
+                throw new \RuntimeException("failed to mkdir($dirname)");
+            }
+        }
+
+        $tempnam = tempnam($dirname, 'tmp');
+        if (($result = file_put_contents($tempnam, $data)) !== false) {
+            if (rename($tempnam, $filename)) {
+                @chmod($filename, 0666 & ~$umask);
+                return $result;
+            }
+            unlink($tempnam);
+        }
+        return false;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\file_set_contents") && !defined("ryunosuke\\WebDebugger\\file_set_contents")) {
+    define("ryunosuke\\WebDebugger\\file_set_contents", "ryunosuke\\WebDebugger\\file_set_contents");
+}
+
+if (!isset($excluded_functions["mkdir_p"]) && (!function_exists("ryunosuke\\WebDebugger\\mkdir_p") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\mkdir_p"))->isInternal()))) {
+    /**
+     * ディレクトリを再帰的に掘る
+     *
+     * 既に存在する場合は何もしない（エラーも出さない）。
+     *
+     * @param string $dirname ディレクトリ名
+     * @param int $umask ディレクトリを掘る際の umask
+     * @return bool 作成したら true
+     */
+    function mkdir_p($dirname, $umask = 0002)
+    {
+        if (func_num_args() === 1) {
+            $umask = umask();
+        }
+
+        if (file_exists($dirname)) {
+            return false;
+        }
+
+        return mkdir($dirname, 0777 & (~$umask), true);
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\mkdir_p") && !defined("ryunosuke\\WebDebugger\\mkdir_p")) {
+    define("ryunosuke\\WebDebugger\\mkdir_p", "ryunosuke\\WebDebugger\\mkdir_p");
+}
+
 if (!isset($excluded_functions["dirname_r"]) && (!function_exists("ryunosuke\\WebDebugger\\dirname_r") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\dirname_r"))->isInternal()))) {
     /**
      * コールバックが true 相当を返すまで親ディレクトリを辿り続ける
@@ -1275,6 +1348,55 @@ if (!isset($excluded_functions["dirname_r"]) && (!function_exists("ryunosuke\\We
 }
 if (function_exists("ryunosuke\\WebDebugger\\dirname_r") && !defined("ryunosuke\\WebDebugger\\dirname_r")) {
     define("ryunosuke\\WebDebugger\\dirname_r", "ryunosuke\\WebDebugger\\dirname_r");
+}
+
+if (!isset($excluded_functions["path_normalize"]) && (!function_exists("ryunosuke\\WebDebugger\\path_normalize") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\path_normalize"))->isInternal()))) {
+    /**
+     * パスを正規化する
+     *
+     * 具体的には ./ や ../ を取り除いたり連続したディレクトリ区切りをまとめたりする。
+     * realpath ではない。のでシンボリックリンクの解決などはしない。その代わりファイルが存在しなくても使用することができる。
+     *
+     * Example:
+     * ```php
+     * $DS = DIRECTORY_SEPARATOR;
+     * assertSame(path_normalize('/path/to/something'), "{$DS}path{$DS}to{$DS}something");
+     * assertSame(path_normalize('/path/through/../something'), "{$DS}path{$DS}something");
+     * assertSame(path_normalize('./path/current/./through/../something'), "path{$DS}current{$DS}something");
+     * ```
+     *
+     * @param string $path パス文字列
+     * @return string 正規化されたパス
+     */
+    function path_normalize($path)
+    {
+        $ds = '/';
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $ds .= '\\\\';
+        }
+
+        $result = [];
+        foreach (preg_split("#[$ds]#u", $path) as $n => $part) {
+            if ($n > 0 && $part === '') {
+                continue;
+            }
+            if ($part === '.') {
+                continue;
+            }
+            if ($part === '..') {
+                if (empty($result)) {
+                    throw new \InvalidArgumentException("'$path' is invalid as path string.");
+                }
+                array_pop($result);
+                continue;
+            }
+            $result[] = $part;
+        }
+        return implode(DIRECTORY_SEPARATOR, $result);
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\path_normalize") && !defined("ryunosuke\\WebDebugger\\path_normalize")) {
+    define("ryunosuke\\WebDebugger\\path_normalize", "ryunosuke\\WebDebugger\\path_normalize");
 }
 
 if (!isset($excluded_functions["delegate"]) && (!function_exists("ryunosuke\\WebDebugger\\delegate") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\delegate"))->isInternal()))) {
