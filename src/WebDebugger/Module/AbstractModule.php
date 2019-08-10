@@ -213,14 +213,14 @@ abstract class AbstractModule
      * Console 用配列を返す
      *
      * @param array $stored gather の返り値
-     * @return array|null null の時は http ヘッダを送出しない
+     * @return array|null|void null の時は http ヘッダを送出しない
      */
     public final function console($stored)
     {
         if ($this->isDisabled()) {
             return null;
         }
-        return (array) $this->_console($stored);
+        return $this->_console($stored);
     }
 
     protected function _console($stored) { }
