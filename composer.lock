@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1f6931fcd8ca99bfed84c4cbe42edd5f",
+    "content-hash": "499d21e8c265913086e033fe1b5bbf1e",
     "packages": [],
     "packages-dev": [
         {
@@ -766,16 +766,16 @@
         },
         {
             "name": "ryunosuke/functions",
-            "version": "v1.3.8",
+            "version": "v1.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/arima-ryunosuke/php-functions.git",
-                "reference": "3fda22c7d455eb610631f8f211ad02280340b093"
+                "reference": "8033be8cd8f6859a08a7907fc8c2c8ca60a53b5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/arima-ryunosuke/php-functions/zipball/3fda22c7d455eb610631f8f211ad02280340b093",
-                "reference": "3fda22c7d455eb610631f8f211ad02280340b093",
+                "url": "https://api.github.com/repos/arima-ryunosuke/php-functions/zipball/8033be8cd8f6859a08a7907fc8c2c8ca60a53b5b",
+                "reference": "8033be8cd8f6859a08a7907fc8c2c8ca60a53b5b",
                 "shasum": ""
             },
             "require": {
@@ -801,7 +801,7 @@
                 }
             ],
             "description": "Utility functions for PHP",
-            "time": "2019-08-04T09:46:42+00:00"
+            "time": "2019-08-10T07:56:50+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -1424,16 +1424,16 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.11.0",
+            "version": "v1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "82ebae02209c21113908c229e9883c419720738a"
+                "reference": "550ebaac289296ce228a706d0867afc34687e3f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
-                "reference": "82ebae02209c21113908c229e9883c419720738a",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/550ebaac289296ce228a706d0867afc34687e3f4",
+                "reference": "550ebaac289296ce228a706d0867afc34687e3f4",
                 "shasum": ""
             },
             "require": {
@@ -1445,7 +1445,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.11-dev"
+                    "dev-master": "1.12-dev"
                 }
             },
             "autoload": {
@@ -1462,12 +1462,12 @@
             ],
             "authors": [
                 {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                },
-                {
                     "name": "Gert de Pagter",
                     "email": "BackEndTea@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -1478,7 +1478,7 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2019-02-06T07:57:58+00:00"
+            "time": "2019-08-06T08:03:45+00:00"
         },
         {
             "name": "theseer/tokenizer",
