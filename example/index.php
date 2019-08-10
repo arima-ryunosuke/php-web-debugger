@@ -136,6 +136,16 @@ try {
         <?php
     })($smarty);
 
+    // Variable モジュール用
+    (function () {
+        ?>
+        <fieldset>
+            <legend>Variable</legend>
+            <p>汎用モジュールです。変数を表示したいだけならモジュールを作るまでもなくこれだけ十分です</p>
+        </fieldset>
+        <?php
+    })();
+
     // Error モジュール用
     (function (\PDO $pdo) {
         // Notice
