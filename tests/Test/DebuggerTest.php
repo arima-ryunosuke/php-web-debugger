@@ -107,6 +107,7 @@ class DebuggerTest extends AbstractTestCase
         $debugger->start();
         echo '<span>%9$s</span>';
         GlobalFunction::header('Location: /other<あ>');
+        GlobalFunction::call_shutdown_function();
         ob_end_flush();
         $this->assertNotContains('Location: /other', GlobalFunction::headers_list());
         $this->expectOutputRegex('#Redirecting to.*/other&lt;あ&gt;.*<iframe#us');
@@ -141,6 +142,7 @@ class DebuggerTest extends AbstractTestCase
         ]);
         $debugger->start();
         echo '<body></body>';
+        GlobalFunction::call_shutdown_function();
         ob_end_flush();
         $this->assertContains('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
         $this->expectOutputRegex('#<iframe#u');

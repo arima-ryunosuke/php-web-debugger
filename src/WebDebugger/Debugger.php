@@ -124,14 +124,15 @@ class Debugger
             return GlobalFunction::response(ob_get_clean());
         }
 
-        // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
-        ob_start(function ($buffer) {
-            // 必要そうな変数群
-            $headers = implode("\n", GlobalFunction::headers_list());
-            $today = date('Ymd');
-            $request_dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $today;
-            $request_id = $today . date('His') . '.' . preg_replace('#^\d+\.#', '', microtime(true));
-            $request_path = "{$this->options['fookpath']}/request-{$request_id}?from-iframe=1";
+        // 必要そうな変数群
+        $today = date('Ymd');
+        $request_dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $today;
+        $request_id = $today . date('His') . '.' . preg_replace('#^\d+\.#', '', microtime(true));
+        $request_file = $request_dir . DIRECTORY_SEPARATOR . $request_id;
+        $request_path = "{$this->options['fookpath']}/request-{$request_id}?from-iframe=1";
+
+        // 終了時に情報を集めたりフックしたりする
+        GlobalFunction::register_shutdown_function(function () use ($request_file) {
             $response_type = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
             $html_enable = in_array('html', $response_type);
             $console_enable = in_array('console', $response_type);
@@ -139,18 +140,15 @@ class Debugger
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             if ($html_enable) {
-                GlobalFunction::register_shutdown_function(function () use ($request_dir, $request_id, $stores) {
-                    @mkdir($request_dir, 0777, true);
-                    file_put_contents($request_dir . DIRECTORY_SEPARATOR . $request_id, serialize([
-                        'request' => $this->request,
-                        'stores'  => array_kmap($stores, function ($v, $k) {
-                            return [
-                                'error' => $this->modules[$k]->getError($v),
-                                'html'  => $this->modules[$k]->render($v),
-                            ];
-                        }),
-                    ]));
-                });
+                file_set_contents($request_file, serialize([
+                    'request' => $this->request,
+                    'stores'  => array_kmap($stores, function ($v, $k) {
+                        return [
+                            'error' => $this->modules[$k]->getError($v),
+                            'html'  => $this->modules[$k]->render($v),
+                        ];
+                    }),
+                ]));
             }
 
             // js コンソールへの出力
@@ -172,6 +170,11 @@ class Debugger
                 ChromeLogger::groupEnd();
                 ChromeLogger::send();
             }
+        });
+
+        // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
+        ob_start(function ($buffer) use ($request_file, $request_path) {
+            $headers = implode("\n", GlobalFunction::headers_list());
 
             // PRG パターンの抑止
             if ($this->options['stopprg'] && !$this->request['is_ajax'] && $this->request['method'] === 'POST' && preg_match('#^Location:(.+)$#mi', $headers, $matches)) {
@@ -186,7 +189,7 @@ class Debugger
                 GlobalFunction::header("X-Debug-Ajax: " . $request_path);
             }
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
-            elseif ($html_enable && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
+            elseif (file_exists($request_file) && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
                 if (($pos = strripos($buffer, '</body>')) !== false) {
                     $width = (20) . 'px';
                     $height = (count($this->modules) * 20) . 'px';
