@@ -20,6 +20,11 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.2
+
+- [fixbug][AbstractModule] js console にいらない情報が出ていた不具合を修正
+- [fixbug][Debugger] ob してるときにデバッガが出ない不具合を修正
+
 ## 1.0.1
 
 - [feature][Variable] モジュールを追加
