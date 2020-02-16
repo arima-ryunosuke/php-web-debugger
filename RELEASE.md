@@ -20,6 +20,11 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.3
+
+- [all] 対応 php バージョンの格上げと composer update
+- [feature][Module/Performance] profile 機能を追加
+
 ## 1.0.2
 
 - [fixbug][AbstractModule] js console にいらない情報が出ていた不具合を修正
