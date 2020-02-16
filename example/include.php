@@ -23,7 +23,9 @@ $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Error::class       => [],
     \ryunosuke\WebDebugger\Module\Server::class      => [],
     \ryunosuke\WebDebugger\Module\Database::class    => ['pdo' => $pdo],
-    \ryunosuke\WebDebugger\Module\Performance::class => [],
+    \ryunosuke\WebDebugger\Module\Performance::class => [
+        'ignore_callee' => '#.*Smarty.*#'
+    ],
     \ryunosuke\WebDebugger\Module\Log::class         => [],
     \ryunosuke\WebDebugger\Module\Smarty::class      => ['smarty' => $smarty],
     \ryunosuke\WebDebugger\Module\Variable::class    => ['server' => function () { return $_SERVER; }],
