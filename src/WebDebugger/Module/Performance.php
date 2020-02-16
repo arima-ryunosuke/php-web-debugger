@@ -1,8 +1,11 @@
 <?php
 namespace ryunosuke\WebDebugger\Module;
 
+use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
+use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\profiler;
 
 class Performance extends AbstractModule
 {
@@ -12,6 +15,10 @@ class Performance extends AbstractModule
     private $start_time;
 
     private $timelines;
+
+    private $profiler_options;
+
+    private $profiler = [];
 
     public static function time($name = '')
     {
@@ -33,7 +40,9 @@ class Performance extends AbstractModule
              * ただし、変更した場合は IDE 等でエラーが出るので何らかの対処をしたほうがよい。
              * （`dtime` であれば tests/bootstrap.php でダミー定義してるのでエラーにはならないはず）。
              */
-            'function' => 'dtime',
+            'function'         => 'dtime',
+            // プロファイル時に無視する呼び出し
+            'profiler_options' => [],
         ], $options);
 
         $this->start_time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
@@ -45,12 +54,18 @@ class Performance extends AbstractModule
             eval("function $funcname(){return call_user_func_array('$class::time', func_get_args());}");
         }
 
+        $this->profiler_options = $options['profiler_options'];
+
         self::$instance = $this;
     }
 
     protected function _finalize()
     {
         self::$instance = null;
+        // 色々やっているのは念の為
+        unset($this->profiler);
+        $this->profiler = [];
+        gc_collect_cycles();
     }
 
     protected function _time($name = null)
@@ -71,6 +86,13 @@ class Performance extends AbstractModule
         ];
     }
 
+    protected function _setting()
+    {
+        if (!empty($this->setting['profile'])) {
+            $this->profiler = profiler($this->profiler_options);
+        }
+    }
+
     protected function _gather()
     {
         $last = null;
@@ -87,6 +109,35 @@ class Performance extends AbstractModule
             $last = $timeline;
         }
 
+        $profiles = [];
+        foreach ($this->profiler as $callee => $callers) {
+            $callerlist = [];
+            foreach ($callers as $caller => $times) {
+                $elem = array_combine(['file', 'line'], \ryunosuke\WebDebugger\multiexplode('#', $caller, -2));
+                $elem['times'] = number_format(array_sum($times), 6, '.', '');
+                $callerlist[] = $elem;
+            }
+            $totals = array_merge(...array_values($callers));
+            $count = count($totals);
+            $center = (int) ($count / 2);
+            $min = min($totals);
+            $max = max($totals);
+            $sum = array_sum($totals);
+            $avg = $sum / $count;
+            $med = $count % 2 === 1 ? $totals[$center] : ($totals[$center - 1] + $totals[$center]) / 2;
+            $profiles[] = [
+                ''       => '-',
+                'callee' => $callee,
+                'count'  => $count,
+                'min'    => number_format($min, 6, '.', ''),
+                'max'    => number_format($max, 6, '.', ''),
+                'sum'    => number_format($sum, 6, '.', ''),
+                'avg'    => number_format($avg, 6, '.', ''),
+                'med'    => number_format($med, 6, '.', ''),
+                'caller' => $callerlist,
+            ];
+        }
+
         return [
             'Performance' => [
                 'ProcessTime'  => number_format(microtime(true) - $this->start_time, 6),
@@ -94,11 +145,31 @@ class Performance extends AbstractModule
                 'IncludedFile' => get_included_files(),
             ],
             'Timeline'    => $timelines,
+            'Profile'     => $profiles,
         ];
     }
 
     protected function _render($stored)
     {
+        $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');
+
+        foreach ($stored['Profile'] as &$profile) {
+            try {
+                $parts = preg_split('#::|->#', $profile['callee'], 2);
+                $ref = count($parts) > 1 ? new \ReflectionMethod(...$parts) : new \ReflectionFunction(...$parts);
+                if (!$ref->isInternal()) {
+                    $profile[''] = $this->toOpenable([
+                        'file' => $ref->getFileName(),
+                        'line' => $ref->getStartLine(),
+                    ])[''];
+                }
+            }
+            catch (\ReflectionException $e) {
+            }
+            $popuptitle = sprintf('caller(%d)', count($profile['caller']));
+            $profile['caller'] = new Popup($popuptitle, new ArrayTable('', array_map([$this, 'toOpenable'], $profile['caller'])));
+        }
+
         ob_start();
         ?>
         <table class="debug_table" style="width:100%;">
@@ -125,8 +196,8 @@ class Performance extends AbstractModule
                     </td>
                     <td class="nowrap">
                         <div
-                                class="bar"
-                                style="text-align:right; background: #ccf; position: relative;left: <?= htmlspecialchars($left / $total * 98); ?>%;width: <?= htmlspecialchars($timeline['time'] / $total * 98); ?>%;"
+                            class="bar"
+                            style="text-align:right; background: #ccf; position: relative;left: <?= htmlspecialchars($left / $total * 98); ?>%;width: <?= htmlspecialchars($timeline['time'] / $total * 98); ?>%;"
                         >
                             <?= htmlspecialchars(number_format($timeline['time'] * 1000, 3)); ?>ms
                         </div>
@@ -142,6 +213,7 @@ class Performance extends AbstractModule
         return [
             'Performance' => new HashTable('Performance', $stored['Performance']),
             'Timeline'    => new Raw($html),
+            'Profile'     => new ArrayTable($caption, $stored['Profile']),
         ];
     }
 
@@ -150,6 +222,7 @@ class Performance extends AbstractModule
         return [
             'Performance' => ['hashtable' => $stored['Performance']],
             'Timeline'    => ['table' => $stored['Timeline']],
+            'Profile'     => ['table' => $stored['Profile']],
         ];
     }
 }
