@@ -79,7 +79,7 @@ class Variable extends AbstractModule
     private function detectType($value)
     {
         // iterable なら HashTable か ArrayTable にできる可能性がある
-        if (\ryunosuke\WebDebugger\is_iterable($value)) {
+        if (is_iterable($value)) {
             // ただし、空っぽだと何も判断できない
             if (\ryunosuke\WebDebugger\is_countable($value) && count($value) === 0) {
                 return null;
@@ -91,7 +91,7 @@ class Variable extends AbstractModule
             // ここまで来たら配列の配列の可能性があるのでキーの共通項をチェックする
             foreach ($value as $v) {
                 // キーを得る必要があるので iterable でなければならない
-                if (!\ryunosuke\WebDebugger\is_iterable($v)) {
+                if (!is_iterable($v)) {
                     return null;
                 }
                 $v = \ryunosuke\WebDebugger\arrayval($v, false);
