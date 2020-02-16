@@ -106,7 +106,7 @@ if (!defined("ryunosuke\\WebDebugger\\KEYWORDS")) {
         94  => "GLOBAL",
         95  => "GRANT",
         96  => "GRANTS",
-        97  => "GROUP BY",
+        97  => "GROUP",
         98  => "GROUP_CONCAT",
         99  => "HAVING",
         100 => "HEAP",
@@ -134,473 +134,498 @@ if (!defined("ryunosuke\\WebDebugger\\KEYWORDS")) {
         122 => "IS",
         123 => "ISOLATION",
         124 => "JOIN",
-        125 => "KEY",
-        126 => "KEYS",
-        127 => "KILL",
-        128 => "LAST_INSERT_ID",
-        129 => "LEADING",
-        130 => "LEFT",
-        131 => "LEVEL",
-        132 => "LIKE",
-        133 => "LIMIT",
-        134 => "LINEAR",
-        135 => "LINES",
-        136 => "LOAD",
-        137 => "LOCAL",
-        138 => "LOCK",
-        139 => "LOCKS",
-        140 => "LOGS",
-        141 => "LOW_PRIORITY",
-        142 => "MARIA",
-        143 => "MASTER",
-        144 => "MASTER_CONNECT_RETRY",
-        145 => "MASTER_HOST",
-        146 => "MASTER_LOG_FILE",
-        147 => "MATCH",
-        148 => "MAX_CONNECTIONS_PER_HOUR",
-        149 => "MAX_QUERIES_PER_HOUR",
-        150 => "MAX_ROWS",
-        151 => "MAX_UPDATES_PER_HOUR",
-        152 => "MAX_USER_CONNECTIONS",
-        153 => "MEDIUM",
-        154 => "MERGE",
-        155 => "MINUTE",
-        156 => "MINUTE_SECOND",
-        157 => "MIN_ROWS",
-        158 => "MODE",
-        159 => "MODIFY",
-        160 => "MONTH",
-        161 => "MRG_MYISAM",
-        162 => "MYISAM",
-        163 => "NAMES",
-        164 => "NATURAL",
-        165 => "NOT",
-        166 => "NOW()",
-        167 => "NULL",
-        168 => "OFFSET",
-        169 => "ON",
-        170 => "ON DELETE",
-        171 => "ON UPDATE",
-        172 => "OPEN",
-        173 => "OPTIMIZE",
-        174 => "OPTION",
-        175 => "OPTIONALLY",
-        176 => "OR",
-        177 => "ORDER BY",
-        178 => "OUTER",
-        179 => "OUTFILE",
-        180 => "PACK_KEYS",
-        181 => "PAGE",
-        182 => "PARTIAL",
-        183 => "PARTITION",
-        184 => "PARTITIONS",
-        185 => "PASSWORD",
-        186 => "PRIMARY",
-        187 => "PRIVILEGES",
-        188 => "PROCEDURE",
-        189 => "PROCESS",
-        190 => "PROCESSLIST",
-        191 => "PURGE",
-        192 => "QUICK",
-        193 => "RAID0",
-        194 => "RAID_CHUNKS",
-        195 => "RAID_CHUNKSIZE",
-        196 => "RAID_TYPE",
-        197 => "RANGE",
-        198 => "READ",
-        199 => "READ_ONLY",
-        200 => "READ_WRITE",
-        201 => "REFERENCES",
-        202 => "REGEXP",
-        203 => "RELOAD",
-        204 => "RENAME",
-        205 => "REPAIR",
-        206 => "REPEATABLE",
-        207 => "REPLACE",
-        208 => "REPLICATION",
-        209 => "RESET",
-        210 => "RESTORE",
-        211 => "RESTRICT",
-        212 => "RETURN",
-        213 => "RETURNS",
-        214 => "REVOKE",
-        215 => "RIGHT",
-        216 => "RLIKE",
-        217 => "ROLLBACK",
-        218 => "ROW",
-        219 => "ROWS",
-        220 => "ROW_FORMAT",
-        221 => "SECOND",
-        222 => "SECURITY",
-        223 => "SELECT",
-        224 => "SEPARATOR",
-        225 => "SERIALIZABLE",
-        226 => "SESSION",
-        227 => "SET",
-        228 => "SHARE",
-        229 => "SHOW",
-        230 => "SHUTDOWN",
-        231 => "SLAVE",
-        232 => "SONAME",
-        233 => "SOUNDS",
-        234 => "SQL",
-        235 => "SQL_AUTO_IS_NULL",
-        236 => "SQL_BIG_RESULT",
-        237 => "SQL_BIG_SELECTS",
-        238 => "SQL_BIG_TABLES",
-        239 => "SQL_BUFFER_RESULT",
-        240 => "SQL_CACHE",
-        241 => "SQL_CALC_FOUND_ROWS",
-        242 => "SQL_LOG_BIN",
-        243 => "SQL_LOG_OFF",
-        244 => "SQL_LOG_UPDATE",
-        245 => "SQL_LOW_PRIORITY_UPDATES",
-        246 => "SQL_MAX_JOIN_SIZE",
-        247 => "SQL_NO_CACHE",
-        248 => "SQL_QUOTE_SHOW_CREATE",
-        249 => "SQL_SAFE_UPDATES",
-        250 => "SQL_SELECT_LIMIT",
-        251 => "SQL_SLAVE_SKIP_COUNTER",
-        252 => "SQL_SMALL_RESULT",
-        253 => "SQL_WARNINGS",
-        254 => "START",
-        255 => "STARTING",
-        256 => "STATUS",
-        257 => "STOP",
-        258 => "STORAGE",
-        259 => "STRAIGHT_JOIN",
-        260 => "STRING",
-        261 => "STRIPED",
-        262 => "SUPER",
-        263 => "TABLE",
-        264 => "TABLES",
-        265 => "TEMPORARY",
-        266 => "TERMINATED",
-        267 => "THEN",
-        268 => "TO",
-        269 => "TRAILING",
-        270 => "TRANSACTIONAL",
-        271 => "TRUE",
-        272 => "TRUNCATE",
-        273 => "TYPE",
-        274 => "TYPES",
-        275 => "UNCOMMITTED",
-        276 => "UNION",
-        277 => "UNION ALL",
-        278 => "UNIQUE",
-        279 => "UNLOCK",
-        280 => "UNSIGNED",
-        281 => "UPDATE",
-        282 => "USAGE",
-        283 => "USE",
-        284 => "USING",
-        285 => "VALUES",
-        286 => "VARIABLES",
-        287 => "VIEW",
-        288 => "WHEN",
-        289 => "WHERE",
-        290 => "WITH",
-        291 => "WORK",
-        292 => "WRITE",
-        293 => "XOR",
-        294 => "YEAR_MONTH",
-        295 => "ABS",
-        296 => "ACOS",
-        297 => "ADDDATE",
-        298 => "ADDTIME",
-        299 => "AES_DECRYPT",
-        300 => "AES_ENCRYPT",
-        301 => "AREA",
-        302 => "ASBINARY",
-        303 => "ASCII",
-        304 => "ASIN",
-        305 => "ASTEXT",
-        306 => "ATAN",
-        307 => "ATAN2",
-        308 => "AVG",
-        309 => "BDMPOLYFROMTEXT",
-        310 => "BDMPOLYFROMWKB",
-        311 => "BDPOLYFROMTEXT",
-        312 => "BDPOLYFROMWKB",
-        313 => "BENCHMARK",
-        314 => "BIN",
-        315 => "BIT_AND",
-        316 => "BIT_COUNT",
-        317 => "BIT_LENGTH",
-        318 => "BIT_OR",
-        319 => "BIT_XOR",
-        320 => "BOUNDARY",
-        321 => "BUFFER",
-        322 => "CAST",
-        323 => "CEIL",
-        324 => "CEILING",
-        325 => "CENTROID",
-        326 => "CHAR",
-        327 => "CHARACTER_LENGTH",
-        328 => "CHARSET",
-        329 => "CHAR_LENGTH",
-        330 => "COALESCE",
-        331 => "COERCIBILITY",
-        332 => "COLLATION",
-        333 => "COMPRESS",
-        334 => "CONCAT",
-        335 => "CONCAT_WS",
-        336 => "CONNECTION_ID",
-        337 => "CONTAINS",
-        338 => "CONV",
-        339 => "CONVERT",
-        340 => "CONVERT_TZ",
-        341 => "CONVEXHULL",
-        342 => "COS",
-        343 => "COT",
-        344 => "COUNT",
-        345 => "CRC32",
-        346 => "CROSSES",
-        347 => "CURDATE",
-        348 => "CURRENT_DATE",
-        349 => "CURRENT_TIME",
-        350 => "CURRENT_TIMESTAMP",
-        351 => "CURRENT_USER",
-        352 => "CURTIME",
-        353 => "DATABASE",
-        354 => "DATE",
-        355 => "DATEDIFF",
-        356 => "DATE_ADD",
-        357 => "DATE_DIFF",
-        358 => "DATE_FORMAT",
-        359 => "DATE_SUB",
-        360 => "DAY",
-        361 => "DAYNAME",
-        362 => "DAYOFMONTH",
-        363 => "DAYOFWEEK",
-        364 => "DAYOFYEAR",
-        365 => "DECODE",
-        366 => "DEFAULT",
-        367 => "DEGREES",
-        368 => "DES_DECRYPT",
-        369 => "DES_ENCRYPT",
-        370 => "DIFFERENCE",
-        371 => "DIMENSION",
-        372 => "DISJOINT",
-        373 => "DISTANCE",
-        374 => "ELT",
-        375 => "ENCODE",
-        376 => "ENCRYPT",
-        377 => "ENDPOINT",
-        378 => "ENVELOPE",
-        379 => "EQUALS",
-        380 => "EXP",
-        381 => "EXPORT_SET",
-        382 => "EXTERIORRING",
-        383 => "EXTRACT",
-        384 => "EXTRACTVALUE",
-        385 => "FIELD",
-        386 => "FIND_IN_SET",
-        387 => "FLOOR",
-        388 => "FORMAT",
-        389 => "FOUND_ROWS",
-        390 => "FROM_DAYS",
-        391 => "FROM_UNIXTIME",
-        392 => "GEOMCOLLFROMTEXT",
-        393 => "GEOMCOLLFROMWKB",
-        394 => "GEOMETRYCOLLECTION",
-        395 => "GEOMETRYCOLLECTIONFROMTEXT",
-        396 => "GEOMETRYCOLLECTIONFROMWKB",
-        397 => "GEOMETRYFROMTEXT",
-        398 => "GEOMETRYFROMWKB",
-        399 => "GEOMETRYN",
-        400 => "GEOMETRYTYPE",
-        401 => "GEOMFROMTEXT",
-        402 => "GEOMFROMWKB",
-        403 => "GET_FORMAT",
-        404 => "GET_LOCK",
-        405 => "GLENGTH",
-        406 => "GREATEST",
-        407 => "GROUP_CONCAT",
-        408 => "GROUP_UNIQUE_USERS",
-        409 => "HEX",
-        410 => "HOUR",
-        411 => "IF",
-        412 => "IFNULL",
-        413 => "INET_ATON",
-        414 => "INET_NTOA",
-        415 => "INSERT",
-        416 => "INSTR",
-        417 => "INTERIORRINGN",
-        418 => "INTERSECTION",
-        419 => "INTERSECTS",
-        420 => "INTERVAL",
-        421 => "ISCLOSED",
-        422 => "ISEMPTY",
-        423 => "ISNULL",
-        424 => "ISRING",
-        425 => "ISSIMPLE",
-        426 => "IS_FREE_LOCK",
-        427 => "IS_USED_LOCK",
-        428 => "LAST_DAY",
-        429 => "LAST_INSERT_ID",
-        430 => "LCASE",
-        431 => "LEAST",
-        432 => "LEFT",
-        433 => "LENGTH",
-        434 => "LINEFROMTEXT",
-        435 => "LINEFROMWKB",
-        436 => "LINESTRING",
-        437 => "LINESTRINGFROMTEXT",
-        438 => "LINESTRINGFROMWKB",
-        439 => "LN",
-        440 => "LOAD_FILE",
-        441 => "LOCALTIME",
-        442 => "LOCALTIMESTAMP",
-        443 => "LOCATE",
-        444 => "LOG",
-        445 => "LOG10",
-        446 => "LOG2",
-        447 => "LOWER",
-        448 => "LPAD",
-        449 => "LTRIM",
-        450 => "MAKEDATE",
-        451 => "MAKETIME",
-        452 => "MAKE_SET",
-        453 => "MASTER_POS_WAIT",
-        454 => "MAX",
-        455 => "MBRCONTAINS",
-        456 => "MBRDISJOINT",
-        457 => "MBREQUAL",
-        458 => "MBRINTERSECTS",
-        459 => "MBROVERLAPS",
-        460 => "MBRTOUCHES",
-        461 => "MBRWITHIN",
-        462 => "MD5",
-        463 => "MICROSECOND",
-        464 => "MID",
-        465 => "MIN",
-        466 => "MINUTE",
-        467 => "MLINEFROMTEXT",
-        468 => "MLINEFROMWKB",
-        469 => "MOD",
-        470 => "MONTH",
-        471 => "MONTHNAME",
-        472 => "MPOINTFROMTEXT",
-        473 => "MPOINTFROMWKB",
-        474 => "MPOLYFROMTEXT",
-        475 => "MPOLYFROMWKB",
-        476 => "MULTILINESTRING",
-        477 => "MULTILINESTRINGFROMTEXT",
-        478 => "MULTILINESTRINGFROMWKB",
-        479 => "MULTIPOINT",
-        480 => "MULTIPOINTFROMTEXT",
-        481 => "MULTIPOINTFROMWKB",
-        482 => "MULTIPOLYGON",
-        483 => "MULTIPOLYGONFROMTEXT",
-        484 => "MULTIPOLYGONFROMWKB",
-        485 => "NAME_CONST",
-        486 => "NULLIF",
-        487 => "NUMGEOMETRIES",
-        488 => "NUMINTERIORRINGS",
-        489 => "NUMPOINTS",
-        490 => "OCT",
-        491 => "OCTET_LENGTH",
-        492 => "OLD_PASSWORD",
-        493 => "ORD",
-        494 => "OVERLAPS",
-        495 => "PASSWORD",
-        496 => "PERIOD_ADD",
-        497 => "PERIOD_DIFF",
-        498 => "PI",
-        499 => "POINT",
-        500 => "POINTFROMTEXT",
-        501 => "POINTFROMWKB",
-        502 => "POINTN",
-        503 => "POINTONSURFACE",
-        504 => "POLYFROMTEXT",
-        505 => "POLYFROMWKB",
-        506 => "POLYGON",
-        507 => "POLYGONFROMTEXT",
-        508 => "POLYGONFROMWKB",
-        509 => "POSITION",
-        510 => "POW",
-        511 => "POWER",
-        512 => "QUARTER",
-        513 => "QUOTE",
-        514 => "RADIANS",
-        515 => "RAND",
-        516 => "RELATED",
-        517 => "RELEASE_LOCK",
-        518 => "REPEAT",
-        519 => "REPLACE",
-        520 => "REVERSE",
-        521 => "RIGHT",
-        522 => "ROUND",
-        523 => "ROW_COUNT",
-        524 => "RPAD",
-        525 => "RTRIM",
-        526 => "SCHEMA",
-        527 => "SECOND",
-        528 => "SEC_TO_TIME",
-        529 => "SESSION_USER",
-        530 => "SHA",
-        531 => "SHA1",
-        532 => "SIGN",
-        533 => "SIN",
-        534 => "SLEEP",
-        535 => "SOUNDEX",
-        536 => "SPACE",
-        537 => "SQRT",
-        538 => "SRID",
-        539 => "STARTPOINT",
-        540 => "STD",
-        541 => "STDDEV",
-        542 => "STDDEV_POP",
-        543 => "STDDEV_SAMP",
-        544 => "STRCMP",
-        545 => "STR_TO_DATE",
-        546 => "SUBDATE",
-        547 => "SUBSTR",
-        548 => "SUBSTRING",
-        549 => "SUBSTRING_INDEX",
-        550 => "SUBTIME",
-        551 => "SUM",
-        552 => "SYMDIFFERENCE",
-        553 => "SYSDATE",
-        554 => "SYSTEM_USER",
-        555 => "TAN",
-        556 => "TIME",
-        557 => "TIMEDIFF",
-        558 => "TIMESTAMP",
-        559 => "TIMESTAMPADD",
-        560 => "TIMESTAMPDIFF",
-        561 => "TIME_FORMAT",
-        562 => "TIME_TO_SEC",
-        563 => "TOUCHES",
-        564 => "TO_DAYS",
-        565 => "TRIM",
-        566 => "TRUNCATE",
-        567 => "UCASE",
-        568 => "UNCOMPRESS",
-        569 => "UNCOMPRESSED_LENGTH",
-        570 => "UNHEX",
-        571 => "UNIQUE_USERS",
-        572 => "UNIX_TIMESTAMP",
-        573 => "UPDATEXML",
-        574 => "UPPER",
-        575 => "USER",
-        576 => "UTC_DATE",
-        577 => "UTC_TIME",
-        578 => "UTC_TIMESTAMP",
-        579 => "UUID",
-        580 => "VARIANCE",
-        581 => "VAR_POP",
-        582 => "VAR_SAMP",
-        583 => "VERSION",
-        584 => "WEEK",
-        585 => "WEEKDAY",
-        586 => "WEEKOFYEAR",
-        587 => "WITHIN",
-        588 => "X",
-        589 => "Y",
-        590 => "YEAR",
-        591 => "YEARWEEK",
+        125 => "JSON_ARRAY",
+        126 => "JSON_ARRAY_APPEND",
+        127 => "JSON_ARRAY_INSERT",
+        128 => "JSON_CONTAINS",
+        129 => "JSON_CONTAINS_PATH",
+        130 => "JSON_DEPTH",
+        131 => "JSON_EXTRACT",
+        132 => "JSON_INSERT",
+        133 => "JSON_KEYS",
+        134 => "JSON_LENGTH",
+        135 => "JSON_MERGE_PATCH",
+        136 => "JSON_MERGE_PRESERVE",
+        137 => "JSON_OBJECT",
+        138 => "JSON_PRETTY",
+        139 => "JSON_QUOTE",
+        140 => "JSON_REMOVE",
+        141 => "JSON_REPLACE",
+        142 => "JSON_SEARCH",
+        143 => "JSON_SET",
+        144 => "JSON_STORAGE_SIZE",
+        145 => "JSON_TYPE",
+        146 => "JSON_UNQUOTE",
+        147 => "JSON_VALID",
+        148 => "KEY",
+        149 => "KEYS",
+        150 => "KILL",
+        151 => "LAST_INSERT_ID",
+        152 => "LEADING",
+        153 => "LEFT",
+        154 => "LEVEL",
+        155 => "LIKE",
+        156 => "LIMIT",
+        157 => "LINEAR",
+        158 => "LINES",
+        159 => "LOAD",
+        160 => "LOCAL",
+        161 => "LOCK",
+        162 => "LOCKS",
+        163 => "LOGS",
+        164 => "LOW_PRIORITY",
+        165 => "MARIA",
+        166 => "MASTER",
+        167 => "MASTER_CONNECT_RETRY",
+        168 => "MASTER_HOST",
+        169 => "MASTER_LOG_FILE",
+        170 => "MATCH",
+        171 => "MAX_CONNECTIONS_PER_HOUR",
+        172 => "MAX_QUERIES_PER_HOUR",
+        173 => "MAX_ROWS",
+        174 => "MAX_UPDATES_PER_HOUR",
+        175 => "MAX_USER_CONNECTIONS",
+        176 => "MEDIUM",
+        177 => "MERGE",
+        178 => "MINUTE",
+        179 => "MINUTE_SECOND",
+        180 => "MIN_ROWS",
+        181 => "MODE",
+        182 => "MODIFY",
+        183 => "MONTH",
+        184 => "MRG_MYISAM",
+        185 => "MYISAM",
+        186 => "NAMES",
+        187 => "NATURAL",
+        188 => "NOT",
+        189 => "NOW()",
+        190 => "NULL",
+        191 => "OFFSET",
+        192 => "ON",
+        193 => "ON DELETE",
+        194 => "ON UPDATE",
+        195 => "OPEN",
+        196 => "OPTIMIZE",
+        197 => "OPTION",
+        198 => "OPTIONALLY",
+        199 => "OR",
+        200 => "ORDER",
+        201 => "BY",
+        202 => "OUTER",
+        203 => "OUTFILE",
+        204 => "PACK_KEYS",
+        205 => "PAGE",
+        206 => "PARTIAL",
+        207 => "PARTITION",
+        208 => "PARTITIONS",
+        209 => "PASSWORD",
+        210 => "PRIMARY",
+        211 => "PRIVILEGES",
+        212 => "PROCEDURE",
+        213 => "PROCESS",
+        214 => "PROCESSLIST",
+        215 => "PURGE",
+        216 => "QUICK",
+        217 => "RAID0",
+        218 => "RAID_CHUNKS",
+        219 => "RAID_CHUNKSIZE",
+        220 => "RAID_TYPE",
+        221 => "RANGE",
+        222 => "READ",
+        223 => "READ_ONLY",
+        224 => "READ_WRITE",
+        225 => "REFERENCES",
+        226 => "REGEXP",
+        227 => "RELOAD",
+        228 => "RENAME",
+        229 => "REPAIR",
+        230 => "REPEATABLE",
+        231 => "REPLACE",
+        232 => "REPLICATION",
+        233 => "RESET",
+        234 => "RESTORE",
+        235 => "RESTRICT",
+        236 => "RETURN",
+        237 => "RETURNS",
+        238 => "REVOKE",
+        239 => "RIGHT",
+        240 => "RLIKE",
+        241 => "ROLLBACK",
+        242 => "ROLLUP",
+        243 => "ROW",
+        244 => "ROWS",
+        245 => "ROW_FORMAT",
+        246 => "SECOND",
+        247 => "SECURITY",
+        248 => "SELECT",
+        249 => "SEPARATOR",
+        250 => "SERIALIZABLE",
+        251 => "SESSION",
+        252 => "SET",
+        253 => "SHARE",
+        254 => "SHOW",
+        255 => "SHUTDOWN",
+        256 => "SLAVE",
+        257 => "SONAME",
+        258 => "SOUNDS",
+        259 => "SQL",
+        260 => "SQL_AUTO_IS_NULL",
+        261 => "SQL_BIG_RESULT",
+        262 => "SQL_BIG_SELECTS",
+        263 => "SQL_BIG_TABLES",
+        264 => "SQL_BUFFER_RESULT",
+        265 => "SQL_CACHE",
+        266 => "SQL_CALC_FOUND_ROWS",
+        267 => "SQL_LOG_BIN",
+        268 => "SQL_LOG_OFF",
+        269 => "SQL_LOG_UPDATE",
+        270 => "SQL_LOW_PRIORITY_UPDATES",
+        271 => "SQL_MAX_JOIN_SIZE",
+        272 => "SQL_NO_CACHE",
+        273 => "SQL_QUOTE_SHOW_CREATE",
+        274 => "SQL_SAFE_UPDATES",
+        275 => "SQL_SELECT_LIMIT",
+        276 => "SQL_SLAVE_SKIP_COUNTER",
+        277 => "SQL_SMALL_RESULT",
+        278 => "SQL_WARNINGS",
+        279 => "START",
+        280 => "STARTING",
+        281 => "STATUS",
+        282 => "STOP",
+        283 => "STORAGE",
+        284 => "STRAIGHT_JOIN",
+        285 => "STRING",
+        286 => "STRIPED",
+        287 => "SUPER",
+        288 => "TABLE",
+        289 => "TABLES",
+        290 => "TEMPORARY",
+        291 => "TERMINATED",
+        292 => "THEN",
+        293 => "TO",
+        294 => "TRAILING",
+        295 => "TRANSACTIONAL",
+        296 => "TRUE",
+        297 => "TRUNCATE",
+        298 => "TYPE",
+        299 => "TYPES",
+        300 => "UNCOMMITTED",
+        301 => "UNION",
+        302 => "UNION ALL",
+        303 => "UNIQUE",
+        304 => "UNLOCK",
+        305 => "UNSIGNED",
+        306 => "UPDATE",
+        307 => "USAGE",
+        308 => "USE",
+        309 => "USING",
+        310 => "VALUES",
+        311 => "VARIABLES",
+        312 => "VIEW",
+        313 => "WHEN",
+        314 => "WHERE",
+        315 => "WITH",
+        316 => "WORK",
+        317 => "WRITE",
+        318 => "XOR",
+        319 => "YEAR_MONTH",
+        320 => "ABS",
+        321 => "ACOS",
+        322 => "ADDDATE",
+        323 => "ADDTIME",
+        324 => "AES_DECRYPT",
+        325 => "AES_ENCRYPT",
+        326 => "AREA",
+        327 => "ASBINARY",
+        328 => "ASCII",
+        329 => "ASIN",
+        330 => "ASTEXT",
+        331 => "ATAN",
+        332 => "ATAN2",
+        333 => "AVG",
+        334 => "BDMPOLYFROMTEXT",
+        335 => "BDMPOLYFROMWKB",
+        336 => "BDPOLYFROMTEXT",
+        337 => "BDPOLYFROMWKB",
+        338 => "BENCHMARK",
+        339 => "BIN",
+        340 => "BIT_AND",
+        341 => "BIT_COUNT",
+        342 => "BIT_LENGTH",
+        343 => "BIT_OR",
+        344 => "BIT_XOR",
+        345 => "BOUNDARY",
+        346 => "BUFFER",
+        347 => "CAST",
+        348 => "CEIL",
+        349 => "CEILING",
+        350 => "CENTROID",
+        351 => "CHAR",
+        352 => "CHARACTER_LENGTH",
+        353 => "CHARSET",
+        354 => "CHAR_LENGTH",
+        355 => "COALESCE",
+        356 => "COERCIBILITY",
+        357 => "COLLATION",
+        358 => "COMPRESS",
+        359 => "CONCAT",
+        360 => "CONCAT_WS",
+        361 => "CONNECTION_ID",
+        362 => "CONTAINS",
+        363 => "CONV",
+        364 => "CONVERT",
+        365 => "CONVERT_TZ",
+        366 => "CONVEXHULL",
+        367 => "COS",
+        368 => "COT",
+        369 => "COUNT",
+        370 => "CRC32",
+        371 => "CROSSES",
+        372 => "CURDATE",
+        373 => "CURRENT_DATE",
+        374 => "CURRENT_TIME",
+        375 => "CURRENT_TIMESTAMP",
+        376 => "CURRENT_USER",
+        377 => "CURTIME",
+        378 => "DATABASE",
+        379 => "DATE",
+        380 => "DATEDIFF",
+        381 => "DATE_ADD",
+        382 => "DATE_DIFF",
+        383 => "DATE_FORMAT",
+        384 => "DATE_SUB",
+        385 => "DAY",
+        386 => "DAYNAME",
+        387 => "DAYOFMONTH",
+        388 => "DAYOFWEEK",
+        389 => "DAYOFYEAR",
+        390 => "DECODE",
+        391 => "DEFAULT",
+        392 => "DEGREES",
+        393 => "DES_DECRYPT",
+        394 => "DES_ENCRYPT",
+        395 => "DIFFERENCE",
+        396 => "DIMENSION",
+        397 => "DISJOINT",
+        398 => "DISTANCE",
+        399 => "ELT",
+        400 => "ENCODE",
+        401 => "ENCRYPT",
+        402 => "ENDPOINT",
+        403 => "ENVELOPE",
+        404 => "EQUALS",
+        405 => "EXP",
+        406 => "EXPORT_SET",
+        407 => "EXTERIORRING",
+        408 => "EXTRACT",
+        409 => "EXTRACTVALUE",
+        410 => "FIELD",
+        411 => "FIND_IN_SET",
+        412 => "FLOOR",
+        413 => "FORMAT",
+        414 => "FOUND_ROWS",
+        415 => "FROM_DAYS",
+        416 => "FROM_UNIXTIME",
+        417 => "GEOMCOLLFROMTEXT",
+        418 => "GEOMCOLLFROMWKB",
+        419 => "GEOMETRYCOLLECTION",
+        420 => "GEOMETRYCOLLECTIONFROMTEXT",
+        421 => "GEOMETRYCOLLECTIONFROMWKB",
+        422 => "GEOMETRYFROMTEXT",
+        423 => "GEOMETRYFROMWKB",
+        424 => "GEOMETRYN",
+        425 => "GEOMETRYTYPE",
+        426 => "GEOMFROMTEXT",
+        427 => "GEOMFROMWKB",
+        428 => "GET_FORMAT",
+        429 => "GET_LOCK",
+        430 => "GLENGTH",
+        431 => "GREATEST",
+        432 => "GROUP_CONCAT",
+        433 => "GROUP_UNIQUE_USERS",
+        434 => "HEX",
+        435 => "HOUR",
+        436 => "IF",
+        437 => "IFNULL",
+        438 => "INET_ATON",
+        439 => "INET_NTOA",
+        440 => "INSERT",
+        441 => "INSTR",
+        442 => "INTERIORRINGN",
+        443 => "INTERSECTION",
+        444 => "INTERSECTS",
+        445 => "INTERVAL",
+        446 => "ISCLOSED",
+        447 => "ISEMPTY",
+        448 => "ISNULL",
+        449 => "ISRING",
+        450 => "ISSIMPLE",
+        451 => "IS_FREE_LOCK",
+        452 => "IS_USED_LOCK",
+        453 => "LAST_DAY",
+        454 => "LAST_INSERT_ID",
+        455 => "LCASE",
+        456 => "LEAST",
+        457 => "LEFT",
+        458 => "LENGTH",
+        459 => "LINEFROMTEXT",
+        460 => "LINEFROMWKB",
+        461 => "LINESTRING",
+        462 => "LINESTRINGFROMTEXT",
+        463 => "LINESTRINGFROMWKB",
+        464 => "LN",
+        465 => "LOAD_FILE",
+        466 => "LOCALTIME",
+        467 => "LOCALTIMESTAMP",
+        468 => "LOCATE",
+        469 => "LOG",
+        470 => "LOG10",
+        471 => "LOG2",
+        472 => "LOWER",
+        473 => "LPAD",
+        474 => "LTRIM",
+        475 => "MAKEDATE",
+        476 => "MAKETIME",
+        477 => "MAKE_SET",
+        478 => "MASTER_POS_WAIT",
+        479 => "MAX",
+        480 => "MBRCONTAINS",
+        481 => "MBRDISJOINT",
+        482 => "MBREQUAL",
+        483 => "MBRINTERSECTS",
+        484 => "MBROVERLAPS",
+        485 => "MBRTOUCHES",
+        486 => "MBRWITHIN",
+        487 => "MD5",
+        488 => "MICROSECOND",
+        489 => "MID",
+        490 => "MIN",
+        491 => "MINUTE",
+        492 => "MLINEFROMTEXT",
+        493 => "MLINEFROMWKB",
+        494 => "MOD",
+        495 => "MONTH",
+        496 => "MONTHNAME",
+        497 => "MPOINTFROMTEXT",
+        498 => "MPOINTFROMWKB",
+        499 => "MPOLYFROMTEXT",
+        500 => "MPOLYFROMWKB",
+        501 => "MULTILINESTRING",
+        502 => "MULTILINESTRINGFROMTEXT",
+        503 => "MULTILINESTRINGFROMWKB",
+        504 => "MULTIPOINT",
+        505 => "MULTIPOINTFROMTEXT",
+        506 => "MULTIPOINTFROMWKB",
+        507 => "MULTIPOLYGON",
+        508 => "MULTIPOLYGONFROMTEXT",
+        509 => "MULTIPOLYGONFROMWKB",
+        510 => "NAME_CONST",
+        511 => "NULLIF",
+        512 => "NUMGEOMETRIES",
+        513 => "NUMINTERIORRINGS",
+        514 => "NUMPOINTS",
+        515 => "OCT",
+        516 => "OCTET_LENGTH",
+        517 => "OLD_PASSWORD",
+        518 => "ORD",
+        519 => "OVERLAPS",
+        520 => "PASSWORD",
+        521 => "PERIOD_ADD",
+        522 => "PERIOD_DIFF",
+        523 => "PI",
+        524 => "POINT",
+        525 => "POINTFROMTEXT",
+        526 => "POINTFROMWKB",
+        527 => "POINTN",
+        528 => "POINTONSURFACE",
+        529 => "POLYFROMTEXT",
+        530 => "POLYFROMWKB",
+        531 => "POLYGON",
+        532 => "POLYGONFROMTEXT",
+        533 => "POLYGONFROMWKB",
+        534 => "POSITION",
+        535 => "POW",
+        536 => "POWER",
+        537 => "QUARTER",
+        538 => "QUOTE",
+        539 => "RADIANS",
+        540 => "RAND",
+        541 => "RELATED",
+        542 => "RELEASE_LOCK",
+        543 => "REPEAT",
+        544 => "REPLACE",
+        545 => "REVERSE",
+        546 => "RIGHT",
+        547 => "ROUND",
+        548 => "ROW_COUNT",
+        549 => "RPAD",
+        550 => "RTRIM",
+        551 => "SCHEMA",
+        552 => "SECOND",
+        553 => "SEC_TO_TIME",
+        554 => "SESSION_USER",
+        555 => "SHA",
+        556 => "SHA1",
+        557 => "SIGN",
+        558 => "SIN",
+        559 => "SLEEP",
+        560 => "SOUNDEX",
+        561 => "SPACE",
+        562 => "SQRT",
+        563 => "SRID",
+        564 => "STARTPOINT",
+        565 => "STD",
+        566 => "STDDEV",
+        567 => "STDDEV_POP",
+        568 => "STDDEV_SAMP",
+        569 => "STRCMP",
+        570 => "STR_TO_DATE",
+        571 => "SUBDATE",
+        572 => "SUBSTR",
+        573 => "SUBSTRING",
+        574 => "SUBSTRING_INDEX",
+        575 => "SUBTIME",
+        576 => "SUM",
+        577 => "SYMDIFFERENCE",
+        578 => "SYSDATE",
+        579 => "SYSTEM_USER",
+        580 => "TAN",
+        581 => "TIME",
+        582 => "TIMEDIFF",
+        583 => "TIMESTAMP",
+        584 => "TIMESTAMPADD",
+        585 => "TIMESTAMPDIFF",
+        586 => "TIME_FORMAT",
+        587 => "TIME_TO_SEC",
+        588 => "TOUCHES",
+        589 => "TO_DAYS",
+        590 => "TRIM",
+        591 => "TRUNCATE",
+        592 => "UCASE",
+        593 => "UNCOMPRESS",
+        594 => "UNCOMPRESSED_LENGTH",
+        595 => "UNHEX",
+        596 => "UNIQUE_USERS",
+        597 => "UNIX_TIMESTAMP",
+        598 => "UPDATEXML",
+        599 => "UPPER",
+        600 => "USER",
+        601 => "UTC_DATE",
+        602 => "UTC_TIME",
+        603 => "UTC_TIMESTAMP",
+        604 => "UUID",
+        605 => "VARIANCE",
+        606 => "VAR_POP",
+        607 => "VAR_SAMP",
+        608 => "VERSION",
+        609 => "WEEK",
+        610 => "WEEKDAY",
+        611 => "WEEKOFYEAR",
+        612 => "WITHIN",
+        613 => "X",
+        614 => "Y",
+        615 => "YEAR",
+        616 => "YEARWEEK",
     ]);
 }
 
@@ -621,10 +646,10 @@ if (!isset($excluded_functions["arrayize"]) && (!function_exists("ryunosuke\\Web
      *
      * Example:
      * ```php
-     * assertSame(arrayize(1, 2, 3), [1, 2, 3]);
-     * assertSame(arrayize([1], [2], [3]), [1, 2, 3]);
+     * that(arrayize(1, 2, 3))->isSame([1, 2, 3]);
+     * that(arrayize([1], [2], [3]))->isSame([1, 2, 3]);
      * $object = new \stdClass();
-     * assertSame(arrayize($object, false, [1, 2, 3]), [$object, false, 1, 2, 3]);
+     * that(arrayize($object, false, [1, 2, 3]))->isSame([$object, false, 1, 2, 3]);
      * ```
      *
      * @param mixed $variadic 生成する要素（可変引数）
@@ -654,9 +679,9 @@ if (!isset($excluded_functions["is_hasharray"]) && (!function_exists("ryunosuke\
      *
      * Example:
      * ```php
-     * assertFalse(is_hasharray([]));
-     * assertFalse(is_hasharray([1, 2, 3]));
-     * assertTrue(is_hasharray(['x' => 'X']));
+     * that(is_hasharray([]))->isFalse();
+     * that(is_hasharray([1, 2, 3]))->isFalse();
+     * that(is_hasharray(['x' => 'X']))->isTrue();
      * ```
      *
      * @param array $array 調べる配列
@@ -691,11 +716,11 @@ if (!isset($excluded_functions["array_map_method"]) && (!function_exists("ryunos
      * $exb = new \Exception('b');
      * $std = new \stdClass();
      * // getMessage で map される
-     * assertSame(array_map_method([$exa, $exb], 'getMessage'), ['a', 'b']);
+     * that(array_map_method([$exa, $exb], 'getMessage'))->isSame(['a', 'b']);
      * // getMessage で map されるが、メソッドが存在しない場合は取り除かれる
-     * assertSame(array_map_method([$exa, $exb, $std, null], 'getMessage', [], true), ['a', 'b']);
+     * that(array_map_method([$exa, $exb, $std, null], 'getMessage', [], true))->isSame(['a', 'b']);
      * // getMessage で map されるが、メソッドが存在しない場合はそのまま返す
-     * assertSame(array_map_method([$exa, $exb, $std, null], 'getMessage', [], null), ['a', 'b', $std, null]);
+     * that(array_map_method([$exa, $exb, $std, null], 'getMessage', [], null))->isSame(['a', 'b', $std, null]);
      * ```
      *
      * @param iterable $array 対象配列
@@ -738,11 +763,11 @@ if (!isset($excluded_functions["array_kmap"]) && (!function_exists("ryunosuke\\W
      * Example:
      * ```php
      * // キー・値をくっつけるシンプルな例
-     * assertSame(array_kmap([
+     * that(array_kmap([
      *     'k1' => 'v1',
      *     'k2' => 'v2',
      *     'k3' => 'v3',
-     * ], function($v, $k){return "$k:$v";}), [
+     * ], function($v, $k){return "$k:$v";}))->isSame([
      *     'k1' => 'k1:v1',
      *     'k2' => 'k2:v2',
      *     'k3' => 'k3:v3',
@@ -794,9 +819,9 @@ if (!isset($excluded_functions["array_each"]) && (!function_exists("ryunosuke\\W
      * Example:
      * ```php
      * // 全要素を文字列的に足し合わせる
-     * assertSame(array_each([1, 2, 3, 4, 5], function(&$carry, $v){$carry .= $v;}, ''), '12345');
+     * that(array_each([1, 2, 3, 4, 5], function(&$carry, $v){$carry .= $v;}, ''))->isSame('12345');
      * // 値をキーにして要素を2乗値にする
-     * assertSame(array_each([1, 2, 3, 4, 5], function(&$carry, $v){$carry[$v] = $v * $v;}, []), [
+     * that(array_each([1, 2, 3, 4, 5], function(&$carry, $v){$carry[$v] = $v * $v;}, []))->isSame([
      *     1 => 1,
      *     2 => 4,
      *     3 => 9,
@@ -804,21 +829,19 @@ if (!isset($excluded_functions["array_each"]) && (!function_exists("ryunosuke\\W
      *     5 => 25,
      * ]);
      * // 上記と同じ。ただし、3 で break する
-     * assertSame(array_each([1, 2, 3, 4, 5], function(&$carry, $v, $k){
+     * that(array_each([1, 2, 3, 4, 5], function(&$carry, $v, $k){
      *     if ($k === 3) return false;
      *     $carry[$v] = $v * $v;
-     * }, []), [
+     * }, []))->isSame([
      *     1 => 1,
      *     2 => 4,
      *     3 => 9,
      * ]);
      *
      * // 下記は完全に同じ（第3引数の代わりにデフォルト引数を使っている）
-     * assertSame(
-     *     array_each([1, 2, 3], function(&$carry = [], $v) {
+     * that(array_each([1, 2, 3], function(&$carry = [], $v) {
      *         $carry[$v] = $v * $v;
-     *     }),
-     *     array_each([1, 2, 3], function(&$carry, $v) {
+     *     }))->isSame(array_each([1, 2, 3], function(&$carry, $v) {
      *         $carry[$v] = $v * $v;
      *     }, [])
      *     // 個人的に↑のようなぶら下がり引数があまり好きではない（クロージャを最後の引数にしたい）
@@ -863,12 +886,12 @@ if (!isset($excluded_functions["array_all"]) && (!function_exists("ryunosuke\\We
      *
      * Example:
      * ```php
-     * assertTrue(array_all([true, true]));
-     * assertFalse(array_all([true, false]));
-     * assertFalse(array_all([false, false]));
+     * that(array_all([true, true]))->isTrue();
+     * that(array_all([true, false]))->isFalse();
+     * that(array_all([false, false]))->isFalse();
      * ```
      *
-     * @param iterable 対象配列
+     * @param iterable $array 対象配列
      * @param callable $callback 評価クロージャ。 null なら値そのもので評価
      * @param bool|mixed $default 空配列の場合のデフォルト値
      * @return bool 全要素が true なら true
@@ -907,10 +930,10 @@ if (!isset($excluded_functions["array_lookup"]) && (!function_exists("ryunosuke\
      *     13 => ['id' => 3, 'name' => 'name3'],
      * ];
      * // 第3引数を渡せば array_column と全く同じ
-     * assertSame(array_lookup($array, 'name', 'id'), array_column($array, 'name', 'id'));
-     * assertSame(array_lookup($array, 'name', null), array_column($array, 'name', null));
+     * that(array_lookup($array, 'name', 'id'))->isSame(array_column($array, 'name', 'id'));
+     * that(array_lookup($array, 'name', null))->isSame(array_column($array, 'name', null));
      * // 省略すればキーが保存される
-     * assertSame(array_lookup($array, 'name'), [
+     * that(array_lookup($array, 'name'))->isSame([
      *     11 => 'name1',
      *     12 => 'name2',
      *     13 => 'name3',
@@ -924,29 +947,11 @@ if (!isset($excluded_functions["array_lookup"]) && (!function_exists("ryunosuke\
      */
     function array_lookup($array, $column_key = null, $index_key = null)
     {
+        $array = arrayval($array, false);
         if (func_num_args() === 3) {
-            return array_column(arrayval($array, false), $column_key, $index_key);
+            return array_column($array, $column_key, $index_key);
         }
-
-        // null 対応できないし、php7 からオブジェクトに対応してるらしいので止め。ベタにやる
-        // return array_map(array_of($column_keys), $array);
-
-        // 実質的にはこれで良いはずだが、オブジェクト対応が救えないので止め。ベタにやる
-        // return array_combine(array_keys($array), array_column($array, $column_key));
-
-        $result = [];
-        foreach ($array as $k => $v) {
-            if ($column_key === null) {
-                $result[$k] = $v;
-            }
-            elseif (is_array($v) && array_key_exists($column_key, $v)) {
-                $result[$k] = $v[$column_key];
-            }
-            elseif (is_object($v) && (isset($v->$column_key) || property_exists($v, $column_key))) {
-                $result[$k] = $v->$column_key;
-            }
-        }
-        return $result;
+        return array_combine(array_keys($array), array_column($array, $column_key));
     }
 }
 if (function_exists("ryunosuke\\WebDebugger\\array_lookup") && !defined("ryunosuke\\WebDebugger\\array_lookup")) {
@@ -961,7 +966,7 @@ if (!isset($excluded_functions["class_loader"]) && (!function_exists("ryunosuke\
      *
      * Example:
      * ```php
-     * assertInstanceof(\Composer\Autoload\ClassLoader::class, class_loader());
+     * that(class_loader())->isInstanceOf(\Composer\Autoload\ClassLoader::class);
      * ```
      *
      * @param string $startdir 高速化用の検索開始ディレクトリを指定するが、どちらかと言えばテスト用
@@ -993,7 +998,7 @@ if (!isset($excluded_functions["class_shorten"]) && (!function_exists("ryunosuke
      *
      * Example:
      * ```php
-     * assertSame(class_shorten('vendor\\namespace\\ClassName'), 'ClassName');
+     * that(class_shorten('vendor\\namespace\\ClassName'))->isSame('ClassName');
      * ```
      *
      * @param string|object $class 対象クラス・オブジェクト
@@ -1052,8 +1057,8 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
      *     };
      * });
      * // X1 を継承している Y1 にまで影響が出ている（X1 を完全に置換できたということ）
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y1())->method(), 'this is X1d');
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y1())->newmethod(), 'this is newmethod');
+     * that((new \ryunosuke\Test\Package\Classobj\Y1())->method())->isSame('this is X1d');
+     * that((new \ryunosuke\Test\Package\Classobj\Y1())->newmethod())->isSame('this is newmethod');
      *
      * // Y2 extends X2 だとしてクロージャ配列でオーバーライドする
      * class_replace('\\ryunosuke\\Test\\Package\\Classobj\\X2', function() {
@@ -1063,8 +1068,8 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
      *     ];
      * });
      * // X2 を継承している Y2 にまで影響が出ている（X2 を完全に置換できたということ）
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y2())->method(), 'this is X2d');
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y2())->newmethod(), 'this is newmethod');
+     * that((new \ryunosuke\Test\Package\Classobj\Y2())->method())->isSame('this is X2d');
+     * that((new \ryunosuke\Test\Package\Classobj\Y2())->newmethod())->isSame('this is newmethod');
      *
      * // メソッド定義だけであればクロージャではなく配列指定でも可能。さらに trait 配列を渡すとそれらを use できる
      * class_replace('\\ryunosuke\\Test\\Package\\Classobj\\X3', [
@@ -1072,9 +1077,9 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
      *     'method' => function(){return 'this is X3d';},
      * ]);
      * // X3 を継承している Y3 にまで影響が出ている（X3 を完全に置換できたということ）
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y3())->method(), 'this is X3d');
+     * that((new \ryunosuke\Test\Package\Classobj\Y3())->method())->isSame('this is X3d');
      * // トレイトのメソッドも生えている
-     * assertSame((new \ryunosuke\Test\Package\Classobj\Y3())->traitMethod(), 'this is XTrait::traitMethod');
+     * that((new \ryunosuke\Test\Package\Classobj\Y3())->traitMethod())->isSame('this is XTrait::traitMethod');
      * ```
      *
      * @param string $class 対象クラス名
@@ -1117,7 +1122,6 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
         }
         // php7.0 から無名クラスが使えるのでそのクラス名でエイリアスする
         if (is_object($newclass)) {
-            /** @noinspection PhpUnusedLocalVariableInspection */
             $newclass = get_class($newclass);
         }
         // 配列はメソッド定義のクロージャ配列とする
@@ -1148,7 +1152,7 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
                     }
                 }
                 else {
-                    list($declare, $codeblock) = callable_code($member);
+                    [$declare, $codeblock] = callable_code($member);
                     $parentclass = new \ReflectionClass("\\$origspace\\$origclass");
                     // 元クラスに定義されているならオーバーライドとして特殊な処理を行う
                     if ($parentclass->hasMethod($name)) {
@@ -1161,6 +1165,7 @@ if (!isset($excluded_functions["class_replace"]) && (!function_exists("ryunosuke
                         }
                         // 同上。返り値版
                         if (!$refmember->hasReturnType() && $refmethod->hasReturnType()) {
+                            /** @var \ReflectionNamedType $rtype */
                             $rtype = $refmethod->getReturnType();
                             $declare .= ':' . ($rtype->allowsNull() ? '?' : '') . ($rtype->isBuiltin() ? '' : '\\') . $rtype->getName();
                         }
@@ -1199,11 +1204,11 @@ if (!isset($excluded_functions["get_object_properties"]) && (!function_exists("r
      * // var_dump((array) $object);
      *
      * // この関数を使えば不可視プロパティも取得できる
-     * assertArraySubset([
+     * that(get_object_properties($object))->arraySubset([
      *     'message' => 'something',
      *     'code'    => 42,
      *     'oreore'  => 'oreore',
-     * ], get_object_properties($object));
+     * ]);
      * ```
      *
      * @param object $object オブジェクト
@@ -1211,6 +1216,10 @@ if (!isset($excluded_functions["get_object_properties"]) && (!function_exists("r
      */
     function get_object_properties($object)
     {
+        if (function_exists('get_mangled_object_vars')) {
+            get_mangled_object_vars($object); // @codeCoverageIgnore
+        }
+
         static $refs = [];
         $class = get_class($object);
         if (!isset($refs[$class])) {
@@ -1248,7 +1257,7 @@ if (!isset($excluded_functions["file_set_contents"]) && (!function_exists("ryuno
      * Example:
      * ```php
      * file_set_contents(sys_get_temp_dir() . '/not/filename.ext', 'hoge');
-     * assertSame(file_get_contents(sys_get_temp_dir() . '/not/filename.ext'), 'hoge');
+     * that(file_get_contents(sys_get_temp_dir() . '/not/filename.ext'))->isSame('hoge');
      * ```
      *
      * @param string $filename 書き込むファイル名
@@ -1325,7 +1334,7 @@ if (!isset($excluded_functions["dirname_r"]) && (!function_exists("ryunosuke\\We
      * file_set_contents("$tmp/a/b/file.txt", 'hoge');
      * // /a/b/c/d/e/f から開始して「どこかの階層の file.txt を探したい」という状況を想定
      * $callback = function($path){return realpath("$path/file.txt");};
-     * assertSame(dirname_r("$tmp/a/b/c/d/e/f", $callback), realpath("$tmp/a/b/file.txt"));
+     * that(dirname_r("$tmp/a/b/c/d/e/f", $callback))->isSame(realpath("$tmp/a/b/file.txt"));
      * ```
      *
      * @param string $path パス名
@@ -1360,9 +1369,9 @@ if (!isset($excluded_functions["path_normalize"]) && (!function_exists("ryunosuk
      * Example:
      * ```php
      * $DS = DIRECTORY_SEPARATOR;
-     * assertSame(path_normalize('/path/to/something'), "{$DS}path{$DS}to{$DS}something");
-     * assertSame(path_normalize('/path/through/../something'), "{$DS}path{$DS}something");
-     * assertSame(path_normalize('./path/current/./through/../something'), "path{$DS}current{$DS}something");
+     * that(path_normalize('/path/to/something'))->isSame("{$DS}path{$DS}to{$DS}something");
+     * that(path_normalize('/path/through/../something'))->isSame("{$DS}path{$DS}something");
+     * that(path_normalize('./path/current/./through/../something'))->isSame("path{$DS}current{$DS}something");
      * ```
      *
      * @param string $path パス文字列
@@ -1408,55 +1417,56 @@ if (!isset($excluded_functions["delegate"]) && (!function_exists("ryunosuke\\Web
      * @param \Closure $invoker クロージャを実行するためのクロージャ（実処理）
      * @param callable $callable 最終的に実行したいクロージャ
      * @param int $arity 引数の数
-     * @return \Closure $callable を実行するクロージャ
+     * @return callable $callable を実行するクロージャ
      */
     function delegate($invoker, $callable, $arity = null)
     {
-        // 「delegate 経由で作成されたクロージャ」であることをマーキングするための use 変数
-        $__rfunc_delegate_marker = true;
-        assert($__rfunc_delegate_marker === true); // phpstorm の警告解除
+        $arity = $arity ?? parameter_length($callable, true, true);
 
-        if ($arity === null) {
-            $arity = parameter_length($callable, true, true);
-        }
+        if (reflect_callable($callable)->isInternal()) {
+            static $cache = [];
+            $cache[$arity] = $cache[$arity] ?? evaluate('return new class()
+            {
+                private $invoker, $callable;
 
-        if (is_infinite($arity)) {
-            return eval('return function (...$_) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                return $invoker($callable, func_get_args());
+                public function spawn($invoker, $callable)
+                {
+                    $that = clone($this);
+                    $that->invoker = $invoker;
+                    $that->callable = $callable;
+                    return $that;
+                }
+
+                public function __invoke(' . implode(',', is_infinite($arity)
+                        ? ['...$_']
+                        : array_map(function ($v) { return '$_' . $v; }, array_keys(array_fill(1, $arity, null)))
+                    ) . ')
+                {
+                    return ($this->invoker)($this->callable, func_get_args());
+                }
             };');
+            return $cache[$arity]->spawn($invoker, $callable);
         }
 
-        $arity = abs($arity);
-        switch ($arity) {
-            case 0:
-                return function () use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
-            case 1:
-                return function ($_1) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
-            case 2:
-                return function ($_1, $_2) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
-            case 3:
-                return function ($_1, $_2, $_3) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
-            case 4:
-                return function ($_1, $_2, $_3, $_4) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
-            case 5:
-                return function ($_1, $_2, $_3, $_4, $_5) use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };
+        switch (true) {
+            case $arity === 0:
+                return function () use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case $arity === 1:
+                return function ($_1) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case $arity === 2:
+                return function ($_1, $_2) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case $arity === 3:
+                return function ($_1, $_2, $_3) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case $arity === 4:
+                return function ($_1, $_2, $_3, $_4) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case $arity === 5:
+                return function ($_1, $_2, $_3, $_4, $_5) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
+            case is_infinite($arity):
+                return function (...$_) use ($invoker, $callable) { return $invoker($callable, func_get_args()); };
             default:
-                $argstring = array_map(function ($v) { return '$_' . $v; }, range(1, $arity));
-                return eval('return function (' . implode(', ', $argstring) . ') use ($__rfunc_delegate_marker, $invoker, $callable) {
-                    return $invoker($callable, func_get_args());
-                };');
+                $args = implode(',', array_map(function ($v) { return '$_' . $v; }, array_keys(array_fill(1, $arity, null))));
+                $stmt = 'return function (' . $args . ') use ($invoker, $callable) { return $invoker($callable, func_get_args()); };';
+                return eval($stmt);
         }
     }
 }
@@ -1470,8 +1480,8 @@ if (!isset($excluded_functions["reflect_callable"]) && (!function_exists("ryunos
      *
      * Example:
      * ```php
-     * assertInstanceof(\ReflectionFunction::class, reflect_callable('sprintf'));
-     * assertInstanceof(\ReflectionMethod::class, reflect_callable('\Closure::bind'));
+     * that(reflect_callable('sprintf'))->isInstanceOf(\ReflectionFunction::class);
+     * that(reflect_callable('\Closure::bind'))->isInstanceOf(\ReflectionMethod::class);
      * ```
      *
      * @param callable $callable 対象 callable
@@ -1488,10 +1498,10 @@ if (!isset($excluded_functions["reflect_callable"]) && (!function_exists("ryunos
             return new \ReflectionFunction($callable);
         }
         else {
-            list($class, $method) = explode('::', $call_name, 2);
+            [$class, $method] = explode('::', $call_name, 2);
             // for タイプ 5: 相対指定による静的クラスメソッドのコール (PHP 5.3.0 以降)
             if (strpos($method, 'parent::') === 0) {
-                list(, $method) = explode('::', $method);
+                [, $method] = explode('::', $method);
                 return (new \ReflectionClass($class))->getParentClass()->getMethod($method);
             }
             return new \ReflectionMethod($class, $method);
@@ -1511,17 +1521,21 @@ if (!isset($excluded_functions["callable_code"]) && (!function_exists("ryunosuke
      * Example:
      * ```php
      * list($meta, $body) = callable_code(function(...$args){return true;});
-     * assertSame($meta, 'function(...$args)');
-     * assertSame($body, '{return true;}');
+     * that($meta)->isSame('function(...$args)');
+     * that($body)->isSame('{return true;}');
+     *
+     * // ReflectionFunctionAbstract を渡しても動作する
+     * list($meta, $body) = callable_code(new \ReflectionFunction(function(...$args){return true;}));
+     * that($meta)->isSame('function(...$args)');
+     * that($body)->isSame('{return true;}');
      * ```
      *
-     * @param callable $callable コードを取得する callable
+     * @param callable|\ReflectionFunctionAbstract $callable コードを取得する callable
      * @return array ['定義部分', '{処理コード}']
      */
     function callable_code($callable)
     {
-        /** @var \ReflectionFunctionAbstract $ref */
-        $ref = reflect_callable($callable);
+        $ref = $callable instanceof \ReflectionFunctionAbstract ? $callable : reflect_callable($callable);
         $contents = file($ref->getFileName());
         $start = $ref->getStartLine();
         $end = $ref->getEndLine();
@@ -1557,9 +1571,9 @@ if (!isset($excluded_functions["parameter_length"]) && (!function_exists("ryunos
      * Example:
      * ```php
      * // trim の引数は2つ
-     * assertSame(parameter_length('trim'), 2);
+     * that(parameter_length('trim'))->isSame(2);
      * // trim の必須引数は1つ
-     * assertSame(parameter_length('trim', true), 1);
+     * that(parameter_length('trim', true))->isSame(1);
      * ```
      *
      * @param callable $callable 対象 callable
@@ -1609,7 +1623,6 @@ if (!isset($excluded_functions["func_user_func_array"]) && (!function_exists("ry
      * パラメータ定義数に応じて呼び出し引数を可変にしてコールする
      *
      * デフォルト引数はカウントされない。必須パラメータの数で呼び出す。
-     * もちろん可変引数は未対応。
      *
      * $callback に null を与えると例外的に「第1引数を返すクロージャ」を返す。
      *
@@ -1619,11 +1632,11 @@ if (!isset($excluded_functions["func_user_func_array"]) && (!function_exists("ry
      * ```php
      * // strlen に2つの引数を渡してもエラーにならない
      * $strlen = func_user_func_array('strlen');
-     * assertSame($strlen('abc', null), 3);
+     * that($strlen('abc', null))->isSame(3);
      * ```
      *
      * @param callable $callback 呼び出すクロージャ
-     * @return \Closure 引数ぴったりで呼び出すクロージャ
+     * @return callable 引数ぴったりで呼び出すクロージャ
      */
     function func_user_func_array($callback)
     {
@@ -1633,9 +1646,8 @@ if (!isset($excluded_functions["func_user_func_array"]) && (!function_exists("ry
         }
         // クロージャはユーザ定義しかありえないので調べる必要がない
         if ($callback instanceof \Closure) {
-            // が、組み込みをバイパスする delegate はクロージャなのでそれだけは除外
-            $uses = reflect_callable($callback)->getStaticVariables();
-            if (!isset($uses['__rfunc_delegate_marker'])) {
+            // と思ったが、\Closure::fromCallable で作成されたクロージャは内部属性が伝播されるようなので除外
+            if (reflect_callable($callback)->isUserDefined()) {
                 return $callback;
             }
         }
@@ -1674,6 +1686,7 @@ if (!isset($excluded_functions["function_parameter"]) && (!function_exists("ryun
             $declare = '';
 
             if ($parameter->hasType()) {
+                /** @var \ReflectionNamedType $type */
                 $type = $parameter->getType();
                 $declare .= ($type->allowsNull() ? '?' : '') . ($type->isBuiltin() ? '' : '\\') . $type->getName() . ' ';
             }
@@ -1737,7 +1750,7 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
             'indent'    => "  ",
             // 括弧の展開レベル
             'nestlevel' => 1,
-            // キーワードの大文字/小文字可変換（true だと大文字化。false だと小文字化。あるいは 'strtoupper' 等の文字列関数を直接指定する。クロージャでも良い）
+            // キーワードの大文字/小文字可変換（true だと大文字化。false だと小文字化。あるいは 'ucfirst' 等の文字列関数を直接指定する。クロージャでも良い）
             'case'      => null,
             // シンタックス装飾（true だと SAPI に基づいてよしなに。"html", "cli" だと SAPI を明示的に指定。クロージャだと直接コール）
             'highlight' => null,
@@ -1802,6 +1815,8 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
         $MARK_R = "{$MARK}_R:}";   // \r マーク
         $MARK_N = "{$MARK}_N:}";   // \n マーク
         $MARK_BR = "{$MARK}_BR:}"; // 改行マーク
+        $MARK_CS = "{$MARK}_CS:}"; // コメント開始マーク
+        $MARK_CE = "{$MARK}_CE:}"; // コメント終了マーク
         $MARK_NT = "{$MARK}_NT:}"; // インデントマーク
         $MARK_SP = "{$MARK}_SP:}"; // スペースマーク
         $MARK_PT = "{$MARK}_PT:}"; // 括弧ネストマーク
@@ -1824,8 +1839,8 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                 $comment = $token[1];
             }
             // 改行は '--' コメントの終わり
-            elseif ($comment && $token[0] === T_WHITESPACE && strpos($token[1], "\n") !== false) {
-                $tokens[] = [T_COMMENT, $comment];
+            elseif ($comment && in_array($token[0], [T_WHITESPACE, T_COMMENT], true) && strpos($token[1], "\n") !== false) {
+                $tokens[] = [T_COMMENT, $comment . $token[1]];
                 $comment = '';
             }
             // コメント中はコメントに格納する
@@ -1846,19 +1861,30 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
 
         // コメント以外の前後のトークンを返すクロージャ
         $seek = function ($start, $step) use ($tokens) {
+            $comments = [];
             for ($n = 1; ; $n++) {
-                $token = $tokens[$start + $n * $step] ?? [null, null];
-                if ($token[0] !== T_COMMENT && $token[0] !== T_DOC_COMMENT) {
-                    return $token[1];
+                $index = $start + $n * $step;
+                if (!isset($tokens[$index])) {
+                    break;
+                }
+                $token = $tokens[$index];
+                if ($token[0] === T_COMMENT || $token[0] === T_DOC_COMMENT) {
+                    $comments[] = trim($token[1]);
+                }
+                else {
+                    return [$index, trim($token[1]), $comments];
                 }
             }
+            return [$start, '', $comments];
         };
 
-        $interpret = function (&$index = -1) use (&$interpret, $MARK_R, $MARK_N, $MARK_BR, $MARK_NT, $MARK_SP, $MARK_PT, $tokens, $options, $seek) {
+        $interpret = function (&$index = -1) use (&$interpret, $MARK_R, $MARK_N, $MARK_BR, $MARK_CS, $MARK_CE, $MARK_NT, $MARK_SP, $MARK_PT, $tokens, $options, $seek) {
             $index++;
-            $context = '';    // SELECT, INSERT などの大分類
-            $subcontext = ''; // SET, VALUES などのサブ分類
-            $modifier = '';   // RIGHT などのキーワード修飾語
+            $beginning = true; // クエリの冒頭か
+            $context = '';     // SELECT, INSERT などの大分類
+            $subcontext = '';  // SET, VALUES などのサブ分類
+            $modifier = '';    // RIGHT などのキーワード修飾語
+            $firstcol = null;  // SELECT における最初の列か
 
             $result = [];
             for ($token_length = count($tokens); $index < $token_length; $index++) {
@@ -1874,21 +1900,31 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                     "\n" => $MARK_N,
                 ]);
 
+                // SELECT の直後には DISTINCT などのオプションが来ることがあるので特別扱い
+                if ($context === 'SELECT' && $firstcol) {
+                    if (!in_array($uppertoken, ['DISTINCT', 'DISTINCTROW', 'STRAIGHT_JOIN'], true) && !preg_match('#^SQL_#i', $uppertoken)) {
+                        $firstcol = false;
+                        $result[] = $MARK_BR;
+                    }
+                }
+
                 // コメントは特別扱いでただ付け足すだけ
                 if ($ttype === T_COMMENT || $ttype === T_DOC_COMMENT) {
-                    $result[] = $MARK_SP . $virttoken . $MARK_BR;
+                    $result[] = ($beginning ? '' : $MARK_CS) . $virttoken . $MARK_CE . $MARK_BR;
                     continue;
                 }
+                $beginning = false;
 
                 switch ($uppertoken) {
                     default:
                         _DEFAULT:
-                        $prev = $seek($index, -1);
-                        $next = $seek($index, +1);
+                        $prev = $seek($index, -1)[1];
+                        $next = $seek($index, +1)[1];
 
                         // "tablename. columnname" になってしまう
-                        // "@var" になってしまう
-                        if ($prev !== '.' && $prev !== '@') {
+                        // "@ var" になってしまう
+                        // ": holder" になってしまう
+                        if ($prev !== '.' && $prev !== '@' && $prev !== ':') {
                             $result[] = $MARK_SP;
                         }
 
@@ -1903,6 +1939,7 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                         }
                         break;
                     case "@":
+                    case ":":
                         $result[] = $MARK_SP . $virttoken;
                         break;
                     case ";":
@@ -1931,8 +1968,8 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                     case "TABLE":
                         // CREATE TABLE tablename は括弧があるので何もしなくて済むが、
                         // ALTER TABLE tablename は括弧がなく ADD などで始まるので特別分岐
-                        $name = $seek($index++, +1);
-                        $result[] = $MARK_SP . $virttoken . $MARK_SP . $name . $MARK_SP;
+                        [$index, $name, $comments] = $seek($index, +1);
+                        $result[] = $MARK_SP . $virttoken . $MARK_SP . ($MARK_SP . implode('', $comments) . $MARK_CE) . $name . $MARK_SP;
                         if ($context !== 'CREATE' && $context !== 'DROP') {
                             $result[] = $MARK_BR;
                         }
@@ -1963,14 +2000,15 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                         if ($context === 'INSERT') {
                             $result[] = $MARK_BR;
                         }
-                        $result[] = $virttoken . $MARK_BR;
+                        $result[] = $virttoken;
                         $context = $uppertoken;
+                        $firstcol = true;
                         break;
                     case "LEFT":
                         /** @noinspection PhpMissingBreakStatementInspection */
                     case "RIGHT":
                         // 例えば LEFT や RIGHT は関数呼び出しの場合もあるので分岐後にフォールスルー
-                        if ($seek($index, +1) === '(') {
+                        if ($seek($index, +1)[1] === '(') {
                             goto _DEFAULT;
                         }
                     case "CROSS":
@@ -1996,7 +2034,7 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                         break;
                     case "ON":
                         // ON は ON でも mysql の ON DUPLICATED かもしれない（pgsql の ON CONFLICT も似たようなコンテキスト）
-                        $name = $seek($index, +1);
+                        $name = $seek($index, +1)[1];
                         if (in_array(strtoupper($name), ['DUPLICATE', 'CONFLICT'], true)) {
                             $result[] = $MARK_BR;
                             $subcontext = '';
@@ -2057,8 +2095,8 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                         $current = $index;
                         $parts = $MARK_BR . $interpret($index);
 
-                        // 指定ネストレベル以下なら改行とインデントを吹き飛ばす
-                        if (substr_count($parts, $MARK_PT) < $options['nestlevel']) {
+                        // コメントを含まない指定ネストレベル以下なら改行とインデントを吹き飛ばす
+                        if (strpos($parts, $MARK_CE) === false && substr_count($parts, $MARK_PT) < $options['nestlevel']) {
                             $parts = strtr($parts, [
                                 $MARK_BR => "",
                                 $MARK_NT => "",
@@ -2070,15 +2108,17 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
                         }
                         else {
                             $brnt = $MARK_BR . $MARK_NT;
-                            if ($subcontext !== 'WITH' && strtoupper($seek($current, +1)) === 'SELECT') {
+                            if ($subcontext !== 'WITH' && strtoupper($seek($current, +1)[1]) === 'SELECT') {
                                 $brnt .= $MARK_NT;
                             }
-                            $parts = str_replace($MARK_BR, $brnt, $parts) . $MARK_BR . $MARK_NT;
+                            $parts = preg_replace("#($MARK_BR)+#u", $brnt, $parts) . $MARK_BR . $MARK_NT;
+                            $parts = preg_replace("#$MARK_CS#u", "", $parts);
                         }
 
-                        // IN はネストとみなさない
+                        // IN や数式はネストとみなさない
+                        $prev = $seek($current, -1)[1];
                         $suffix = $MARK_PT;
-                        if (strtoupper($seek($current, -1)) === 'IN') {
+                        if (strtoupper($prev) === 'IN' || !preg_match('#^[a-z0-9_]+$#i', $prev)) {
                             $suffix = '';
                         }
                         if ($subcontext === 'WITH') {
@@ -2098,11 +2138,15 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
         $result = preg_replaces("#" . implode('|', [
                 // 改行文字＋インデント文字をインデントとみなす（改行＋連続スペースもついでに）
                 "(?<indent>$MARK_BR(($MARK_NT|$MARK_SP)+))",
+                // 行末コメントと単一コメント
+                "(?<cs1>$MARK_BR$MARK_CS)",
+                "(?<cs2>$MARK_CS)",
                 // 連続改行は1つに集約
                 "(?<br>$MARK_BR(($MARK_NT|$MARK_SP)*)($MARK_BR)*)",
                 // 連続スペースは1つに集約
                 "(?<sp>($MARK_SP)+)",
                 // 下記はマーカ文字が現れないように単純置換
+                "(?<ce>$MARK_CE)",
                 "(?<nt>$MARK_NT)",
                 "(?<pt>$MARK_PT)",
                 "(?<R>$MARK_R)",
@@ -2111,8 +2155,11 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
             'indent' => function ($str) use ($options, $MARK_NT, $MARK_SP) {
                 return "\n" . str_repeat($options['indent'], (substr_count($str, $MARK_NT) + substr_count($str, $MARK_SP)));
             },
+            'cs1'    => "\n" . $options['indent'],
+            'cs2'    => "",
             'br'     => "\n",
             'sp'     => ' ',
+            'ce'     => "",
             'nt'     => "",
             'pt'     => "",
             'R'      => "\r",
@@ -2124,6 +2171,49 @@ if (!isset($excluded_functions["sql_format"]) && (!function_exists("ryunosuke\\W
 }
 if (function_exists("ryunosuke\\WebDebugger\\sql_format") && !defined("ryunosuke\\WebDebugger\\sql_format")) {
     define("ryunosuke\\WebDebugger\\sql_format", "ryunosuke\\WebDebugger\\sql_format");
+}
+
+if (!isset($excluded_functions["multiexplode"]) && (!function_exists("ryunosuke\\WebDebugger\\multiexplode") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\multiexplode"))->isInternal()))) {
+    /**
+     * explode の配列対応と $limit の挙動を変えたもの
+     *
+     * $delimiter には配列が使える。いわゆる「複数文字列での分割」の動作になる。
+     *
+     * $limit に負数を与えると「その絶対値-1までを結合したものと残り」を返す。
+     * 端的に言えば「正数を与えると後詰めでその個数で返す」「負数を与えると前詰めでその（絶対値）個数で返す」という動作になる。
+     *
+     * Example:
+     * ```php
+     * // 配列を与えると複数文字列での分割
+     * that(multiexplode([',', ' ', '|'], 'a,b c|d'))->isSame(['a', 'b', 'c', 'd']);
+     * // 負数を与えると前詰め
+     * that(multiexplode(',', 'a,b,c,d', -2))->isSame(['a,b,c', 'd']);
+     * // もちろん上記2つは共存できる
+     * that(multiexplode([',', ' ', '|'], 'a,b c|d', -2))->isSame(['a,b c', 'd']);
+     * ```
+     *
+     * @param string|array $delimiter 分割文字列。配列可
+     * @param string $string 対象文字列
+     * @param int $limit 分割数
+     * @return array 分割された配列
+     */
+    function multiexplode($delimiter, $string, $limit = \PHP_INT_MAX)
+    {
+        $limit = (int) $limit;
+        if ($limit < 0) {
+            // 下手に php で小細工するよりこうやって富豪的にやるのが一番速かった
+            return array_reverse(array_map('strrev', multiexplode($delimiter, strrev($string), -$limit)));
+        }
+        // explode において 0 は 1 と等しい
+        if ($limit === 0) {
+            $limit = 1;
+        }
+        $delimiter = array_map(function ($v) { return preg_quote($v, '#'); }, arrayize($delimiter));
+        return preg_split('#' . implode('|', $delimiter) . '#', $string, $limit);
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\multiexplode") && !defined("ryunosuke\\WebDebugger\\multiexplode")) {
+    define("ryunosuke\\WebDebugger\\multiexplode", "ryunosuke\\WebDebugger\\multiexplode");
 }
 
 if (!isset($excluded_functions["preg_replaces"]) && (!function_exists("ryunosuke\\WebDebugger\\preg_replaces") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\preg_replaces"))->isInternal()))) {
@@ -2139,16 +2229,16 @@ if (!isset($excluded_functions["preg_replaces"]) && (!function_exists("ryunosuke
      * Example:
      * ```php
      * // a と z に囲まれた数字を XXX に置換する
-     * assertSame(preg_replaces('#a(\d+)z#', [1 => 'XXX'], 'a123z'), 'aXXXz');
+     * that(preg_replaces('#a(\d+)z#', [1 => 'XXX'], 'a123z'))->isSame('aXXXz');
      * // 名前付きキャプチャも指定できる
-     * assertSame(preg_replaces('#a(?<digit>\d+)z#', ['digit' => 'XXX'], 'a123z'), 'aXXXz');
+     * that(preg_replaces('#a(?<digit>\d+)z#', ['digit' => 'XXX'], 'a123z'))->isSame('aXXXz');
      * // クロージャを渡すと元文字列を引数としてコールバックされる
-     * assertSame(preg_replaces('#a(?<digit>\d+)z#', ['digit' => function($src){return $src * 2;}], 'a123z'), 'a246z');
+     * that(preg_replaces('#a(?<digit>\d+)z#', ['digit' => function($src){return $src * 2;}], 'a123z'))->isSame('a246z');
      * // 複合的なサンプル（a タグの href と target 属性を書き換える）
-     * assertSame(preg_replaces('#<a\s+href="(?<href>.*)"\s+target="(?<target>.*)">#', [
+     * that(preg_replaces('#<a\s+href="(?<href>.*)"\s+target="(?<target>.*)">#', [
      *     'href'   => function($href){return strtoupper($href);},
      *     'target' => function($target){return strtoupper($target);},
-     * ], '<a href="hoge" target="fuga">inner text</a>'), '<a href="HOGE" target="FUGA">inner text</a>');
+     * ], '<a href="hoge" target="fuga">inner text</a>'))->isSame('<a href="HOGE" target="FUGA">inner text</a>');
      * ```
      *
      * @param string $pattern 正規表現
@@ -2217,7 +2307,7 @@ if (!isset($excluded_functions["evaluate"]) && (!function_exists("ryunosuke\\Web
      * $c = $a + $b;
      * return $c * 3;
      * ';
-     * assertSame(evaluate($phpcode, get_defined_vars()), 9);
+     * that(evaluate($phpcode, get_defined_vars()))->isSame(9);
      * ```
      *
      * @param string $phpcode 実行する php コード
@@ -2289,14 +2379,14 @@ if (!isset($excluded_functions["parse_php"]) && (!function_exists("ryunosuke\\We
      *     'begin' => T_NAMESPACE,
      *     'end'   => ';',
      * ]);
-     * assertSame(implode('', array_column($part, 1)), 'namespace Hogera;');
+     * that(implode('', array_column($part, 1)))->isSame('namespace Hogera;');
      *
      * // class ～ { を取得
      * $part = parse_php($phpcode, [
      *     'begin' => T_CLASS,
      *     'end'   => '{',
      * ]);
-     * assertSame(implode('', array_column($part, 1)), "class Example\n{");
+     * that(implode('', array_column($part, 1)))->isSame("class Example\n{");
      * ```
      *
      * @param string $phpcode パースする php コード
@@ -2362,7 +2452,7 @@ if (!isset($excluded_functions["parse_php"]) && (!function_exists("ryunosuke\\We
                 continue;
             }
 
-            $result[] = $token;
+            $result[$i] = $token;
 
             foreach ($end_tokens as $t) {
                 if (isset($nest_tokens[$t])) {
@@ -2399,7 +2489,7 @@ if (!isset($excluded_functions["throws"]) && (!function_exists("ryunosuke\\WebDe
      *     throws(new \Exception('throws'));
      * }
      * catch (\Exception $ex) {
-     *     assertSame($ex->getMessage(), 'throws');
+     *     that($ex->getMessage())->isSame('throws');
      * }
      * ```
      *
@@ -2491,11 +2581,11 @@ if (!isset($excluded_functions["cache"]) && (!function_exists("ryunosuke\\WebDeb
      * // 乱数を返す処理だが、キャッシュされるので同じ値になる
      * $rand1 = cache('rand', $provider);
      * $rand2 = cache('rand', $provider);
-     * assertSame($rand1, $rand2);
+     * that($rand1)->isSame($rand2);
      * // $provider に null を与えると削除される
      * cache('rand', null);
      * $rand3 = cache('rand', $provider);
-     * assertNotSame($rand1, $rand3);
+     * that($rand1)->isNotSame($rand3);
      * ```
      *
      * @param string $key キャッシュのキー
@@ -2506,8 +2596,7 @@ if (!isset($excluded_functions["cache"]) && (!function_exists("ryunosuke\\WebDeb
     function cache($key, $provider, $namespace = null)
     {
         static $cacheobject;
-        $cacheobject = $cacheobject ?? new class(cachedir())
-            {
+        $cacheobject = $cacheobject ?? new class(cachedir()) {
                 const CACHE_EXT = '.php-cache';
 
                 /** @var string キャッシュディレクトリ */
@@ -2596,6 +2685,9 @@ if (!isset($excluded_functions["cache"]) && (!function_exists("ryunosuke\\WebDeb
 
         // flush (for test)
         if ($key === null) {
+            if ($provider === null) {
+                $cacheobject->clear();
+            }
             $cacheobject = null;
             return;
         }
@@ -2645,17 +2737,7 @@ if (!isset($excluded_functions["is_ansi"]) && (!function_exists("ryunosuke\\WebD
                 || 'xterm' === getenv('TERM');
         }
 
-        if (\function_exists('stream_isatty')) {
-            return @stream_isatty($stream); // @codeCoverageIgnore
-        }
-
-        if (\function_exists('posix_isatty')) {
-            return @posix_isatty($stream); // @codeCoverageIgnore
-        }
-
-        $stat = @fstat($stream);
-        // Check if formatted mode is S_IFCHR
-        return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
+        return @stream_isatty($stream);
     }
 }
 if (function_exists("ryunosuke\\WebDebugger\\is_ansi") && !defined("ryunosuke\\WebDebugger\\is_ansi")) {
@@ -2893,14 +2975,14 @@ if (!isset($excluded_functions["backtrace"]) && (!function_exists("ryunosuke\\We
      * function f003 () {return f002();}
      * $traces = f003();
      * // limit 指定してるので2個
-     * assertCount(2, $traces);
+     * that($traces)->count(2);
      * // 「function が f002 以降」を返す
-     * assertArraySubset([
+     * that($traces[0])->arraySubset([
      *     'function' => __NAMESPACE__ . '\\f002'
-     * ], $traces[0]);
-     * assertArraySubset([
+     * ]);
+     * that($traces[1])->arraySubset([
      *     'function' => __NAMESPACE__ . '\\f003'
-     * ], $traces[1]);
+     * ]);
      * ```
      *
      * @param int $flags debug_backtrace の引数
@@ -2940,6 +3022,268 @@ if (!isset($excluded_functions["backtrace"]) && (!function_exists("ryunosuke\\We
 }
 if (function_exists("ryunosuke\\WebDebugger\\backtrace") && !defined("ryunosuke\\WebDebugger\\backtrace")) {
     define("ryunosuke\\WebDebugger\\backtrace", "ryunosuke\\WebDebugger\\backtrace");
+}
+
+if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\WebDebugger\\profiler") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\profiler"))->isInternal()))) {
+    /**
+     * 外部ツールに頼らない pure php なプロファイラを返す
+     *
+     * file プロトコル上書きと ticks と debug_backtrace によるかなり無理のある実装なので動かない環境・コードは多い。
+     * その分お手軽だが下記の注意点がある。
+     *
+     * - file プロトコルを上書きするので、既に読み込み済みのファイルは計上されない
+     * - tick されないステートメントは計上されない
+     *     - 1行メソッドなどでありがち
+     * - A->B->C という呼び出しで C が 3秒、B が 2秒、A が1秒かかった場合、 A は 6 秒、B は 5秒、C は 3 秒といて計上される
+     *     - つまり、配下の呼び出しも重複して計上される
+     *
+     * この関数を呼んだ時点で計測は始まる。
+     * 返り値としてイテレータを返すので、foreach で回せばコールスタック・回数・時間などが取得できる。
+     * 配列で欲しい場合は直に呼べば良い。
+     *
+     * @param array $options オプション配列
+     * @return \Traversable|callable プロファイライテレータ
+     */
+    function profiler($options = [])
+    {
+        $declareProtocol = new
+        /**
+         * @method opendir($path, $context = null)
+         * @method touch($filename, $time = null, $atime = null)
+         * @method chmod($filename, $mode)
+         * @method chown($filename, $user)
+         * @method chgrp($filename, $group)
+         * @method fopen($filename, $mode, $use_include_path = false, $context = null)
+         */
+        class {
+            /** @var int https://github.com/php/php-src/blob/php-7.2.11/main/php_streams.h#L528-L529 */
+            private const STREAM_OPEN_FOR_INCLUDE = 0x00000080;
+
+            /** @var resource https://www.php.net/manual/class.streamwrapper.php */
+            public $context;
+
+            private $require;
+            private $handle;
+
+            public function __call($name, $arguments)
+            {
+                $fname = preg_replace(['#^dir_#', '#^stream_#'], ['', 'f'], $name, 1, $count);
+                if ($count) {
+                    // flock は特別扱い（file_put_contents (LOCK_EX) を呼ぶと 0 で来ることがある）
+                    // __call で特別扱いもおかしいけど、個別に定義するほうが逆にわかりにくい
+                    if ($fname === 'flock' && ($arguments[0] ?? null) === 0) {
+                        return true;
+                    }
+                    return $fname($this->handle, ...$arguments);
+                }
+
+                stream_wrapper_restore('file');
+                try {
+                    switch ($name) {
+                        default:
+                            // mkdir, rename, unlink, ...
+                            return $name(...$arguments);
+                        case 'rmdir':
+                            [$path, $options] = $arguments + [1 => 0];
+                            assert(isset($options)); // @todo It is used?
+                            return rmdir($path, $this->context);
+                        case 'url_stat':
+                            [$path, $flags] = $arguments + [1 => 0];
+                            if ($flags & STREAM_URL_STAT_LINK) {
+                                $func = 'lstat';
+                            }
+                            else {
+                                $func = 'stat';
+                            }
+                            if ($flags & STREAM_URL_STAT_QUIET) {
+                                return @$func($path);
+                            }
+                            else {
+                                return $func($path);
+                            }
+                    }
+                }
+                finally {
+                    stream_wrapper_unregister('file');
+                    stream_wrapper_register('file', get_class($this));
+                }
+            }
+
+            public function dir_opendir($path, $options)
+            {
+                return !!$this->handle = $this->opendir(...$this->context ? [$path, $this->context] : [$path]);
+            }
+
+            public function stream_open($path, $mode, $options, &$opened_path)
+            {
+                $use_path = $options & STREAM_USE_PATH;
+                $this->require = $options & self::STREAM_OPEN_FOR_INCLUDE;
+                if ($options & STREAM_REPORT_ERRORS) {
+                    $this->handle = $this->fopen($path, $mode, $use_path); // @codeCoverageIgnore
+                }
+                else {
+                    $this->handle = @$this->fopen($path, $mode, $use_path);
+                }
+                if ($use_path && $this->handle) {
+                    $opened_path = stream_get_meta_data($this->handle)['uri']; // @codeCoverageIgnore
+                }
+                return !!$this->handle;
+            }
+
+            public function stream_read($count)
+            {
+                $DECLARE = "<?php declare(ticks=1) ?>";
+
+                $pos = ftell($this->handle);
+                $return = fread($this->handle, $count - strlen($DECLARE));
+                if ($return === false) {
+                    return false; // @codeCoverageIgnore
+                }
+
+                $prefix = '';
+                if ($pos === 0 && $this->require) {
+                    $prefix = $DECLARE;
+                }
+                return $prefix . $return;
+            }
+
+            public function stream_set_option($option, $arg1, $arg2)
+            {
+                // Windows の file スキームでは呼ばれない？（確かにブロッキングやタイムアウトは無縁そう）
+                // @codeCoverageIgnoreStart
+                switch ($option) {
+                    default:
+                        throw new \Exception();
+                    case STREAM_OPTION_BLOCKING:
+                        return stream_set_blocking($this->handle, $arg1);
+                    case STREAM_OPTION_READ_TIMEOUT:
+                        return stream_set_timeout($this->handle, $arg1, $arg2);
+                    case STREAM_OPTION_WRITE_BUFFER:
+                        return stream_set_write_buffer($this->handle, $arg2); // @todo $arg1 is used?
+                }
+                // @codeCoverageIgnoreEnd
+            }
+
+            public function stream_metadata($path, $option, $value)
+            {
+                switch ($option) {
+                    default:
+                        throw new \Exception(); // @codeCoverageIgnore
+                    case STREAM_META_TOUCH:
+                        return $this->touch($path, ...$value);
+                    case STREAM_META_ACCESS:
+                        return $this->chmod($path, $value);
+                    case STREAM_META_OWNER_NAME:
+                    case STREAM_META_OWNER:
+                        return $this->chown($path, $value);
+                    case STREAM_META_GROUP_NAME:
+                    case STREAM_META_GROUP:
+                        return $this->chgrp($path, $value);
+                }
+            }
+
+            public function stream_cast($cast_as) { /* @todo I'm not sure */ }
+        };
+
+        $profiler = new class(get_class($declareProtocol), $options) implements \IteratorAggregate {
+            private $wrapper;
+            private $options;
+            private $last_trace;
+            private $result;
+
+            public function __construct($wrapper, $options = [])
+            {
+                $this->wrapper = $wrapper;
+                $this->options = array_replace([
+                    'callee'   => null,
+                    'location' => null,
+                ], $options);
+
+                $this->last_trace = [];
+                $this->result = [];
+
+                stream_wrapper_unregister('file');
+                stream_wrapper_register('file', $this->wrapper);
+
+                register_tick_function([$this, 'tick']);
+                opcache_reset();
+            }
+
+            public function __destruct()
+            {
+                unregister_tick_function([$this, 'tick']);
+
+                stream_wrapper_restore('file');
+            }
+
+            public function __invoke()
+            {
+                return $this->result;
+            }
+
+            public function getIterator()
+            {
+                return yield from $this->result;
+            }
+
+            public function tick()
+            {
+                $now = microtime(true);
+                $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+                $last_count = count($this->last_trace);
+                $current_count = count($traces);
+
+                // スタック数が変わってない（=同じメソッドを処理している？）
+                if ($current_count === $last_count) {
+                    // dummy
+                    assert($current_count === $last_count);
+                }
+                // スタック数が増えた（=新しいメソッドが開始された？）
+                elseif ($current_count > $last_count) {
+                    foreach (array_slice($traces, 1, $current_count - $last_count) as $last) {
+                        $last['time'] = $now;
+                        $last['callee'] = (isset($last['class'], $last['type']) ? $last['class'] . $last['type'] : '') . $last['function'];
+                        $last['location'] = isset($last['file'], $last['line']) ? $last['file'] . '#' . $last['line'] : null;
+                        array_unshift($this->last_trace, $last);
+                    }
+                }
+                // スタック数が減った（=処理してたメソッドを抜けた？）
+                elseif ($current_count < $last_count) {
+                    $prev = null; // array_map などの内部関数はスタックが一気に2つ増減する
+                    foreach (array_splice($this->last_trace, 0, $last_count - $current_count) as $last) {
+                        $time = $now - $last['time'];
+                        $callee = $last['callee'];
+                        $location = $last['location'] ?? ($prev['file'] ?? '') . '#' . ($prev['line'] ?? '');
+                        $prev = $last;
+
+                        foreach (['callee', 'location'] as $key) {
+                            $condition = $this->options[$key];
+                            $value = $$key;
+                            if ($condition !== null) {
+                                if ($condition instanceof \Closure) {
+                                    if (!$condition($value)) {
+                                        continue 2;
+                                    }
+                                }
+                                else {
+                                    if (preg_match($condition, $value) === false) {
+                                        continue 2;
+                                    }
+                                }
+                            }
+                        }
+                        $this->result[$callee][$location][] = $time;
+                    }
+                }
+            }
+        };
+
+        return $profiler;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\profiler") && !defined("ryunosuke\\WebDebugger\\profiler")) {
+    define("ryunosuke\\WebDebugger\\profiler", "ryunosuke\\WebDebugger\\profiler");
 }
 
 if (!isset($excluded_functions["stringify"]) && (!function_exists("ryunosuke\\WebDebugger\\stringify") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\stringify"))->isInternal()))) {
@@ -2995,14 +3339,14 @@ if (!isset($excluded_functions["arrayval"]) && (!function_exists("ryunosuke\\Web
      * Example:
      * ```php
      * // キャストなので基本的には配列化される
-     * assertSame(arrayval(123), [123]);
-     * assertSame(arrayval('str'), ['str']);
-     * assertSame(arrayval([123]), [123]); // 配列は配列のまま
+     * that(arrayval(123))->isSame([123]);
+     * that(arrayval('str'))->isSame(['str']);
+     * that(arrayval([123]))->isSame([123]); // 配列は配列のまま
      *
      * // $recursive = false にしない限り再帰的に適用される
      * $stdclass = stdclass(['key' => 'val']);
-     * assertSame(arrayval([$stdclass], true), [['key' => 'val']]); // true なので中身も配列化される
-     * assertSame(arrayval([$stdclass], false), [$stdclass]);       // false なので中身は変わらない
+     * that(arrayval([$stdclass], true))->isSame([['key' => 'val']]); // true なので中身も配列化される
+     * that(arrayval([$stdclass], false))->isSame([$stdclass]);       // false なので中身は変わらない
      * ```
      *
      * @param mixed $var array 化する値
@@ -3060,19 +3404,18 @@ if (!isset($excluded_functions["is_empty"]) && (!function_exists("ryunosuke\\Web
      * Example:
      * ```php
      * // この辺は empty と全く同じ
-     * assertTrue(is_empty(null));
-     * assertTrue(is_empty(false));
-     * assertTrue(is_empty(0));
-     * assertTrue(is_empty(''));
+     * that(is_empty(null))->isTrue();
+     * that(is_empty(false))->isTrue();
+     * that(is_empty(0))->isTrue();
+     * that(is_empty(''))->isTrue();
      * // この辺だけが異なる
-     * assertFalse(is_empty('0'));
-     * assertFalse(is_empty(new \SimpleXMLElement('<foo></foo>')));
+     * that(is_empty('0'))->isFalse();
      * // 第2引数に true を渡すと空の stdClass も empty 判定される
      * $stdclass = new \stdClass();
-     * assertTrue(is_empty($stdclass, true));
+     * that(is_empty($stdclass, true))->isTrue();
      * // フィールドがあれば empty ではない
      * $stdclass->hoge = 123;
-     * assertFalse(is_empty($stdclass, true));
+     * that(is_empty($stdclass, true))->isFalse();
      * ```
      *
      * @param mixed $var 判定する値
@@ -3119,12 +3462,12 @@ if (!isset($excluded_functions["is_primitive"]) && (!function_exists("ryunosuke\
      *
      * Example:
      * ```php
-     * assertTrue(is_primitive(null));
-     * assertTrue(is_primitive(false));
-     * assertTrue(is_primitive(123));
-     * assertTrue(is_primitive(STDIN));
-     * assertFalse(is_primitive(new \stdClass));
-     * assertFalse(is_primitive(['array']));
+     * that(is_primitive(null))->isTrue();
+     * that(is_primitive(false))->isTrue();
+     * that(is_primitive(123))->isTrue();
+     * that(is_primitive(STDIN))->isTrue();
+     * that(is_primitive(new \stdClass))->isFalse();
+     * that(is_primitive(['array']))->isFalse();
      * ```
      *
      * @param mixed $var 調べる値
@@ -3145,9 +3488,9 @@ if (!isset($excluded_functions["is_arrayable"]) && (!function_exists("ryunosuke\
      *
      * Example:
      * ```php
-     * assertTrue(is_arrayable([]));
-     * assertTrue(is_arrayable(new \ArrayObject()));
-     * assertFalse(is_arrayable(new \stdClass()));
+     * that(is_arrayable([]))->isTrue();
+     * that(is_arrayable(new \ArrayObject()))->isTrue();
+     * that(is_arrayable(new \stdClass()))->isFalse();
      * ```
      *
      * @param array $var 調べる値
@@ -3162,35 +3505,6 @@ if (function_exists("ryunosuke\\WebDebugger\\is_arrayable") && !defined("ryunosu
     define("ryunosuke\\WebDebugger\\is_arrayable", "ryunosuke\\WebDebugger\\is_arrayable");
 }
 
-if (!isset($excluded_functions["is_iterable"]) && (!function_exists("ryunosuke\\WebDebugger\\is_iterable") || (!true && (new \ReflectionFunction("ryunosuke\\WebDebugger\\is_iterable"))->isInternal()))) {
-    /**
-     * 変数が foreach で回せるか調べる
-     *
-     * オブジェクトの場合は \Traversable のみ。
-     * 要するに {@link http://php.net/manual/function.is-iterable.php is_iterable} の polyfill。
-     *
-     * Example:
-     * ```php
-     * assertTrue(is_iterable([1, 2, 3]));
-     * assertTrue(is_iterable((function () { yield 1; })()));
-     * assertFalse(is_iterable(1));
-     * assertFalse(is_iterable(new \stdClass()));
-     * ```
-     *
-     * @polyfill
-     *
-     * @param mixed $var 調べる値
-     * @return bool foreach で回せるなら true
-     */
-    function is_iterable($var)
-    {
-        return is_array($var) || $var instanceof \Traversable;
-    }
-}
-if (function_exists("ryunosuke\\WebDebugger\\is_iterable") && !defined("ryunosuke\\WebDebugger\\is_iterable")) {
-    define("ryunosuke\\WebDebugger\\is_iterable", "ryunosuke\\WebDebugger\\is_iterable");
-}
-
 if (!isset($excluded_functions["is_countable"]) && (!function_exists("ryunosuke\\WebDebugger\\is_countable") || (!true && (new \ReflectionFunction("ryunosuke\\WebDebugger\\is_countable"))->isInternal()))) {
     /**
      * 変数が count でカウントできるか調べる
@@ -3199,11 +3513,11 @@ if (!isset($excluded_functions["is_countable"]) && (!function_exists("ryunosuke\
      *
      * Example:
      * ```php
-     * assertTrue(is_countable([1, 2, 3]));
-     * assertTrue(is_countable(new \ArrayObject()));
-     * assertFalse(is_countable((function () { yield 1; })()));
-     * assertFalse(is_countable(1));
-     * assertFalse(is_countable(new \stdClass()));
+     * that(is_countable([1, 2, 3]))->isTrue();
+     * that(is_countable(new \ArrayObject()))->isTrue();
+     * that(is_countable((function () { yield 1; })()))->isFalse();
+     * that(is_countable(1))->isFalse();
+     * that(is_countable(new \stdClass()))->isFalse();
      * ```
      *
      * @polyfill
@@ -3237,7 +3551,7 @@ if (!isset($excluded_functions["var_export2"]) && (!function_exists("ryunosuke\\
      * Example:
      * ```php
      * // 単純なエクスポート
-     * assertSame(var_export2(['array' => [1, 2, 3], 'hash' => ['a' => 'A', 'b' => 'B', 'c' => 'C']], true), '[
+     * that(var_export2(['array' => [1, 2, 3], 'hash' => ['a' => 'A', 'b' => 'B', 'c' => 'C']], true))->isSame('[
      *     "array" => [1, 2, 3],
      *     "hash"  => [
      *         "a" => "A",
@@ -3252,7 +3566,7 @@ if (!isset($excluded_functions["var_export2"]) && (!function_exists("ryunosuke\\
      * $robject->a = new \stdClass();
      * $robject->a->b = new \stdClass();
      * $robject->a->b->c = $robject;
-     * assertSame(var_export2(compact('rarray', 'robject'), true), '[
+     * that(var_export2(compact('rarray', 'robject'), true))->isSame('[
      *     "rarray"  => [
      *         "a" => [
      *             "b" => [
@@ -3320,7 +3634,7 @@ if (!isset($excluded_functions["var_export2"]) && (!function_exists("ryunosuke\\
             }
             // 文字列はダブルクオート
             elseif (is_string($value)) {
-                return '"' . addcslashes($value, "\"\0\\") . '"';
+                return '"' . addcslashes($value, "\$\"\0\\") . '"';
             }
             // null は小文字で居て欲しい
             elseif (is_null($value)) {
@@ -3435,20 +3749,7 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
                 case is_null($value):
                     return $colorAdapter('null', 'bold');
                 case is_object($value):
-                    if (function_exists('spl_object_id')) {
-                        $id = spl_object_id($value); // @codeCoverageIgnore
-                    }
-                    // backport: spl_object_id
-                    else {
-                        // 桁がでかすぎて視認性が悪いので現在の hash をオフセットとして減算する
-                        // 場合によっては負数が出るが許容する（少なくとも同じオブジェクトなら同じ id になるはず。嫌なら php 7.2 を使えば良い）
-                        static $offset = null;
-                        if ($offset === null) {
-                            $offset = intval(substr(spl_object_hash($value), 1, 15), 16);
-                        }
-                        $id = intval(substr(spl_object_hash($value), 1, 15), 16) - $offset + 1;
-                    }
-                    return $colorAdapter(get_class($value), 'green') . "#$id";
+                    return $colorAdapter(get_class($value), 'green') . "#" . spl_object_id($value);
                 case is_bool($value):
                     return $colorAdapter(var_export($value, true), 'bold');
                 case is_int($value) || is_float($value) || is_string($value):
@@ -3484,6 +3785,7 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
                 return "{\n{$kvl}{$spacer2}}";
             }
             elseif ($value instanceof \Closure) {
+                /** @var \ReflectionFunctionAbstract $ref */
                 $ref = reflect_callable($value);
                 $that = $ref->getClosureThis();
                 $thatT = $that ? $colorVal($that) : 'static';
@@ -3502,7 +3804,7 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
         };
 
         // 結果を返したり出力したり
-        $result = ($return ? '' : stacktrace(null, ['format' => "%s:%s", 'args' => false]) . "\n") . $export($value);
+        $result = ($return ? '' : implode("\n", array_reverse(stacktrace(null, ['format' => "%s:%s", 'args' => false, 'delimiter' => null]))) . "\n") . $export($value);
         if ($context === 'html') {
             $result = "<pre>$result</pre>";
         }
