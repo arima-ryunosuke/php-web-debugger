@@ -20,6 +20,10 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.4
+
+- [fixbug][Debugger] php-fpm で file notfound になっていた不具合を修正
+
 ## 1.0.3
 
 - [all] 対応 php バージョンの格上げと composer update
