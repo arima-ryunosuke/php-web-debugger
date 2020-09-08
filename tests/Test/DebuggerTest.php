@@ -191,4 +191,24 @@ class DebuggerTest extends AbstractTestCase
         $this->assertContains('<div class="debug_plugin">', $response);
         $this->assertContains('<caption>SERVER</caption>', $response);
     }
+
+    /**
+     * @depends test_start_response_ajax
+     * @param $request_id
+     */
+    function test_start_response_ajax_nofile($request_id)
+    {
+        $_SERVER['REQUEST_URI'] = '/document-root/' . preg_replace('/request-\d/', 'request-9', $request_id);
+
+        $debugger = new Debugger([
+            'fookpath' => 'hogefugapiyo',
+            'rtype'    => 'html',
+        ]);
+        $debugger->initialize([
+            Ajax::class     => [],
+            Server::class   => [],
+        ]);
+        $response = $debugger->start();
+        $this->assertContains('is not found', $response);
+    }
 }

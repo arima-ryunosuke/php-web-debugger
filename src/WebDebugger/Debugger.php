@@ -98,8 +98,18 @@ class Debugger
 
         // リクエストファイルの返却
         if ($this->request['is_internal'] && preg_match('#request-((\d{8})(\d{6}).(\d+))#', $this->request['path'], $matches)) {
-            $dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $matches[2];
-            $data = unserialize(file_get_contents($dir . DIRECTORY_SEPARATOR . $matches[1]));
+            $request_dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $matches[2];
+            $request_file = $request_dir . DIRECTORY_SEPARATOR . $matches[1];
+
+            // php-fpm だと fastcgi_finish_request でshutdown 関数が呼ばれるのでこの段階でファイルがないことがある
+            for ($i = 0; $i < 1000 && !file_exists($request_file); $i++) {
+                clearstatcache($request_file);
+                usleep(10000);
+            }
+            if (!file_exists($request_file)) {
+                return GlobalFunction::response("$request_file is not found");
+            }
+            $data = unserialize(file_get_contents($request_file));
             $stores = $data['stores'];
 
             $prepare = '';
