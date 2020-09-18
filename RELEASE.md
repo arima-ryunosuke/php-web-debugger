@@ -20,6 +20,14 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.5
+
+- [fixbug][all] 巨大オブジェクトの表示でメモリを食いつぶしていた不具合を修正
+- [feature][Error] 例外が改行を含む場合に視認性が悪かったので pre で包むように変更
+- [fixbug][Log] 与えた値の型情報が死んでいた不具合を修正
+- [fixbug][Database] id がいつの間にかなくなっていた不具合を修正
+- [feature][Database] doctrine は非常によく使うのでアダプタを用意した
+
 ## 1.0.4
 
 - [fixbug][Debugger] php-fpm で file notfound になっていた不具合を修正
