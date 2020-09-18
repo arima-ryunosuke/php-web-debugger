@@ -266,7 +266,8 @@ class Database extends AbstractModule
         $logs = [];
         $time = 0;
 
-        foreach (call_user_func($this->logger) as $log) {
+        foreach (call_user_func($this->logger) as $n => $log) {
+            $log = ['id' => $n] + $log;
             $sql = $log['sql'];
             $params = $log['params'];
 
