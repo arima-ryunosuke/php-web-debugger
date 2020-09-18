@@ -58,7 +58,7 @@ class ErrorTest extends AbstractTestCase
         $this->assertArrayHasKey('data', $stored['Exception']);
 
         $this->assertEquals(' (1 errors)', $stored['Error']['summary']);
-        $this->assertEquals(' (Exception:test)', $stored['Exception']['summary']);
+        $this->assertEquals(' (Exception): test', $stored['Exception']['summary']);
 
         return $stored;
     }
@@ -83,8 +83,8 @@ class ErrorTest extends AbstractTestCase
     {
         $module = new Error();
         $htmls = $module->render($stored);
-        $this->assertContains('<caption>Error', $htmls);
-        $this->assertContains('<caption>Exception', $htmls);
+        $this->assertContains('<caption><pre>Error', $htmls);
+        $this->assertContains('<caption><pre>Exception', $htmls);
     }
 
     /**

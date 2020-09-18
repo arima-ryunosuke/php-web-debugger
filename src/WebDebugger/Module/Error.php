@@ -3,6 +3,7 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
+use ryunosuke\WebDebugger\Html\Raw;
 
 class Error extends AbstractModule
 {
@@ -150,7 +151,7 @@ class Error extends AbstractModule
         }
         $ex_summary = '';
         if ($this->exceptionHolder->exception) {
-            $ex_summary = " (" . get_class($this->exceptionHolder->exception) . ':' . $this->exceptionHolder->exception->getMessage() . ")";
+            $ex_summary = " (" . get_class($this->exceptionHolder->exception) . '): ' . $this->exceptionHolder->exception->getMessage();
         }
 
         return [
@@ -188,7 +189,8 @@ class Error extends AbstractModule
                     $row['trace'] = new Popup('trace', $table);
                 }
             }
-            $result[$category] = new ArrayTable($category . $data['summary'], array_map([$this, 'toOpenable'], $data['data']));
+            $caption = new Raw('<pre>' . htmlspecialchars($category . $data['summary'], ENT_QUOTES) . '</pre>');
+            $result[$category] = new ArrayTable($caption, array_map([$this, 'toOpenable'], $data['data']));
         }
         return $result;
     }
