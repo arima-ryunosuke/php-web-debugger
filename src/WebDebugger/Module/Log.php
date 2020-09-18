@@ -11,8 +11,11 @@ class Log extends AbstractModule
     /** @var self */
     private static $instance;
 
+    /** @var array ログ */
+    private $logs = [];
+
     /** @var string 保存ディレクトリ */
-    private $logfile;
+    private $logdir;
 
     public static function log($value, $name = '')
     {
@@ -47,7 +50,8 @@ class Log extends AbstractModule
 
         self::$instance = $this;
 
-        $this->logfile = $options['logfile'];
+        $this->logdir = dirname($options['logfile']); // for compatible
+        @mkdir($this->logdir, 0777, true);
     }
 
     protected function _finalize()
@@ -57,8 +61,8 @@ class Log extends AbstractModule
 
     protected function _setting()
     {
-        if (empty($this->setting['preserve']) && file_exists($this->logfile)) {
-            unlink($this->logfile);
+        if (empty($this->setting['preserve'])) {
+            \ryunosuke\WebDebugger\rm_rf($this->logdir, false);
         }
     }
 
@@ -71,8 +75,8 @@ class Log extends AbstractModule
             },
         ]);
 
-        $log = [
-            'time'  => date('Y/m/d H:i:s', GlobalFunction::time()),
+        $this->logs[] = [
+            'time'  => GlobalFunction::microtime(true),
             'file'  => $traces[0]['file'] ?? null,
             'line'  => $traces[0]['line'] ?? null,
             'name'  => $name,
@@ -80,21 +84,19 @@ class Log extends AbstractModule
             'trace' => $traces,
         ];
 
-        @mkdir(dirname($this->logfile), 0777, true);
-        file_put_contents($this->logfile, json_encode($log, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
-
         return $value;
     }
 
     protected function _gather()
     {
-        $logs = [];
-        if (file_exists($this->logfile)) {
-            $logs = array_map(function ($log) { return json_decode($log, true); }, file($this->logfile));
-        }
+        $timezone = new \DateTimeZone(date_default_timezone_get());
+        array_walk($this->logs, function (&$log) use ($timezone) {
+            // datetime パラメータが UNIX タイムスタンプ (例: 946684800) だったり、タイムゾーンを含んでいたり (例: 2010-01-28T15:00:00+02:00) する場合は、 timezone パラメータや現在のタイムゾーンは無視します
+            $log['time'] = \DateTime::createFromFormat('U.u', $log['time'])->setTimezone($timezone)->format('Y/m/d H:i:s.v');
+        });
 
         return [
-            'Log' => $logs,
+            'Log' => $this->logs,
         ];
     }
 
@@ -109,14 +111,29 @@ class Log extends AbstractModule
 
     protected function _render($stored)
     {
+        $logs = [];
+        if (!empty($this->setting['preserve'])) {
+            foreach (glob($this->logdir . '/wd-*') as $log) {
+                $logs = array_merge($logs, unserialize(file_get_contents($log)));
+            }
+            usort($logs, function ($a, $b) { return $a['time'] <=> $b['time']; });
+        }
+
         foreach ($stored['Log'] as &$log) {
+            $log['log'] = new Raw($log['log']);
             $trace = array_map([$this, 'toOpenable'], $log['trace']);
             $log['trace'] = new Popup('trace', new ArrayTable('', $trace));
             $log = $this->toOpenable($log);
         }
+
+        if (!empty($this->setting['preserve'])) {
+            file_put_contents(tempnam($this->logdir, 'wd-'), serialize($stored['Log']));
+        }
+
         $caption = new Raw('Log <label><input name="preserve" class="debug_plugin_setting" type="checkbox">preserve</label>');
+
         return [
-            'Log' => new ArrayTable($caption, $stored['Log']),
+            'Log' => new ArrayTable($caption, array_merge($logs, $stored['Log'])),
         ];
     }
 

@@ -4,6 +4,7 @@ namespace ryunosuke\WebDebugger;
 /**
  * @codeCoverageIgnore
  * @method static int time()
+ * @method static float|string microtime()
  * @method static void header($header)
  * @method static void header_remove($header = null)
  * @method static array headers_list()

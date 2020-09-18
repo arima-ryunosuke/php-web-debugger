@@ -17,6 +17,12 @@ $that->shutdowns = [];
 \ryunosuke\WebDebugger\GlobalFunction::override('time', function () {
     return strtotime('2000/12/24 12:34:56');
 });
+\ryunosuke\WebDebugger\GlobalFunction::override('microtime', function ($getAsFloat = false) {
+    if ($getAsFloat) {
+        return (float) (strtotime('2000/12/24 12:34:56') . '.123');
+    }
+    return "0.123 " . strtotime('2000/12/24 12:34:56');
+});
 \ryunosuke\WebDebugger\GlobalFunction::override('header', function ($header) use ($that) {
     $that->headers[] = $header;
 });

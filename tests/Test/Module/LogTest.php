@@ -44,7 +44,7 @@ class LogTest extends AbstractTestCase
             'line' => 35,
             'name' => "",
             'log'  => "xxx",
-            'time' => '2000/12/24 12:34:56',
+            'time' => '2000/12/24 12:34:56.123',
         ], $actual);
     }
 
@@ -62,18 +62,28 @@ class LogTest extends AbstractTestCase
 
     function test_preserve()
     {
+        $logfile = sys_get_temp_dir() . '/hoge/log.txt';
+
         $module = new Log();
-        $module->initialize();
+        $module->initialize(['logfile' => $logfile]);
         $module->setting([]);
         $module->log('xxx');
+        $this->assertCount(0, glob(dirname($logfile) . '/*'));
 
         $module = new Log();
-        $module->initialize();
+        $module->initialize(['logfile' => $logfile]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
+        $this->assertCount(0, glob(dirname($logfile) . '/*'));
+        $module->render($module->gather());
+        $this->assertCount(1, glob(dirname($logfile) . '/*'));
 
-        $stores = $module->gather();
-        $this->assertCount(2, $stores['Log']);
+        $module = new Log();
+        $module->initialize(['logfile' => $logfile]);
+        $module->setting(['preserve' => 1]);
+        $module->log('xxx');
+        $module->render($module->gather());
+        $this->assertCount(2, glob(dirname($logfile) . '/*'));
     }
 
     function test_render()
