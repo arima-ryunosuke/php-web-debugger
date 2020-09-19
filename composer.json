@@ -37,7 +37,8 @@
     "ext-pdo": "*",
     "phpunit/phpunit": "7.*",
     "smarty/smarty": "3.*",
-    "ryunosuke/functions": "1.4.5"
+    "doctrine/dbal": "2.*",
+    "ryunosuke/functions": "1.4.9"
   },
   "scripts": {
     "build": [
