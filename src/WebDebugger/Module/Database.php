@@ -24,6 +24,28 @@ class Database extends AbstractModule
     /** @var callable */
     private $scorer;
 
+    public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection)
+    {
+        return function () use ($connection) {
+            $configration = $connection->getConfiguration();
+
+            $logger = new \Doctrine\DBAL\Logging\DebugStack();
+            $currentLogger = $configration->getSQLLogger();
+            $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
+
+            return [
+                'pdo'    => $connection->getWrappedConnection(),
+                'logger' => function () use ($logger) {
+                    return array_map(function ($log) {
+                        $log['time'] = $log['executionMS'];
+                        unset($log['executionMS'], $log['types']);
+                        return $log;
+                    }, $logger->queries);
+                }
+            ];
+        };
+    }
+
     public function prepareInner()
     {
         return '

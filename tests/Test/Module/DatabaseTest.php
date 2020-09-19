@@ -19,6 +19,26 @@ class DatabaseTest extends AbstractTestCase
         $this->pdo = new Database\LoggablePDO($this->getPdoConnection());
     }
 
+    function test_doctrineAdapter()
+    {
+        $connection = \Doctrine\DBAL\DriverManager::getConnection(['pdo' => $this->getPdoConnection()]);
+        $adapter = Database::doctrineAdapter($connection)();
+
+        $connection->query('select 1');
+        $connection->prepare('select ?')->execute([1]);
+
+        $logs = $adapter['logger']();
+
+        $this->assertArraySubset([
+            'sql'    => 'select 1',
+            'params' => [],
+        ], $logs[1]);
+        $this->assertArraySubset([
+            'sql'    => 'select ?',
+            'params' => [1],
+        ], $logs[2]);
+    }
+
     function test_initialize()
     {
         $module = new Database();
