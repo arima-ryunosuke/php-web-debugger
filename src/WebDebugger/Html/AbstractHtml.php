@@ -39,13 +39,13 @@ abstract class AbstractHtml
             return "<div class='prewrap'>array(0)</div>";
         }
 
-        // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるので堰き止める
-        $content = \ryunosuke\WebDebugger\var_pretty($var, null, true);
-        $guide = "";
-        if (mb_strlen($content) > 1024 * 10) {
-            $content = mb_substr($content, 0, 1024 * 10);
-            $guide = "<br />...<em>omitted too long</em>";
-        }
+        // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるのである程度制限する（注入できるようにしたい）
+        $content = \ryunosuke\WebDebugger\var_pretty($var, [
+            'return'    => true,
+            'maxdepth'  => 10,
+            'maxcount'  => 100,
+            'maxlength' => 1024 * 24,
+        ]);
 
         // type 名の取得（array, resource, object はちょっと小細工する）
         $type = gettype($var);
@@ -58,7 +58,7 @@ abstract class AbstractHtml
         elseif (is_object($var)) {
             $type .= ':' . get_class($var);
         }
-        return new Holding($type, $content . $guide);
+        return new Holding($type, $content);
     }
 
     protected function escapeHtml($string)
