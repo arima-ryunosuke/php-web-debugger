@@ -29,4 +29,5 @@ $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Log::class         => [],
     \ryunosuke\WebDebugger\Module\Smarty::class      => ['smarty' => $smarty],
     \ryunosuke\WebDebugger\Module\Variable::class    => ['server' => function () { return $_SERVER; }],
+    \ryunosuke\WebDebugger\Module\History::class     => [],
 ])->start();

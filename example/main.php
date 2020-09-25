@@ -1,3 +1,6 @@
+<head>
+    <title>Web Debugger</title>
+</head>
 <?php
 
 ob_start();
@@ -144,6 +147,17 @@ try {
         <?php
     })();
 
+    // History モジュール用
+    (function () {
+        ?>
+        <fieldset>
+            <legend>History</legend>
+            <p>過去の情報を遡って確認することができます</p>
+        </fieldset>
+        <?php
+    })();
+
+
     // Error モジュール用
     (function (\PDO $pdo) {
         // Notice
@@ -163,4 +177,5 @@ try {
 finally {
     ob_end_flush();
     echo "</body>";
+    fastcgi_finish_request();
 }
