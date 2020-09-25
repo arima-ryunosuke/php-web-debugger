@@ -78,7 +78,7 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('GET', $stored);
         $this->assertArrayHasKey('POST', $stored);
         $this->assertArrayHasKey('FILES', $stored);
@@ -96,7 +96,7 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $error = $module->getError($module->gather());
+        $error = $module->getError($module->gather([]));
         $this->assertContains('has same key', $error);
         $this->assertContains('has vulnerability', $error);
     }
@@ -109,7 +109,7 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>GET', $htmls);
         $this->assertContains('<caption>POST', $htmls);
         $this->assertContains('<caption>FILES', $htmls);
@@ -124,7 +124,7 @@ class ServerTest extends AbstractTestCase
     {
         $module = new Server();
         $module->initialize();
-        $consoles = $module->console($module->gather());
+        $consoles = $module->console($module->gather([]));
         $this->assertArrayHasKey('hashtable', $consoles['GET']);
         $this->assertArrayHasKey('hashtable', $consoles['POST']);
         $this->assertArrayHasKey('hashtable', $consoles['FILES']);

@@ -23,6 +23,9 @@ $that->shutdowns = [];
     }
     return "0.123 " . strtotime('2000/12/24 12:34:56');
 });
+\ryunosuke\WebDebugger\GlobalFunction::override('date', function ($format, $timestamp = null) {
+    return date($format, $timestamp ?? strtotime('2000/12/24 12:34:56'));
+});
 \ryunosuke\WebDebugger\GlobalFunction::override('header', function ($header) use ($that) {
     $that->headers[] = $header;
 });

@@ -27,6 +27,30 @@ class PerformanceTest extends AbstractTestCase
         $this->assertException(new \DomainException(), function () use ($module) { $module->time(); });
     }
 
+    function test_getCount()
+    {
+        $module = new Performance();
+        $module->initialize();
+
+        $module->time('a');
+        $module->time('b');
+
+        $stored = $module->gather([]);
+        $this->assertEquals(1, $module->getCount($stored));
+    }
+
+    function test_getError()
+    {
+        $module = new Performance();
+        $module->initialize();
+
+        $module->time('a');
+        $module->time('b');
+
+        $stored = $module->gather([]);
+        $this->assertEquals('has 1 timeline', $module->getError($stored));
+    }
+
     function test_gather()
     {
         $module = new Performance();
@@ -38,7 +62,7 @@ class PerformanceTest extends AbstractTestCase
         usleep(10000);
         $module->time('b');
 
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('Performance', $stored);
         $this->assertArrayHasKey('Timeline', $stored);
         $this->assertArrayHasKey('Profile', $stored);
@@ -57,7 +81,7 @@ class PerformanceTest extends AbstractTestCase
         $module->time('b');
         require __DIR__ . '/Performance/profiler.php';
 
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Performance', $htmls);
         $this->assertContains('<caption>Timeline', $htmls);
         $this->assertContains('<caption>Profile', $htmls);
@@ -70,7 +94,7 @@ class PerformanceTest extends AbstractTestCase
         $module->setting(['profile' => true]);
         require __DIR__ . '/Performance/profiler.php';
 
-        $consoled = $module->console($module->gather());
+        $consoled = $module->console($module->gather([]));
         $this->assertArrayHasKey('hashtable', $consoled['Performance']);
         $this->assertArrayHasKey('table', $consoled['Timeline']);
         $this->assertArrayHasKey('table', $consoled['Profile']);

@@ -45,7 +45,7 @@ class SmartyTest extends AbstractTestCase
         $module->initialize(['smarty' => $this->smarty]);
         $this->smarty->assign('hoge', 'HOGE');
         $this->smarty->fetch('eval:{$hoge}');
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('Templates', $stored);
         $this->assertArrayHasKey('Variables', $stored);
 
@@ -58,7 +58,7 @@ class SmartyTest extends AbstractTestCase
         $this->smarty->debugging = false;
         $module = new Smarty();
         $module->initialize(['smarty' => $this->smarty, 'auto_debugging' => false]);
-        $stored = $module->gather();
+        $stored = $module->gather([]);
 
         $this->assertEmpty($stored['Templates']);
     }
@@ -69,7 +69,7 @@ class SmartyTest extends AbstractTestCase
         $module->initialize(['smarty' => $this->smarty]);
         $this->smarty->assign('hoge', 'HOGE');
         $this->smarty->fetch('eval:{$hoge}');
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Templates', $htmls);
         $this->assertContains('<caption>Variables', $htmls);
     }

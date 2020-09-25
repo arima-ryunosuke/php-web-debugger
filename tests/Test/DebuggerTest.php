@@ -5,6 +5,7 @@ use ryunosuke\WebDebugger\Debugger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Module\Ajax;
 use ryunosuke\WebDebugger\Module\Database;
+use ryunosuke\WebDebugger\Module\History;
 use ryunosuke\WebDebugger\Module\Performance;
 use ryunosuke\WebDebugger\Module\Server;
 
@@ -59,12 +60,17 @@ class DebuggerTest extends AbstractTestCase
         $request = new \ReflectionProperty($debugger, 'request');
         $request->setAccessible(true);
         $this->assertEquals([
+            'id'                => '20001224123456.123',
+            'time'              => GlobalFunction::microtime(true),
+            'url'               => '/document-root/hogefugapiyo?12345',
             'path'              => '/document-root/hogefugapiyo',
             'method'            => 'GET',
             'is_ajax'           => false,
             'is_internal'       => true,
             'if_modified_since' => 0,
             'is_ignore'         => false,
+            'workfile'          => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working' . DIRECTORY_SEPARATOR . '20001224123456.123',
+            'workpath'          => 'hogefugapiyo/request-20001224123456.123',
         ], $request->getValue($debugger));
     }
 
@@ -141,11 +147,12 @@ class DebuggerTest extends AbstractTestCase
             Performance::class => [],
         ]);
         $debugger->start();
-        echo '<body></body>';
+        echo '<html><head></head><body></body></html>';
         GlobalFunction::call_shutdown_function();
         ob_end_flush();
         $this->assertContains('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
-        $this->expectOutputRegex('#<iframe#u');
+        $this->expectOutputRegex('#<!-- this is web debugger head injection -->#u');
+        $this->expectOutputRegex('#<!-- this is web debugger body injection -->#u');
     }
 
     function test_start_response_ajax()
@@ -161,6 +168,7 @@ class DebuggerTest extends AbstractTestCase
             Ajax::class     => [],
             Server::class   => [],
             Database::class => ['pdo' => new Database\LoggablePDO($this->getPdoConnection())],
+            History::class  => [],
         ]);
         $debugger->start();
         ob_end_flush();
@@ -186,6 +194,7 @@ class DebuggerTest extends AbstractTestCase
             Ajax::class     => [],
             Server::class   => [],
             Database::class => ['pdo' => new Database\LoggablePDO($this->getPdoConnection())],
+            History::class  => [],
         ]);
         $response = $debugger->start();
         $this->assertContains('<div class="debug_plugin">', $response);
@@ -205,8 +214,9 @@ class DebuggerTest extends AbstractTestCase
             'rtype'    => 'html',
         ]);
         $debugger->initialize([
-            Ajax::class     => [],
-            Server::class   => [],
+            Ajax::class   => [],
+            Server::class => [],
+            History::class  => [],
         ]);
         $response = $debugger->start();
         $this->assertContains('is not found', $response);

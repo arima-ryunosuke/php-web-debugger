@@ -70,6 +70,6 @@ class AbstractHtmlTest extends AbstractTestCase
     function test_export_toolong()
     {
         $export = (string) $this->export(range(0, 2000));
-        $this->assertContains("omitted too long", $export);
+        $this->assertContains("more 1901 elements", $export);
     }
 }

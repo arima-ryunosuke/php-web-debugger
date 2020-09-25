@@ -121,7 +121,7 @@ class DatabaseTest extends AbstractTestCase
         ]);
         $module->setting(['explain' => 1]);
         $this->pdo->prepare('select 1')->execute();
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('Query', $stored);
         $this->assertArrayHasKey('summary', $stored['Query']);
         $this->assertArrayHasKey('logs', $stored['Query']);
@@ -136,7 +136,7 @@ class DatabaseTest extends AbstractTestCase
         $module->initialize(['pdo' => $this->pdo,]);
         $module->setting(['explain' => 1]);
         $this->pdo->prepare('SELECT * FROM information_schema.TABLES')->execute();
-        $error = $module->getError($module->gather());
+        $error = $module->getError($module->gather([]));
         $this->assertContains('has slow query', $error);
         $module->finalize();
 
@@ -148,16 +148,16 @@ class DatabaseTest extends AbstractTestCase
         }
         catch (\Exception $ex) {
         }
-        $error = $module->getError($module->gather());
-        $this->assertEquals('has error query', $error);
+        $error = $module->getError($module->gather([]));
+        $this->assertEquals('has 1 quries,has error query', $error);
         $module->finalize();
 
         $module = new Database();
         $module->initialize(['pdo' => $this->pdo,]);
         $module->setting(['explain' => 1]);
         $this->pdo->prepare('SELECT 1')->execute();
-        $error = $module->getError($module->gather());
-        $this->assertEquals('', $error);
+        $error = $module->getError($module->gather([]));
+        $this->assertEquals('has 1 quries', $error);
         $module->finalize();
     }
 
@@ -175,7 +175,7 @@ class DatabaseTest extends AbstractTestCase
         }
         catch (\Exception $ex) {
         }
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Query', $htmls);
         $this->assertContains('background:#fcc', $htmls);
     }
@@ -184,7 +184,7 @@ class DatabaseTest extends AbstractTestCase
     {
         $module = new Database();
         $module->initialize(['pdo' => $this->pdo,]);
-        $consoles = $module->console($module->gather());
+        $consoles = $module->console($module->gather([]));
         $this->assertArrayHasKey('table', reset($consoles));
     }
 

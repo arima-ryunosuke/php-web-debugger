@@ -6,6 +6,20 @@ use ryunosuke\WebDebugger\Module\Variable;
 
 class VariableTest extends AbstractTestCase
 {
+    function test_getCount()
+    {
+        $module = new Variable();
+        $module->initialize([
+            'array'   => [
+                ['id' => 1, 'name' => 'nameA', 'group' => 'X'],
+                ['id' => 2, 'name' => 'nameB', 'group' => 'Y'],
+                ['id' => 3, 'name' => 'nameC', 'group' => 'X'],
+            ],
+        ]);
+        $stored = $module->gather([]);
+        $this->assertEquals(3, $module->getCount($stored));
+    }
+
     function test_gather()
     {
         $module = new Variable();
@@ -27,7 +41,7 @@ class VariableTest extends AbstractTestCase
             'list'    => ['a', 'b'],
             'string'  => 'this is string',
         ]);
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertEquals([
             "closure" => [1, 2, 3],
             "hash"    => ["a" => "A", "b" => ["B"],],
@@ -65,7 +79,7 @@ class VariableTest extends AbstractTestCase
             'list'    => ['a', 'b'],
             "string"  => "this is string",
         ]);
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>hash', $htmls);
         $this->assertContains('<caption>array', $htmls);
         $this->assertContains('<caption>objects', $htmls);
@@ -96,7 +110,7 @@ class VariableTest extends AbstractTestCase
             'list'    => ['a', 'b'],
             "string"  => "this is string",
         ]);
-        $consoles = $module->console($module->gather());
+        $consoles = $module->console($module->gather([]));
         $this->assertArrayHasKey('hashtable', $consoles['hash']);
         $this->assertArrayHasKey('table', $consoles['array']);
         $this->assertArrayHasKey('table', $consoles['objects']);

@@ -17,7 +17,7 @@ class AjaxTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
         $module->initialize();
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('datetime', $stored);
         $this->assertArrayHasKey('url', $stored);
         $this->assertArrayHasKey('GET', $stored);
@@ -29,7 +29,7 @@ class AjaxTest extends AbstractTestCase
     {
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>AjaxRequest', $htmls);
     }
 }

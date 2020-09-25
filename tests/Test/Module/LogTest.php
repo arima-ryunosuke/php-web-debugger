@@ -34,7 +34,7 @@ class LogTest extends AbstractTestCase
 
         $module->log('xxx'); // 行数が変わるとテストがコケる
 
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $this->assertArrayHasKey('Log', $stored);
         $actual = $stored['Log'][0];
         $this->assertArrayHasKey('trace', $actual);
@@ -48,16 +48,28 @@ class LogTest extends AbstractTestCase
         ], $actual);
     }
 
+    function test_getCount()
+    {
+        $module = new Log();
+        $module->initialize();
+        $module->setting([]);
+
+        $this->assertEquals(0, $module->getCount($module->gather([])));
+
+        $module->log('hoge');
+        $this->assertEquals(1, $module->getCount($module->gather([])));
+    }
+
     function test_getErrors()
     {
         $module = new Log();
         $module->initialize();
         $module->setting([]);
 
-        $this->assertEquals('', $module->getError($module->gather()));
+        $this->assertEquals('', $module->getError($module->gather([])));
 
         $module->log('hoge');
-        $this->assertEquals('has log', $module->getError($module->gather()));
+        $this->assertEquals('has 1 log', $module->getError($module->gather([])));
     }
 
     function test_preserve()
@@ -75,14 +87,14 @@ class LogTest extends AbstractTestCase
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
         $this->assertCount(0, glob(dirname($logfile) . '/*'));
-        $module->render($module->gather());
+        $module->render($module->gather([]));
         $this->assertCount(1, glob(dirname($logfile) . '/*'));
 
         $module = new Log();
         $module->initialize(['logfile' => $logfile]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
-        $module->render($module->gather());
+        $module->render($module->gather([]));
         $this->assertCount(2, glob(dirname($logfile) . '/*'));
     }
 
@@ -94,7 +106,7 @@ class LogTest extends AbstractTestCase
 
         $module->log('xxx');
 
-        $htmls = $module->render($module->gather());
+        $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Log', $htmls);
     }
 
@@ -106,7 +118,7 @@ class LogTest extends AbstractTestCase
 
         $module->log('xxx');
 
-        $consoled = $module->console($module->gather());
+        $consoled = $module->console($module->gather([]));
         $this->assertArrayHasKey('table', $consoled['Log']);
     }
 }

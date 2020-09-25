@@ -46,7 +46,7 @@ class ErrorTest extends AbstractTestCase
         $a = [];
         $a['t'] = $a['undefined'];
         $a['t'] = @$a['undefined'];
-        $stored = $module->gather();
+        $stored = $module->gather([]);
         $module->finalize();
         restore_error_handler();
 
@@ -61,6 +61,17 @@ class ErrorTest extends AbstractTestCase
         $this->assertEquals(' (Exception): test', $stored['Exception']['summary']);
 
         return $stored;
+    }
+
+    /**
+     * @depends test_gather
+     * @param $stored
+     */
+    function test_gather_getCount($stored)
+    {
+        $module = new Error();
+        $count = $module->getCount($stored);
+        $this->assertEquals(1, $count);
     }
 
     /**
