@@ -64,7 +64,7 @@ class Ajax extends AbstractModule
                 .debug_plugin.ajaxed {
                     display: none;
                 }
-                .debug_plugin_parts.Ajax label {
+                .debug_plugin_parts.Ajax [name=ajaxrow] {
                     cursor: pointer;
                 }
             </style>
@@ -114,7 +114,7 @@ class Ajax extends AbstractModule
     protected function _render($stored)
     {
         $caption = new Raw('AjaxRequest <label><input name="autoswitch" class="debug_plugin_setting" type="checkbox">autoswitch</label>');
-        $stored['url'] = new Raw('<label><input type="radio" name="ajaxrow" value="0" checked>' . $stored['url'] . '</label>');
+        $stored = ['' => new Raw('<label><input type="radio" name="ajaxrow" value="0" checked></label>')] + $stored;
         return new ArrayTable($caption, [$stored]);
     }
 }
