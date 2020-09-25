@@ -29,7 +29,7 @@ $h = function ($string) {
     <?php foreach ($module_data as $n => $module): ?>
         <div class='debug_plugin_parts <?= $h($module['name']) ?> <?= $h($module['disabled'] ? 'disabled' : '') ?>' data-module-class="<?= $h($module['class']) ?>">
             <div class='debug_plugin_switch' style='background-color:<?= $h($module['color']) ?>;top:<?= $n * 20 ?>px'>
-                <span class='debug_plugin_error'><?= $h($module['error'] ? '!' : '') ?></span>
+                <span class='debug_plugin_count'><?= $h($module['count']) ?></span>
                 <span class='debug_plugin_title'>
                     <?= $h($module['name']) ?>
                     <span><?= $h($module['error'] . ' ') ?></span>

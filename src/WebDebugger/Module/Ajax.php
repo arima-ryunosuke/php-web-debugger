@@ -81,7 +81,7 @@ class Ajax extends AbstractModule
                             toggler.val(counter).removeAttr("checked");
                             $("body").append(thisPlugin.addClass("ajaxed"));
                             $(".debug_plugin_parts.Ajax .debug_table tbody").append(tr);
-                            $(".debug_plugin_parts.Ajax .debug_plugin_error").text(counter);
+                            $(".debug_plugin_parts.Ajax .debug_plugin_count").text(counter);
                             if ($(".debug_plugin_parts.Ajax [name=autoswitch]").prop("checked")) {
                                 toggler.click();
                             }

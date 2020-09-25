@@ -26,6 +26,11 @@ class Variable extends AbstractModule
         return $data;
     }
 
+    protected function _getCount($stored)
+    {
+        return array_sum(array_map('count', $stored));
+    }
+
     protected function _render($stored)
     {
         $result = [];

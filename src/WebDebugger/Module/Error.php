@@ -166,6 +166,11 @@ class Error extends AbstractModule
         ];
     }
 
+    protected function _getCount($stored)
+    {
+        return count($stored['Error']['data']);
+    }
+
     protected function _getError($stored)
     {
         $result = [];

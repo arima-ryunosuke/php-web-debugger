@@ -122,6 +122,7 @@ class Debugger
                         'name'     => $module->getName(),
                         'color'    => $module->getColor(),
                         'disabled' => $module->isDisabled(),
+                        'count'    => $stores[$name]['count'],
                         'error'    => $stores[$name]['error'],
                         'html'     => $stores[$name]['html'],
                     ];
@@ -154,6 +155,7 @@ class Debugger
                     'request' => $this->request,
                     'stores'  => array_kmap($stores, function ($v, $k) {
                         return [
+                            'count' => $this->modules[$k]->getCount($v),
                             'error' => $this->modules[$k]->getError($v),
                             'html'  => $this->modules[$k]->render($v),
                         ];

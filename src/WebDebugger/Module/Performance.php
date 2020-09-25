@@ -149,6 +149,20 @@ class Performance extends AbstractModule
         ];
     }
 
+    protected function _getCount($stored)
+    {
+        return count($stored['Timeline']);
+    }
+
+    protected function _getError($stored)
+    {
+        $result = [];
+        if (count($stored['Timeline'])) {
+            $result[] = 'has '.count($stored['Timeline']).' timeline';
+        }
+        return $result;
+    }
+
     protected function _render($stored)
     {
         $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');

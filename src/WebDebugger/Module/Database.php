@@ -293,9 +293,17 @@ class Database extends AbstractModule
         ];
     }
 
+    protected function _getCount($stored)
+    {
+        return count($stored['Query']['logs']);
+    }
+
     protected function _getError($stored)
     {
         $error = [];
+        if (count($stored['Query']['logs'])) {
+            $error['has '.count($stored['Query']['logs']). ' quries'] = true;
+        }
         foreach ($stored['Query']['logs'] as $log) {
             if (isset($log['explain'])) {
                 foreach ($log['explain'] as $explain) {

@@ -178,6 +178,22 @@ abstract class AbstractModule
     protected function _gather() { }
 
     /**
+     * info 数を返す
+     *
+     * @param array $stored gather の返り値
+     * @return int
+     */
+    public final function getCount($stored)
+    {
+        if ($this->isDisabled()) {
+            return;
+        }
+        return $this->_getCount($stored);
+    }
+
+    protected function _getCount($stored) { }
+
+    /**
      * エラーを返す
      *
      * @param array $stored gather の返り値

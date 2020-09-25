@@ -100,11 +100,16 @@ class Log extends AbstractModule
         ];
     }
 
+    protected function _getCount($stored)
+    {
+        return count($stored['Log']);
+    }
+
     protected function _getError($stored)
     {
         $result = [];
         if (count($stored['Log'])) {
-            $result[] = 'has log';
+            $result[] = 'has '.count($stored['Log']).' log';
         }
         return $result;
     }
