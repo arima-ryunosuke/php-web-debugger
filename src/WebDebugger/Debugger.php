@@ -142,7 +142,7 @@ class Debugger
             $response_type = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
             $html_enable = in_array('html', $response_type);
             $console_enable = in_array('console', $response_type);
-            $stores = array_map_method($this->modules, 'gather');
+            $stores = array_map_method($this->modules, 'gather', [$this->request]);
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             if ($html_enable) {

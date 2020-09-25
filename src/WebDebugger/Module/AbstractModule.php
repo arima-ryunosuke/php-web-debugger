@@ -167,15 +167,16 @@ abstract class AbstractModule
     /**
      * モジュールの情報を返す
      */
-    public final function gather()
+    public final function gather(array $request)
     {
         if ($this->isDisabled()) {
             return [];
         }
-        return $this->_gather();
+        return $this->_gather($request);
     }
 
-    protected function _gather() { }
+    // for compatible
+    protected function _gather(/*array $request*/) { }
 
     /**
      * info 数を返す
