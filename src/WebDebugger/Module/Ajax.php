@@ -37,19 +37,20 @@ class Ajax extends AbstractModule
                     if (typeof(window.fetch) !== "undefined") {
                         var _fetch = window.fetch;
                         window.fetch = function(input, init) {
-                            if (typeof(init) !== "undefined") {
-                                if (init.headers instanceof Headers) {
-                                    if (!init.headers.has("X-Requested-With")) {
-                                        init.headers.append("X-Requested-With", "fetch");
-                                    }
+                            if (typeof(init) === "undefined") {
+                                init = {};
+                            }
+                            if (init.headers instanceof Headers) {
+                                if (!init.headers.has("X-Requested-With")) {
+                                    init.headers.append("X-Requested-With", "fetch");
                                 }
-                                else if (typeof(init.headers) === "undefined") {
-                                    init.headers = {"X-Requested-With": "fetch"};
-                                }
-                                else {
-                                    if (!init.headers["X-Requested-With"]) {
-                                        init.headers["X-Requested-With"] = "fetch";
-                                    }
+                            }
+                            else if (typeof(init.headers) === "undefined") {
+                                init.headers = {"X-Requested-With": "fetch"};
+                            }
+                            else {
+                                if (!init.headers["X-Requested-With"]) {
+                                    init.headers["X-Requested-With"] = "fetch";
                                 }
                             }
                             return _fetch.call(this, input, init).then(function(response) {
