@@ -36,8 +36,10 @@ class Debugger
         $this->options = array_replace_recursive($default, $options);
 
         // $request 変数
-        $this->request['id'] = GlobalFunction::date('YmdHis') . '.' . preg_replace('#^\d+\.#', '', GlobalFunction::microtime(true));
-        $this->request['path'] = preg_replace('#\\?.+#', '', $_SERVER['REQUEST_URI'] ?? '');
+        $this->request['time'] = GlobalFunction::microtime(true);
+        $this->request['id'] = GlobalFunction::date('YmdHis') . '.' . preg_replace('#^\d+\.#', '', $this->request['time']);
+        $this->request['url'] = $_SERVER['REQUEST_URI'] ?? '';
+        $this->request['path'] = preg_replace('#\\?.+#', '', $this->request['url']);
         $this->request['method'] = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $this->request['is_ajax'] = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
         $this->request['is_internal'] = strpos($this->request['path'], $this->options['fookpath']) !== false;
