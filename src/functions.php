@@ -3114,6 +3114,8 @@ if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\Web
          * @method fopen($filename, $mode, $use_include_path = false, $context = null)
          */
         class {
+            const DECLARE_TICKS = "<?php declare(ticks=1) ?>";
+
             /** @var int https://github.com/php/php-src/blob/php-7.2.11/main/php_streams.h#L528-L529 */
             private const STREAM_OPEN_FOR_INCLUDE = 0x00000080;
 
@@ -3121,6 +3123,7 @@ if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\Web
             public $context;
 
             private $require;
+            private $prepend;
             private $handle;
 
             public function __call($name, $arguments)
@@ -3174,8 +3177,9 @@ if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\Web
 
             public function stream_open($path, $mode, $options, &$opened_path)
             {
-                $use_path = $options & STREAM_USE_PATH;
                 $this->require = $options & self::STREAM_OPEN_FOR_INCLUDE;
+                $this->prepend = false;
+                $use_path = $options & STREAM_USE_PATH;
                 if ($options & STREAM_REPORT_ERRORS) {
                     $this->handle = $this->fopen($path, $mode, $use_path); // @codeCoverageIgnore
                 }
@@ -3190,19 +3194,22 @@ if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\Web
 
             public function stream_read($count)
             {
-                $DECLARE = "<?php declare(ticks=1) ?>";
-
-                $pos = ftell($this->handle);
-                $return = fread($this->handle, $count - strlen($DECLARE));
-                if ($return === false) {
-                    return false; // @codeCoverageIgnore
+                if (!$this->prepend && $this->require && ftell($this->handle) === 0) {
+                    $this->prepend = true;
+                    return self::DECLARE_TICKS;
                 }
+                return fread($this->handle, $count);
+            }
 
-                $prefix = '';
-                if ($pos === 0 && $this->require) {
-                    $prefix = $DECLARE;
+            public function stream_stat()
+            {
+                $stat = fstat($this->handle);
+                if ($this->require) {
+                    $decsize = strlen(self::DECLARE_TICKS);
+                    $stat[7] += $decsize;
+                    $stat['size'] += $decsize;
                 }
-                return $prefix . $return;
+                return $stat;
             }
 
             public function stream_set_option($option, $arg1, $arg2)
@@ -3216,8 +3223,10 @@ if (!isset($excluded_functions["profiler"]) && (!function_exists("ryunosuke\\Web
                         return stream_set_blocking($this->handle, $arg1);
                     case STREAM_OPTION_READ_TIMEOUT:
                         return stream_set_timeout($this->handle, $arg1, $arg2);
+                    case STREAM_OPTION_READ_BUFFER:
+                        return stream_set_read_buffer($this->handle, $arg2) === 0; // @todo $arg1 is used?
                     case STREAM_OPTION_WRITE_BUFFER:
-                        return stream_set_write_buffer($this->handle, $arg2); // @todo $arg1 is used?
+                        return stream_set_write_buffer($this->handle, $arg2) === 0; // @todo $arg1 is used?
                 }
                 // @codeCoverageIgnoreEnd
             }
@@ -3889,13 +3898,17 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
                     return;
                 }
 
+                $count = count($value);
                 $omitted = false;
-                if ($options['maxcount'] && ($omitted = count($value) - $options['maxcount']) > 0) {
+                if ($options['maxcount'] && ($omitted = $count - $options['maxcount']) > 0) {
                     $value = array_slice($value, 0, $options['maxcount'], true);
                 }
 
+                if ($count === 0){
+                    $appender(['plain', '['], ['plain', ']']);
+                }
                 // スカラー値のみで構成されているならシンプルな再帰
-                if (!is_hasharray($value) && array_all($value, is_primitive)) {
+                elseif (!is_hasharray($value) && array_all($value, is_primitive)) {
                     $last = array_pop($value);
                     $appender(['plain', '[']);
                     foreach ($value as $v) {
@@ -3907,6 +3920,7 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
                     }
                     $appender(['plain', ']']);
                 }
+                // 連想配列だったり階層を持っていたりするなら改行＋桁合わせ
                 else {
                     $spacer1 = str_repeat(' ', ($nest + 1) * $options['indent']);
                     $spacer2 = str_repeat(' ', $nest * $options['indent']);
