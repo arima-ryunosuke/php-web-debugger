@@ -36,12 +36,15 @@ class Debugger
         $this->options = array_replace_recursive($default, $options);
 
         // $request 変数
+        $this->request['id'] = GlobalFunction::date('YmdHis') . '.' . preg_replace('#^\d+\.#', '', GlobalFunction::microtime(true));
         $this->request['path'] = preg_replace('#\\?.+#', '', $_SERVER['REQUEST_URI'] ?? '');
         $this->request['method'] = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $this->request['is_ajax'] = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
         $this->request['is_internal'] = strpos($this->request['path'], $this->options['fookpath']) !== false;
         $this->request['if_modified_since'] = (int) strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '');
         $this->request['is_ignore'] = !!preg_match($this->options['ignore'], $this->request['path']);
+        $this->request['workfile'] = $this->options['workdir'] . DIRECTORY_SEPARATOR . $this->request['id'];
+        $this->request['workpath'] = $this->options['fookpath'] . "/request-{$this->request['id']}";
     }
 
     public function initialize(array $options = [])
@@ -97,9 +100,8 @@ class Debugger
         }
 
         // リクエストファイルの返却
-        if ($this->request['is_internal'] && preg_match('#request-((\d{8})(\d{6}).(\d+))#', $this->request['path'], $matches)) {
-            $request_dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $matches[2];
-            $request_file = $request_dir . DIRECTORY_SEPARATOR . $matches[1];
+        if ($this->request['is_internal'] && preg_match('#request-(\d{14}\.\d+)#', $this->request['path'], $matches)) {
+            $request_file = $this->options['workdir'] . DIRECTORY_SEPARATOR . $matches[1];
 
             // php-fpm だと fastcgi_finish_request でshutdown 関数が呼ばれるのでこの段階でファイルがないことがある
             for ($i = 0; $i < 1000 && !file_exists($request_file); $i++) {
@@ -135,15 +137,8 @@ class Debugger
             return GlobalFunction::response(ob_get_clean());
         }
 
-        // 必要そうな変数群
-        $today = date('Ymd');
-        $request_dir = $this->options['workdir'] . DIRECTORY_SEPARATOR . $today;
-        $request_id = $today . date('His') . '.' . preg_replace('#^\d+\.#', '', microtime(true));
-        $request_file = $request_dir . DIRECTORY_SEPARATOR . $request_id;
-        $request_path = "{$this->options['fookpath']}/request-{$request_id}?from-iframe=1";
-
         // 終了時に情報を集めたりフックしたりする
-        GlobalFunction::register_shutdown_function(function () use ($request_file) {
+        GlobalFunction::register_shutdown_function(function () {
             $response_type = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
             $html_enable = in_array('html', $response_type);
             $console_enable = in_array('console', $response_type);
@@ -151,7 +146,7 @@ class Debugger
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             if ($html_enable) {
-                file_set_contents($request_file, serialize([
+                file_set_contents($this->request['workfile'], serialize([
                     'request' => $this->request,
                     'stores'  => array_kmap($stores, function ($v, $k) {
                         return [
@@ -182,10 +177,13 @@ class Debugger
                 ChromeLogger::groupEnd();
                 ChromeLogger::send();
             }
+
+            // ゴミの削除
+            array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -1000));
         });
 
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
-        ob_start(function ($buffer) use ($request_file, $request_path) {
+        ob_start(function ($buffer) {
             $headers = implode("\n", GlobalFunction::headers_list());
 
             // PRG パターンの抑止
@@ -198,10 +196,10 @@ class Debugger
 
             // Ajax ならリクエストパスを返すのみ(ヘッダ埋め込み)
             if ($this->request['is_ajax']) {
-                GlobalFunction::header("X-Debug-Ajax: " . $request_path);
+                GlobalFunction::header("X-Debug-Ajax: " . $this->request['workpath']);
             }
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
-            elseif (file_exists($request_file) && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
+            elseif (file_exists($this->request['workfile']) && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
                 if (($pos = strripos($buffer, '</body>')) !== false) {
                     $width = (20) . 'px';
                     $height = (count($this->modules) * 20) . 'px';
@@ -224,7 +222,7 @@ class Debugger
                         <script>
                             (function(){
                                 const iframe = document.getElementById('webdebugger-iframe');
-                                iframe.src = '{$request_path}';
+                                iframe.src = '{$this->request['workpath']}';
                                 iframe.onload = function() {
                                     iframe.completed = true;
                                 }
