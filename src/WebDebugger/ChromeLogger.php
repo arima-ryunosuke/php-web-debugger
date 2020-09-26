@@ -113,7 +113,9 @@ class ChromeLogger
     protected function _send()
     {
         if ($this->data['rows']) {
-            GlobalFunction::header('X-ChromeLogger-Data: ' . base64_encode(utf8_encode(json_encode($this->data))));
+            foreach (str_split(base64_encode(utf8_encode(json_encode($this->data))), 8000) as $header) {
+                GlobalFunction::header('X-ChromeLogger-Data: ' . $header);
+            }
         }
     }
 
