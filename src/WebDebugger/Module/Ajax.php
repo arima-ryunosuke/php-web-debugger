@@ -24,10 +24,15 @@ class Ajax extends AbstractModule
                             })();
                         }
                     };
-                    if (typeof($) !== "undefined") {
-                        $(document).ajaxComplete(function(e, xhr) {
-                            complete(xhr.getResponseHeader("X-Debug-Ajax"));
-                        });
+                    if (typeof(window.XMLHttpRequest) !== "undefined") {
+                        var _XMLHttpRequest = window.XMLHttpRequest;
+                        window.XMLHttpRequest = function() {
+                            var xhr = new _XMLHttpRequest();
+                            xhr.addEventListener("loadend", function(response) {
+                                complete(xhr.getResponseHeader("X-Debug-Ajax"));
+                            });
+                            return xhr;
+                        };
                     }
                     if (typeof(window.fetch) !== "undefined") {
                         var _fetch = window.fetch;
