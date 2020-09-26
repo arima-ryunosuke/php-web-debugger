@@ -202,10 +202,14 @@ class Debugger
             }
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
             elseif (file_exists($this->request['workfile']) && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
+                if (($pos = stripos($buffer, '</head>')) !== false) {
+                    $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_map_method($this->modules, 'prepareOuter'));
+                    $buffer = substr_replace($buffer, "{$prepare}</head>", $pos, strlen('</head>'));
+                }
                 if (($pos = strripos($buffer, '</body>')) !== false) {
                     $width = (20) . 'px';
                     $height = (count($this->modules) * 20) . 'px';
-                    $iframe = "
+                    $iframe = "<!-- this is web debugger body injection -->
                         <iframe
                             id='webdebugger-iframe'
                             style='
@@ -231,8 +235,7 @@ class Debugger
                             })();
                         </script>
                     ";
-                    $prepare = implode('', array_map_method($this->modules, 'prepareOuter'));
-                    $buffer = substr_replace($buffer, "{$prepare}{$iframe}</body>", $pos, strlen('</body>'));
+                    $buffer = substr_replace($buffer, "{$iframe}</body>", $pos, strlen('</body>'));
                 }
             }
             return $buffer;
