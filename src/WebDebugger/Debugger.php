@@ -14,6 +14,9 @@ class Debugger
     /** @var AbstractModule[] */
     private $modules = [];
 
+    /** @var array */
+    private $stores;
+
     public function __construct(array $options = [])
     {
         // デフォルトオプション
@@ -34,6 +37,7 @@ class Debugger
 
         // グローバル設定
         $this->options = array_replace_recursive($default, $options);
+        $this->options['rtype'] = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
 
         // $request 変数
         $this->request['time'] = GlobalFunction::microtime(true);
@@ -141,16 +145,13 @@ class Debugger
 
         // 終了時に情報を集めたりフックしたりする
         GlobalFunction::register_shutdown_function(function () {
-            $response_type = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
-            $html_enable = in_array('html', $response_type);
-            $console_enable = in_array('console', $response_type);
-            $stores = array_map_method($this->modules, 'gather', [$this->request]);
+            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
-            if ($html_enable) {
+            if (in_array('html', $this->options['rtype'])) {
                 file_set_contents($this->request['workfile'], serialize([
                     'request' => $this->request,
-                    'stores'  => array_kmap($stores, function ($v, $k) {
+                    'stores'  => array_kmap($this->stores, function ($v, $k) {
                         return [
                             'count' => $this->modules[$k]->getCount($v),
                             'error' => $this->modules[$k]->getError($v),
@@ -160,11 +161,19 @@ class Debugger
                 ]));
             }
 
+            // ゴミの削除
+            array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -1000));
+        });
+
+        // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
+        ob_start(function ($buffer) {
+            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
+
             // js コンソールへの出力
-            if ($console_enable) {
+            if (in_array('console', $this->options['rtype'])) {
                 ChromeLogger::groupCollapsed($this->request['method'] . ' ' . $this->request['path']);
                 foreach ($this->modules as $name => $module) {
-                    $fires = $module->console($stores[$name]);
+                    $fires = $module->console($this->stores[$name]);
                     if ($fires !== null) {
                         ChromeLogger::groupCollapsed($module->getName());
                         foreach ($fires as $title => $fire) {
@@ -180,12 +189,6 @@ class Debugger
                 ChromeLogger::send();
             }
 
-            // ゴミの削除
-            array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -1000));
-        });
-
-        // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
-        ob_start(function ($buffer) {
             $headers = implode("\n", GlobalFunction::headers_list());
 
             // PRG パターンの抑止
@@ -201,7 +204,7 @@ class Debugger
                 GlobalFunction::header("X-Debug-Ajax: " . $this->request['workpath']);
             }
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
-            elseif (file_exists($this->request['workfile']) && !preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
+            elseif (!preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
                 if (($pos = stripos($buffer, '</head>')) !== false) {
                     $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_map_method($this->modules, 'prepareOuter'));
                     $buffer = substr_replace($buffer, "{$prepare}</head>", $pos, strlen('</head>'));
