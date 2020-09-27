@@ -20,6 +20,19 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.6
+
+- [fixbug][Debugger] php-fpm でコンソールログが出ない不具合を修正
+- [feature][Debugger] outer は </head> に埋め込むように修正
+- [feature][Module/History] History モジュールを追加
+- [change][Module/AbstractModule] gather にリクエスト配列が来るように修正
+- [fixbug][Module/Ajax] fetch の第2引数なしが考慮できていない不具合を修正
+- [change][Ajax] jQuery.ajax への依存を削除
+- [change][Module/Ajax] ラジオボタンの位置を変更
+- [change][Debugger] デバッグファイルをフラット構造にしてゴミ削除機能を追加
+- [change][all] エラーとアイコン表示の意味合いを変更
+- [change][ChromeLogger] ヘッダが長すぎるとエラーになる web サーバーがある
+
 ## 1.0.5
 
 - [fixbug][all] 巨大オブジェクトの表示でメモリを食いつぶしていた不具合を修正
