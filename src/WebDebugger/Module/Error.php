@@ -168,14 +168,14 @@ class Error extends AbstractModule
 
     protected function _getCount($stored)
     {
-        return count($stored['Error']['data']);
+        return count($stored['Error']['data']) + ($stored['Exception']['data'] ? 1 : 0);
     }
 
     protected function _getError($stored)
     {
         $result = [];
-        if (count($stored['Error']['data'])) {
-            $result[] = 'has error';
+        if ($c = count($stored['Error']['data'])) {
+            $result[] = "has $c error";
         }
         if (count($stored['Exception']['data'])) {
             $result[] = 'has exception';

@@ -71,7 +71,7 @@ class ErrorTest extends AbstractTestCase
     {
         $module = new Error();
         $count = $module->getCount($stored);
-        $this->assertEquals(1, $count);
+        $this->assertEquals(2, $count);
     }
 
     /**
@@ -82,7 +82,7 @@ class ErrorTest extends AbstractTestCase
     {
         $module = new Error();
         $error = $module->getError($stored);
-        $this->assertContains('has error', $error);
+        $this->assertContains('has 1 error', $error);
         $this->assertContains('has exception', $error);
     }
 
