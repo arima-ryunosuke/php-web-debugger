@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.8
+
+- [fixbug][Log] html エスケープされない不具合を修正
+- [fixbug][Debugger] gz 圧縮が全く効いていない不具合を修正
+- [feature][AbstractHtml] Holding の表示を見やすく変更
+
 ## 1.0.7
 
 - [fixbug][Module/Error] 例外がカウントされない不具合を修正
