@@ -707,6 +707,291 @@ if (function_exists("ryunosuke\\WebDebugger\\is_hasharray") && !defined("ryunosu
     define("ryunosuke\\WebDebugger\\is_hasharray", "ryunosuke\\WebDebugger\\is_hasharray");
 }
 
+if (!isset($excluded_functions["last_key"]) && (!function_exists("ryunosuke\\WebDebugger\\last_key") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\last_key"))->isInternal()))) {
+    /**
+     * 配列の最後のキーを返す
+     *
+     * 空の場合は $default を返す。
+     *
+     * Example:
+     * ```php
+     * that(last_key(['a', 'b', 'c']))->isSame(2);
+     * that(last_key([], 999))->isSame(999);
+     * ```
+     *
+     * @param iterable $array 対象配列
+     * @param mixed $default 無かった場合のデフォルト値
+     * @return mixed 最後のキー
+     */
+    function last_key($array, $default = null)
+    {
+        if (is_empty($array)) {
+            return $default;
+        }
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        [$k, $v] = last_keyvalue($array);
+        return $k;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\last_key") && !defined("ryunosuke\\WebDebugger\\last_key")) {
+    define("ryunosuke\\WebDebugger\\last_key", "ryunosuke\\WebDebugger\\last_key");
+}
+
+if (!isset($excluded_functions["last_keyvalue"]) && (!function_exists("ryunosuke\\WebDebugger\\last_keyvalue") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\last_keyvalue"))->isInternal()))) {
+    /**
+     * 配列の最後のキー/値ペアをタプルで返す
+     *
+     * 空の場合は $default を返す。
+     *
+     * Example:
+     * ```php
+     * that(last_keyvalue(['a', 'b', 'c']))->isSame([2, 'c']);
+     * that(last_keyvalue([], 999))->isSame(999);
+     * ```
+     *
+     * @param iterable $array 対象配列
+     * @param mixed $default 無かった場合のデフォルト値
+     * @return array [最後のキー, 最後の値]
+     */
+    function last_keyvalue($array, $default = null)
+    {
+        if (is_empty($array)) {
+            return $default;
+        }
+        if (is_array($array)) {
+            $v = end($array);
+            $k = key($array);
+            return [$k, $v];
+        }
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
+        foreach ($array as $k => $v) {
+            // dummy
+        }
+        // $k がセットされてるなら「ループが最低でも1度回った（≠空）」とみなせる
+        if (isset($k)) {
+            /** @noinspection PhpUndefinedVariableInspection */
+            return [$k, $v];
+        }
+        return $default;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\last_keyvalue") && !defined("ryunosuke\\WebDebugger\\last_keyvalue")) {
+    define("ryunosuke\\WebDebugger\\last_keyvalue", "ryunosuke\\WebDebugger\\last_keyvalue");
+}
+
+if (!isset($excluded_functions["array_sprintf"]) && (!function_exists("ryunosuke\\WebDebugger\\array_sprintf") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_sprintf"))->isInternal()))) {
+    /**
+     * キーと値で sprintf する
+     *
+     * 配列の各要素を文字列化して返すイメージ。
+     * $glue を与えるとさらに implode して返す（返り値が文字列になる）。
+     *
+     * $format は書式文字列（$v, $k）。
+     * callable を与えると sprintf ではなくコールバック処理になる（$v, $k）。
+     * 省略（null）するとキーを format 文字列、値を引数として **vsprintf** する。
+     *
+     * Example:
+     * ```php
+     * $array = ['key1' => 'val1', 'key2' => 'val2'];
+     * // key, value を利用した sprintf
+     * that(array_sprintf($array, '%2$s=%1$s'))->isSame(['key1=val1', 'key2=val2']);
+     * // 第3引数を与えるとさらに implode される
+     * that(array_sprintf($array, '%2$s=%1$s', ' '))->isSame('key1=val1 key2=val2');
+     * // クロージャを与えるとコールバック動作になる
+     * $closure = function($v, $k){return "$k=" . strtoupper($v);};
+     * that(array_sprintf($array, $closure, ' '))->isSame('key1=VAL1 key2=VAL2');
+     * // 省略すると vsprintf になる
+     * that(array_sprintf([
+     *     'str:%s,int:%d' => ['sss', '3.14'],
+     *     'single:%s'     => 'str',
+     * ], null, '|'))->isSame('str:sss,int:3|single:str');
+     * ```
+     *
+     * @param iterable $array 対象配列
+     * @param string|callable $format 書式文字列あるいはクロージャ
+     * @param string $glue 結合文字列。未指定時は implode しない
+     * @return array|string sprintf された配列
+     */
+    function array_sprintf($array, $format = null, $glue = null)
+    {
+        if (is_callable($format)) {
+            $callback = func_user_func_array($format);
+        }
+        elseif ($format === null) {
+            $callback = function ($v, $k, $n) { return vsprintf($k, is_array($v) ? $v : [$v]); };
+        }
+        else {
+            $callback = function ($v, $k, $n) use ($format) { return sprintf($format, $v, $k); };
+        }
+
+        $result = [];
+        $n = 0;
+        foreach ($array as $k => $v) {
+            $result[] = $callback($v, $k, $n++);
+        }
+
+        if ($glue !== null) {
+            return implode($glue, $result);
+        }
+
+        return $result;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\array_sprintf") && !defined("ryunosuke\\WebDebugger\\array_sprintf")) {
+    define("ryunosuke\\WebDebugger\\array_sprintf", "ryunosuke\\WebDebugger\\array_sprintf");
+}
+
+if (!isset($excluded_functions["array_unset"]) && (!function_exists("ryunosuke\\WebDebugger\\array_unset") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_unset"))->isInternal()))) {
+    /**
+     * 伏せると同時にその値を返す
+     *
+     * $key に配列を与えると全て伏せて配列で返す。
+     * その場合、$default が活きるのは「全て無かった場合」となる。
+     *
+     * さらに $key が配列の場合に限り、 $default を省略すると空配列として動作する。
+     *
+     * 配列を与えた場合の返り値は与えた配列の順番・キーが活きる。
+     * これを利用すると list の展開の利便性が上がったり、連想配列で返すことができる。
+     *
+     * 同様に、$key にクロージャを与えると、その返り値が true 相当のものを伏せて配列で返す。
+     * callable ではなくクロージャのみ対応する。
+     *
+     * Example:
+     * ```php
+     * $array = ['a' => 'A', 'b' => 'B'];
+     * // ない場合は $default を返す
+     * that(array_unset($array, 'x', 'X'))->isSame('X');
+     * // 指定したキーを返す。そのキーは伏せられている
+     * that(array_unset($array, 'a'))->isSame('A');
+     * that($array)->isSame(['b' => 'B']);
+     *
+     * $array = ['a' => 'A', 'b' => 'B', 'c' => 'C'];
+     * // 配列を与えるとそれらを返す。そのキーは全て伏せられている
+     * that(array_unset($array, ['a', 'b', 'x']))->isSame(['A', 'B']);
+     * that($array)->isSame(['c' => 'C']);
+     *
+     * $array = ['a' => 'A', 'b' => 'B', 'c' => 'C'];
+     * // 配列のキーは返されるキーを表す。順番も維持される
+     * that(array_unset($array, ['x2' => 'b', 'x1' => 'a']))->isSame(['x2' => 'B', 'x1' => 'A']);
+     *
+     * $array = ['hoge' => 'HOGE', 'fuga' => 'FUGA', 'piyo' => 'PIYO'];
+     * // 値に "G" を含むものを返す。その要素は伏せられている
+     * that(array_unset($array, function($v){return strpos($v, 'G') !== false;}))->isSame(['hoge' => 'HOGE', 'fuga' => 'FUGA']);
+     * that($array)->isSame(['piyo' => 'PIYO']);
+     * ```
+     *
+     * @param array $array 配列
+     * @param string|int|array|callable $key 伏せたいキー。配列を与えると全て伏せる。クロージャの場合は true 相当を伏せる
+     * @param mixed $default 無かった場合のデフォルト値
+     * @return mixed 指定したキーの値
+     */
+    function array_unset(&$array, $key, $default = null)
+    {
+        if (is_array($key)) {
+            $result = [];
+            foreach ($key as $rk => $ak) {
+                if (array_keys_exist($ak, $array)) {
+                    $result[$rk] = $array[$ak];
+                    unset($array[$ak]);
+                }
+            }
+            if (!$result) {
+                // 明示的に与えられていないなら [] を使用する
+                if (func_num_args() === 2) {
+                    $default = [];
+                }
+                return $default;
+            }
+            return $result;
+        }
+
+        if ($key instanceof \Closure) {
+            $result = [];
+            $n = 0;
+            foreach ($array as $k => $v) {
+                if ($key($v, $k, $n++)) {
+                    $result[$k] = $v;
+                    unset($array[$k]);
+                }
+            }
+            if (!$result) {
+                return $default;
+            }
+            return $result;
+        }
+
+        if (array_keys_exist($key, $array)) {
+            $result = $array[$key];
+            unset($array[$key]);
+            return $result;
+        }
+        return $default;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\array_unset") && !defined("ryunosuke\\WebDebugger\\array_unset")) {
+    define("ryunosuke\\WebDebugger\\array_unset", "ryunosuke\\WebDebugger\\array_unset");
+}
+
+if (!isset($excluded_functions["array_keys_exist"]) && (!function_exists("ryunosuke\\WebDebugger\\array_keys_exist") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_keys_exist"))->isInternal()))) {
+    /**
+     * array_key_exists の複数版
+     *
+     * 指定キーが全て存在するなら true を返す。
+     * 配列ではなく単一文字列を与えても動作する（array_key_exists と全く同じ動作になる）。
+     *
+     * $keys に空を与えると例外を投げる。
+     * $keys に配列を与えるとキーで潜ってチェックする（Example 参照）。
+     *
+     * Example:
+     * ```php
+     * // すべて含むので true
+     * that(array_keys_exist(['a', 'b', 'c'], ['a' => 'A', 'b' => 'B', 'c' => 'C']))->isTrue();
+     * // N は含まないので false
+     * that(array_keys_exist(['a', 'b', 'N'], ['a' => 'A', 'b' => 'B', 'c' => 'C']))->isFalse();
+     * // 配列を与えると潜る（日本語で言えば「a というキーと、x というキーとその中に x1, x2 というキーがあるか？」）
+     * that(array_keys_exist(['a', 'x' => ['x1', 'x2']], ['a' => 'A', 'x' => ['x1' => 'X1', 'x2' => 'X2']]))->isTrue();
+     * ```
+     *
+     * @param array|string $keys 調べるキー
+     * @param array|\ArrayAccess $array 調べる配列
+     * @return bool 指定キーが全て存在するなら true
+     */
+    function array_keys_exist($keys, $array)
+    {
+        $keys = is_iterable($keys) ? $keys : [$keys];
+        if (is_empty($keys)) {
+            throw new \InvalidArgumentException('$keys is empty.');
+        }
+
+        $is_arrayaccess = $array instanceof \ArrayAccess;
+
+        foreach ($keys as $k => $key) {
+            if (is_array($key)) {
+                // まずそのキーをチェックして
+                if (!array_keys_exist($k, $array)) {
+                    return false;
+                }
+                // あるなら再帰する
+                if (!array_keys_exist($key, $array[$k])) {
+                    return false;
+                }
+            }
+            elseif ($is_arrayaccess) {
+                if (!$array->offsetExists($key)) {
+                    return false;
+                }
+            }
+            elseif (!array_key_exists($key, $array)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\array_keys_exist") && !defined("ryunosuke\\WebDebugger\\array_keys_exist")) {
+    define("ryunosuke\\WebDebugger\\array_keys_exist", "ryunosuke\\WebDebugger\\array_keys_exist");
+}
+
 if (!isset($excluded_functions["array_map_method"]) && (!function_exists("ryunosuke\\WebDebugger\\array_map_method") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\array_map_method"))->isInternal()))) {
     /**
      * メソッドを指定できるようにした array_map
@@ -909,8 +1194,9 @@ if (!isset($excluded_functions["array_all"]) && (!function_exists("ryunosuke\\We
 
         $callback = func_user_func_array($callback);
 
+        $n = 0;
         foreach ($array as $k => $v) {
-            if (!$callback($v, $k)) {
+            if (!$callback($v, $k, $n++)) {
                 return false;
             }
         }
@@ -1424,31 +1710,38 @@ if (!isset($excluded_functions["rm_rf"]) && (!function_exists("ryunosuke\\WebDeb
      * that(file_exists(sys_get_temp_dir() . '/new'))->isSame(false);
      * ```
      *
-     * @param string $dirname 削除するディレクトリ名
+     * @param string $dirname 削除するディレクトリ名。glob パターンが使える
      * @param bool $self 自分自身も含めるか。false を与えると中身だけを消す
      * @return bool 成功した場合に TRUE を、失敗した場合に FALSE を返します
      */
     function rm_rf($dirname, $self = true)
     {
-        if (!file_exists($dirname)) {
-            return false;
-        }
-
-        $rdi = new \RecursiveDirectoryIterator($dirname, \FilesystemIterator::SKIP_DOTS);
-        $rii = new \RecursiveIteratorIterator($rdi, \RecursiveIteratorIterator::CHILD_FIRST);
-
-        foreach ($rii as $it) {
-            if ($it->isDir()) {
-                rmdir($it->getPathname());
+        $main = static function ($dirname, $self) {
+            if (!file_exists($dirname)) {
+                return false;
             }
-            else {
-                unlink($it->getPathname());
-            }
-        }
 
-        if ($self) {
-            return rmdir($dirname);
+            $rdi = new \RecursiveDirectoryIterator($dirname, \FilesystemIterator::SKIP_DOTS);
+            $rii = new \RecursiveIteratorIterator($rdi, \RecursiveIteratorIterator::CHILD_FIRST);
+
+            foreach ($rii as $it) {
+                if ($it->isDir()) {
+                    rmdir($it->getPathname());
+                }
+                else {
+                    unlink($it->getPathname());
+                }
+            }
+
+            return $self ? rmdir($dirname) : true;
+        };
+
+        $result = true;
+        $targets = glob($dirname, GLOB_BRACE | GLOB_NOCHECK | ($self ? 0 : GLOB_ONLYDIR));
+        foreach ($targets as $target) {
+            $result = $main($target, $self) && $result;
         }
+        return $result;
     }
 }
 if (function_exists("ryunosuke\\WebDebugger\\rm_rf") && !defined("ryunosuke\\WebDebugger\\rm_rf")) {
@@ -2274,6 +2567,58 @@ if (function_exists("ryunosuke\\WebDebugger\\multiexplode") && !defined("ryunosu
     define("ryunosuke\\WebDebugger\\multiexplode", "ryunosuke\\WebDebugger\\multiexplode");
 }
 
+if (!isset($excluded_functions["str_ellipsis"]) && (!function_exists("ryunosuke\\WebDebugger\\str_ellipsis") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\str_ellipsis"))->isInternal()))) {
+    /**
+     * 文字列を指定幅に丸める
+     *
+     * mb_strimwidth と機能的には同じだが、省略文字の差し込み位置を $pos で指定できる。
+     * $pos は負数が指定できる。負数の場合後ろから数えられる。
+     * 省略した場合は真ん中となる。
+     *
+     * Example:
+     * ```php
+     * // 8文字に丸める（$pos 省略なので真ん中が省略される）
+     * that(str_ellipsis('1234567890', 8, '...'))->isSame('12...890');
+     * // 8文字に丸める（$pos=1 なので1文字目から省略される）
+     * that(str_ellipsis('1234567890', 8, '...', 1))->isSame('1...7890');
+     * // 8文字に丸める（$pos=-1 なので後ろから1文字目から省略される）
+     * that(str_ellipsis('1234567890', 8, '...', -1))->isSame('1234...0');
+     * ```
+     *
+     * @param string $string 対象文字列
+     * @param int $width 丸める幅
+     * @param string $trimmarker 省略文字列
+     * @param int|null $pos 省略記号の差し込み位置
+     * @return string 丸められた文字列
+     */
+    function str_ellipsis($string, $width, $trimmarker = '...', $pos = null)
+    {
+        $string = (string) $string;
+
+        $strlen = mb_strlen($string);
+        if ($strlen <= $width) {
+            return $string;
+        }
+
+        $markerlen = mb_strlen($trimmarker);
+        if ($markerlen >= $width) {
+            return $trimmarker;
+        }
+
+        $length = $width - $markerlen;
+        $pos = $pos ?? $length / 2;
+        if ($pos < 0) {
+            $pos += $length;
+        }
+        $pos = max(0, min($pos, $length));
+
+        return mb_substr_replace($string, $trimmarker, $pos, $strlen - $length);
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\str_ellipsis") && !defined("ryunosuke\\WebDebugger\\str_ellipsis")) {
+    define("ryunosuke\\WebDebugger\\str_ellipsis", "ryunosuke\\WebDebugger\\str_ellipsis");
+}
+
 if (!isset($excluded_functions["preg_replaces"]) && (!function_exists("ryunosuke\\WebDebugger\\preg_replaces") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\preg_replaces"))->isInternal()))) {
     /**
      * パターン番号を指定して preg_replace する
@@ -2342,6 +2687,43 @@ if (!isset($excluded_functions["preg_replaces"]) && (!function_exists("ryunosuke
 }
 if (function_exists("ryunosuke\\WebDebugger\\preg_replaces") && !defined("ryunosuke\\WebDebugger\\preg_replaces")) {
     define("ryunosuke\\WebDebugger\\preg_replaces", "ryunosuke\\WebDebugger\\preg_replaces");
+}
+
+if (!isset($excluded_functions["mb_substr_replace"]) && (!function_exists("ryunosuke\\WebDebugger\\mb_substr_replace") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\mb_substr_replace"))->isInternal()))) {
+    /**
+     * マルチバイト対応 substr_replace
+     *
+     * 本家は配列を与えたりできるが、ややこしいし使う気がしないので未対応。
+     *
+     * Example:
+     * ```php
+     * // 2文字目から5文字を「あいうえお」に置換する
+     * that(mb_substr_replace('０１２３４５６７８９', 'あいうえお', 2, 5))->isSame('０１あいうえお７８９');
+     * ```
+     *
+     * @param string $string 対象文字列
+     * @param string $replacement 置換文字列
+     * @param int $start 開始位置
+     * @param int $length 置換長
+     * @return string 置換した文字列
+     */
+    function mb_substr_replace($string, $replacement, $start, $length = null)
+    {
+        $string = (string) $string;
+
+        $strlen = mb_strlen($string);
+        if ($start < 0) {
+            $start += $strlen;
+        }
+        if ($length < 0) {
+            $length += $strlen - $start;
+        }
+
+        return mb_substr($string, 0, $start) . $replacement . mb_substr($string, $start + $length, null);
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\mb_substr_replace") && !defined("ryunosuke\\WebDebugger\\mb_substr_replace")) {
+    define("ryunosuke\\WebDebugger\\mb_substr_replace", "ryunosuke\\WebDebugger\\mb_substr_replace");
 }
 
 if (!isset($excluded_functions["evaluate"]) && (!function_exists("ryunosuke\\WebDebugger\\evaluate") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\evaluate"))->isInternal()))) {
@@ -3785,9 +4167,12 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
             'context'   => null,  // html なコンテキストか cli なコンテキスト化
             'return'    => false, // 値を戻すか出力するか
             'trace'     => false, // スタックトレースの表示
+            'callback'  => null,  // 値1つごとのコールバック（値と文字列表現（参照）が引数で渡ってくる）
+            'debuginfo' => true,  // debugInfo を利用してオブジェクトのプロパティを絞るか
             'maxcount'  => null,  // 複合型の要素の数
-            'maxdepth'  => null,  // 階層構造の深さ
-            'maxlength' => null,  // 最終出力の文字数
+            'maxdepth'  => null,  // 複合型の深さ
+            'maxlength' => null,  // スカラー・非複合配列の文字数
+            'limit'     => null,  // 最終出力の文字数
         ];
 
         // for compatible
@@ -3806,174 +4191,288 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
             }
         }
 
-        $colorAdapter = static function ($value, $style) use ($options) {
-            switch ($options['context']) {
-                default:
-                    throw new \InvalidArgumentException("'{$options['context']}' is not supported.");
-                case 'plain':
-                    return $value;
-                case 'cli':
-                    return ansi_colorize($value, $style);
-                case 'html':
+        $appender = new class($options) {
+            private $options;
+            private $objects;
+            private $content;
+            private $length;
+
+            public function __construct($options)
+            {
+                $this->options = $options;
+                $this->objects = [];
+                $this->content = [];
+                $this->length = 0;
+            }
+
+            private function _append($value, $style = null, $data = [])
+            {
+                if ($this->options['limit'] && $this->options['limit'] < $this->length += strlen($value)) {
+                    throw new \LengthException(implode('', $this->content));
+                }
+
+                $current = count($this->content) - 1;
+                if ($style === null || $this->options['context'] === 'plain') {
+                    $this->content[$current] .= $value;
+                }
+                elseif ($this->options['context'] === 'cli') {
+                    $this->content[$current] .= ansi_colorize($value, $style);
+                }
+                elseif ($this->options['context'] === 'html') {
                     // 今のところ bold しか使っていないのでこれでよい
                     $style = $style === 'bold' ? 'font-weight:bold' : "color:$style";
-                    return "<span style='$style'>" . htmlspecialchars($value, ENT_QUOTES) . '</span>';
+                    $dataattr = array_sprintf($data, 'data-%2$s="%1$s"', ' ');
+                    $this->content[$current] .= "<span style='$style' $dataattr>" . htmlspecialchars($value, ENT_QUOTES) . '</span>';
+                }
+                else {
+                    throw new \InvalidArgumentException("'{$this->options['context']}' is not supported.");
+                }
+                return $this;
             }
-        };
 
-        $output = '';
-        $length = 0;
-        $appender = function (...$tokens) use (&$output, &$length, $colorAdapter, $options) {
-            foreach ($tokens as $token) {
-                $mode = $token[0];
-                $value = $token[1];
-                switch ($mode) {
-                    case 'plain':
-                        $string = $value;
-                        $result = $value;
-                        break;
-                    case 'index':
-                        $string = $value;
-                        switch (true) {
-                            case is_int($value):
-                                $result = $colorAdapter($value, 'bold');
-                                break;
-                            case is_string($value):
-                                $result = $colorAdapter($value, 'red');
-                                break;
-                            default:
-                                throw new \DomainException(); // @codeCoverageIgnore
+            public function plain($token)
+            {
+                return $this->_append($token);
+            }
+
+            public function index($token)
+            {
+                if (is_int($token)) {
+                    return $this->_append($token, 'bold');
+                }
+                elseif (is_string($token)) {
+                    return $this->_append($token, 'red');
+                }
+                elseif (is_object($token)) {
+                    return $this->_append($this->string($token), 'green', ['type' => 'object-index', 'id' => spl_object_id($token)]);
+                }
+                else {
+                    throw new \DomainException(); // @codeCoverageIgnore
+                }
+            }
+
+            public function value($token)
+            {
+                if (is_null($token)) {
+                    return $this->_append($this->string($token), 'bold', ['type' => 'null']);
+                }
+                elseif (is_object($token)) {
+                    return $this->_append($this->string($token), 'green', ['type' => 'object', 'id' => spl_object_id($token)]);
+                }
+                elseif (is_resource($token)) {
+                    return $this->_append($this->string($token), 'bold', ['type' => 'resource']);
+                }
+                elseif (is_string($token)) {
+                    return $this->_append($this->string($token), 'magenta', ['type' => 'scalar']);
+                }
+                elseif (is_bool($token)) {
+                    return $this->_append($this->string($token), 'bold', ['type' => 'bool']);
+                }
+                elseif (is_scalar($token)) {
+                    return $this->_append($this->string($token), 'magenta', ['type' => 'scalar']);
+                }
+                else {
+                    throw new \DomainException(); // @codeCoverageIgnore
+                }
+            }
+
+            public function string($token)
+            {
+                if (is_null($token)) {
+                    return 'null';
+                }
+                elseif (is_object($token)) {
+                    return get_class($token) . "#" . spl_object_id($token);
+                }
+                elseif (is_resource($token)) {
+                    return sprintf('%s of type (%s)', $token, get_resource_type($token));
+                }
+                elseif (is_string($token)) {
+                    if ($this->options['maxlength']) {
+                        $token = str_ellipsis($token, $this->options['maxlength'], '...(too length)...');
+                    }
+                    return var_export($token, true);
+                }
+                elseif (is_scalar($token)) {
+                    return var_export($token, true);
+                }
+                else {
+                    throw new \DomainException(gettype($token)); // @codeCoverageIgnore
+                }
+            }
+
+            public function export($value, $nest, $parents, $callback)
+            {
+                $this->content[] = '';
+
+                // オブジェクトは一度処理してれば無駄なので参照表示
+                if (is_object($value)) {
+                    $id = spl_object_id($value);
+                    if (isset($this->objects[$id])) {
+                        $this->index($value);
+                        return array_pop($this->content);
+                    }
+                    $this->objects[$id] = $value;
+                }
+
+                // 再帰を検出したら *RECURSION* とする（処理に関しては is_recursive のコメント参照）
+                foreach ($parents as $parent) {
+                    if ($parent === $value) {
+                        $this->plain('*RECURSION*');
+                        return array_pop($this->content);
+                    }
+                }
+
+                if (is_array($value)) {
+                    if ($this->options['maxdepth'] && $nest + 1 > $this->options['maxdepth']) {
+                        $this->plain('(too deep)');
+                        return array_pop($this->content);
+                    }
+
+                    $parents[] = $value;
+
+                    $count = count($value);
+                    $omitted = false;
+                    if ($this->options['maxcount'] && ($omitted = $count - $this->options['maxcount']) > 0) {
+                        $value = array_slice($value, 0, $this->options['maxcount'], true);
+                    }
+
+                    $is_hasharray = is_hasharray($value);
+                    $primitive_only = array_all($value, is_primitive);
+                    $assoc = $is_hasharray || !$primitive_only;
+
+                    $spacer1 = str_repeat(' ', ($nest + 1) * $this->options['indent']);
+                    $spacer2 = str_repeat(' ', ($nest + 0) * $this->options['indent']);
+
+                    $key = null;
+                    if ($primitive_only && $this->options['maxlength']) {
+                        $lengths = [];
+                        foreach ($value as $k => $v) {
+                            if ($assoc) {
+                                $lengths[] = strlen($this->string($spacer1)) + strlen($this->string($k)) + strlen($this->string($v)) + 4;
+                            }
+                            else {
+                                $lengths[] = strlen($this->string($v)) + 2;
+                            }
                         }
-                        break;
-                    case 'value':
-                        switch (true) {
-                            case is_null($value):
-                                $string = 'null';
-                                $result = $colorAdapter($string, 'bold');
-                                break;
-                            case is_object($value):
-                                $string = get_class($value) . "#" . spl_object_id($value);
-                                $result = $colorAdapter($string, 'green');
-                                break;
-                            case is_bool($value):
-                                $string = var_export($value, true);
-                                $result = $colorAdapter($string, 'bold');
-                                break;
-                            case is_scalar($value):
-                                $string = var_export($value, true);
-                                $result = $colorAdapter($string, 'magenta');
-                                break;
-                            case is_resource($value):
-                                $string = sprintf('%s of type (%s)', $value, get_resource_type($value));
-                                $result = $colorAdapter($string, 'bold');
-                                break;
-                            default:
-                                throw new \DomainException(); // @codeCoverageIgnore
+                        while (count($lengths) > 0 && array_sum($lengths) > $this->options['maxlength']) {
+                            $middle = (int) (count($lengths) / 2);
+                            $unpos = function ($v, $k, $n) use ($middle) { return $n === $middle; };
+                            array_unset($value, $unpos);
+                            array_unset($lengths, $unpos);
+                            $key = (int) (count($lengths) / 2);
                         }
-                        break;
-                    default:
-                        throw new \DomainException(); // @codeCoverageIgnore
-                }
-                if ($options['maxlength'] && $options['maxlength'] < $length += strlen($string)) {
-                    throw new \LengthException();
-                }
-                $output .= $result;
-            }
-        };
-
-        // 再帰用クロージャ
-        $export = function ($value, $nest = 0, $parents = []) use (&$export, $appender, $options) {
-            // 再帰を検出したら *RECURSION* とする（処理に関しては is_recursive のコメント参照）
-            foreach ($parents as $parent) {
-                if ($parent === $value) {
-                    return $appender(['plain', '*RECURSION*']);
-                }
-            }
-
-            if (is_array($value)) {
-                $parents[] = $value;
-
-                if ($options['maxdepth'] && $nest + 1 > $options['maxdepth']) {
-                    $appender(['plain', '(too deep)']);
-                    return;
-                }
-
-                $count = count($value);
-                $omitted = false;
-                if ($options['maxcount'] && ($omitted = $count - $options['maxcount']) > 0) {
-                    $value = array_slice($value, 0, $options['maxcount'], true);
-                }
-
-                if ($count === 0){
-                    $appender(['plain', '['], ['plain', ']']);
-                }
-                // スカラー値のみで構成されているならシンプルな再帰
-                elseif (!is_hasharray($value) && array_all($value, is_primitive)) {
-                    $last = array_pop($value);
-                    $appender(['plain', '[']);
-                    foreach ($value as $v) {
-                        $appender(['value', $v], ['plain', ', ']);
                     }
-                    $appender(['value', $last]);
-                    if ($omitted > 0) {
-                        $appender(['plain', " (more $omitted elements)"]);
+
+                    if ($count === 0) {
+                        $this->plain('[]');
                     }
-                    $appender(['plain', ']']);
+                    elseif ($assoc) {
+                        $n = 0;
+                        $this->plain("{\n");
+                        if (!$value) {
+                            $this->plain($spacer1)->plain('...(too length)...')->plain(",\n");
+                        }
+                        foreach ($value as $k => $v) {
+                            if ($key === $n++) {
+                                $this->plain($spacer1)->plain('...(too length)...')->plain(",\n");
+                            }
+                            $this->plain($spacer1)->index($k)->plain(': ');
+                            $this->plain($this->export($v, $nest + 1, $parents, true));
+                            $this->plain(",\n");
+                        }
+                        if ($omitted > 0) {
+                            $this->plain("$spacer1(more $omitted elements)\n");
+                        }
+                        $this->plain("{$spacer2}}");
+                    }
+                    else {
+                        $lastkey = last_key($value);
+                        $n = 0;
+                        $this->plain('[');
+                        if (!$value) {
+                            $this->plain('...(too length)...')->plain(', ');
+                        }
+                        foreach ($value as $k => $v) {
+                            if ($key === $n++) {
+                                $this->plain('...(too length)...')->plain(', ');
+                            }
+                            $this->plain($this->export($v, $nest, $parents, true));
+                            if ($k !== $lastkey) {
+                                $this->plain(', ');
+                            }
+                        }
+                        if ($omitted > 0) {
+                            $this->plain(" (more $omitted elements)");
+                        }
+                        $this->plain(']');
+                    }
                 }
-                // 連想配列だったり階層を持っていたりするなら改行＋桁合わせ
+                elseif ($value instanceof \Closure) {
+                    /** @var \ReflectionFunctionAbstract $ref */
+                    $ref = reflect_callable($value);
+                    $that = $ref->getClosureThis();
+                    $properties = $ref->getStaticVariables();
+
+                    $this->value($value)->plain("(");
+                    if ($that) {
+                        $this->index($that);
+                    }
+                    else {
+                        $this->plain("static");
+                    }
+                    $this->plain(') use ');
+                    if ($properties) {
+                        $this->plain($this->export($properties, $nest, $parents, false));
+                    }
+                    else {
+                        $this->plain('{}');
+                    }
+                }
+                elseif (is_object($value)) {
+                    if ($this->options['debuginfo'] && method_exists($value, '__debugInfo')) {
+                        $properties = [];
+                        foreach (array_reverse($value->__debugInfo(), true) as $k => $v) {
+                            $p = strrpos($k, "\0");
+                            if ($p !== false) {
+                                $k = substr($k, $p + 1);
+                            }
+                            $properties[$k] = $v;
+                        }
+                    }
+                    else {
+                        $properties = get_object_properties($value);
+                    }
+
+                    $this->value($value)->plain(" ");
+                    if ($properties) {
+                        $this->plain($this->export($properties, $nest, $parents, false));
+                    }
+                    else {
+                        $this->plain('{}');
+                    }
+                }
                 else {
-                    $spacer1 = str_repeat(' ', ($nest + 1) * $options['indent']);
-                    $spacer2 = str_repeat(' ', $nest * $options['indent']);
+                    $this->value($value);
+                }
 
-                    $appender(['plain', "{\n"]);
-                    foreach ($value as $k => $v) {
-                        $appender(['plain', $spacer1], ['index', $k], ['plain', ': ']);
-                        $export($v, $nest + 1, $parents);
-                        $appender(['plain', ",\n"]);
-                    }
-                    if ($omitted > 0) {
-                        $appender(['plain', $spacer1]);
-                        $appender(['plain', "(more $omitted elements)\n"]);
-                    }
-                    $appender(['plain', "{$spacer2}}"]);
+                $content = array_pop($this->content);
+                if ($callback && $this->options['callback']) {
+                    ($this->options['callback'])($content, $value, $nest);
                 }
-            }
-            elseif ($value instanceof \Closure) {
-                /** @var \ReflectionFunctionAbstract $ref */
-                $ref = reflect_callable($value);
-                $that = $ref->getClosureThis();
-                $properties = $ref->getStaticVariables();
-
-                $appender(['value', $value], ['plain', "("], $that ? ['value', $that] : ['plain', 'static'], ['plain', ') use ']);
-                if ($properties) {
-                    $export($properties, $nest, $parents);
-                }
-                else {
-                    $appender(['plain', '{}']);
-                }
-            }
-            elseif (is_object($value)) {
-                $parents[] = $value;
-                $properties = get_object_properties($value);
-
-                $appender(['value', $value], ['plain', " "]);
-                if ($properties) {
-                    $export($properties, $nest, $parents);
-                }
-                else {
-                    $appender(['plain', '{}']);
-                }
-            }
-            else {
-                $appender(['value', $value]);
+                return $content;
             }
         };
 
         try {
-            $export($value);
+            $content = $appender->export($value, 0, [], false);
         }
         catch (\LengthException $ex) {
-            $output .= '(...omitted)';
+            $content = $ex->getMessage() . '(...omitted)';
+        }
+
+        if ($options['callback']) {
+            ($options['callback'])($content, $value, 0);
         }
 
         // 結果を返したり出力したり
@@ -3983,10 +4482,10 @@ if (!isset($excluded_functions["var_pretty"]) && (!function_exists("ryunosuke\\W
             $traces = array_reverse(array_slice($traces, 0, $options['trace'] === true ? null : $options['trace']));
             $traces[] = '';
         }
-        $result = implode("\n", $traces) . $output;
+        $result = implode("\n", $traces) . $content;
 
         if ($options['context'] === 'html') {
-            $result = "<pre>$result</pre>";
+            $result = "<pre class='var_pretty'>$result</pre>";
         }
         if ($options['return']) {
             return $result;
