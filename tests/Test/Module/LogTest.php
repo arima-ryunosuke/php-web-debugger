@@ -105,9 +105,11 @@ class LogTest extends AbstractTestCase
         $module->setting([]);
 
         $module->log('xxx');
+        $module->log('<b>bold</b>');
 
         $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Log', $htmls);
+        $this->assertContains('&lt;b&gt;bold&lt;/b&gt;', $htmls);
     }
 
     function test_console()

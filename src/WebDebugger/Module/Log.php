@@ -2,6 +2,7 @@
 namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\GlobalFunction;
+use ryunosuke\WebDebugger\Html\AbstractHtml;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
@@ -125,7 +126,7 @@ class Log extends AbstractModule
         }
 
         foreach ($stored['Log'] as &$log) {
-            $log['log'] = new Raw($log['log']);
+            $log['log'] = $log['log'] instanceof AbstractHtml ? new Raw($log['log']) : $log['log'];
             $trace = array_map([$this, 'toOpenable'], $log['trace']);
             $log['trace'] = new Popup('trace', new ArrayTable('', $trace));
             $log = $this->toOpenable($log);
