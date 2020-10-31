@@ -48,5 +48,8 @@ $that->shutdowns = [];
     return (array_pop($that->shutdowns))();
 });
 \ryunosuke\WebDebugger\GlobalFunction::override('response', function ($content = '') {
+    if ($content === null) {
+        return ob_get_clean();
+    }
     return $content;
 });

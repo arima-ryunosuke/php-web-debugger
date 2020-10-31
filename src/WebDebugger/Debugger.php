@@ -140,7 +140,7 @@ class Debugger
             GlobalFunction::header('Content-Type: text/html');
             ob_start('ob_gzhandler');
             require __DIR__ . '/../template/debugger.php';
-            return GlobalFunction::response(ob_get_clean());
+            return GlobalFunction::response(null);
         }
 
         // 終了時に情報を集めたりフックしたりする
