@@ -34,31 +34,30 @@ abstract class AbstractHtml
         elseif (is_scalar($var)) {
             return "<div class='prewrap scalar'>" . $this->escapeHtml($var) . "</div>";
         }
-        // 空配列は Holding である必要がない
-        elseif (is_array($var) && count($var) === 0) {
-            return "<div class='prewrap'>array(0)</div>";
+        // その他のスカラー値は普通に表示
+        elseif (is_resource($var)) {
+            return "<div class='prewrap resource'>" . $this->escapeHtml(get_resource_type($var) . " $var") . "</div>";
         }
 
         // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるのである程度制限する（注入できるようにしたい）
-        $content = \ryunosuke\WebDebugger\var_pretty($var, [
-            'return'    => true,
-            'maxdepth'  => 10,
-            'maxcount'  => 100,
+        return \ryunosuke\WebDebugger\var_pretty($var, [
+            'return'   => true,
+            'context'  => 'html',
+            'maxdepth' => 10,
+            'maxcount' => 100,
             'maxlength' => 1024 * 24,
+            'callback' => function (&$string, $var, $nest) {
+                if (is_array($var) && count($var) === 0) {
+                    $string = '[]';
+                }
+                elseif (is_array($var)) {
+                    $string = new Holding('array(' . count($var) . ')', $string);
+                }
+                elseif (is_object($var)) {
+                    $string = new Holding(get_class($var) . '#' . spl_object_id($var), $string);
+                }
+            },
         ]);
-
-        // type 名の取得（array, resource, object はちょっと小細工する）
-        $type = gettype($var);
-        if (is_array($var)) {
-            $type .= '(' . count($var) . ')';
-        }
-        elseif (is_resource($var)) {
-            $type .= ':' . get_resource_type($var);
-        }
-        elseif (is_object($var)) {
-            $type .= ':' . get_class($var);
-        }
-        return new Holding($type, $content);
     }
 
     protected function escapeHtml($string)

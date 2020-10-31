@@ -80,15 +80,21 @@ $(function () {
             });
         }
     });
-    $document.delegate('.debug_plugin_wrap', 'click', function (e) {
-        var $target = $(e.target);
-        if (!$target.is('a.opened') && $target.closest('.extends').length === 0) {
-            $('a.opened').click();
-        }
-    });
     $document.delegate('a.holding', 'click', function (e) {
-        $(this).toggleClass('opened').next().toggle('fast');
+        $(this).toggleClass('opened').next().toggle();
         e.stopPropagation();
+    });
+    $document.delegate('[data-type="object-index"]', 'click', function () {
+        var $this = $(this);
+        var id = $this.data('id');
+        var pre = $this.closest('pre');
+        var objects = pre.find('[data-id=' + id + ']');
+        pre.find('.holding.focused').removeClass('focused');
+        objects.parents('.holdingdiv').show();
+        objects.filter('[data-type="object"]').closest('.holdingdiv').prev().addClass('focused')[0].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+        });
     });
     $document.delegate('a.popup', 'click', function (e) {
         var wrapper = $(this).toggleClass('opened').next(e);

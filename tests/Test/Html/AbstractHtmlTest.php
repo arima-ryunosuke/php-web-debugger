@@ -43,28 +43,25 @@ class AbstractHtmlTest extends AbstractTestCase
 
     function test_export_empty()
     {
-        $this->assertEquals("<div class='prewrap'>array(0)</div>", $this->export([]));
+        $this->assertEquals("<pre class='var_pretty'>[]</pre>", $this->export([]));
     }
 
     function test_export_array()
     {
         $export = (string) $this->export([1, 2, 3]);
         $this->assertContains('<a href="javascript:void(0)" class="holding">array(3)</a>', $export);
-        $this->assertContains("[1, 2, 3]", $export);
     }
 
     function test_export_resource()
     {
         $export = (string) $this->export(STDIN);
-        $this->assertContains('<a href="javascript:void(0)" class="holding">resource:stream</a>', $export);
-        $this->assertContains("Resource id #1 of type (stream)", $export);
+        $this->assertContains("<div class='prewrap resource'>stream Resource id #1</div>", $export);
     }
 
     function test_export_object()
     {
         $export = (string) $this->export(new \stdClass());
-        $this->assertContains('<a href="javascript:void(0)" class="holding">object:stdClass</a>', $export);
-        $this->assertContains("stdClass#", $export);
+        $this->assertContains('stdClass#', $export);
     }
 
     function test_export_toolong()

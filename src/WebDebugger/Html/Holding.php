@@ -7,9 +7,8 @@ class Holding extends AbstractHtml
     {
         ob_start();
         ?>
-        <a href="javascript:void(0)" class="holding"><?= $this->escapeHtml($title); ?></a>
-        <div class="extends holdingdiv"><?= $content; ?></div>
+        <a href="javascript:void(0)" class="holding"><?= $this->escapeHtml($title); ?></a><span class="extends holdingdiv"> <?= $content; ?></span>
         <?php
-        $this->string = ob_get_clean();
+        $this->string = trim(ob_get_clean());
     }
 }

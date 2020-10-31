@@ -86,7 +86,7 @@ class VariableTest extends AbstractTestCase
         $this->assertContains('id</th>', $htmls);
         $this->assertContains('name</th>', $htmls);
         $this->assertContains('group</th>', $htmls);
-        $this->assertContains('object:ArrayObject</a>', $htmls);
+        $this->assertContains('ArrayObject#', $htmls);
         $this->assertContains('array(2)</a>', $htmls);
         $this->assertContains('this is string', $htmls);
     }

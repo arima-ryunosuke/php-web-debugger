@@ -25,6 +25,14 @@
     cursor: pointer;
 }
 
+.debug_plugin [data-type="object"] {
+    display: none;
+}
+
+.debug_plugin [data-type="object-index"] {
+    cursor: pointer;
+}
+
 .debug_plugin input[type="checkbox"],
 .debug_plugin input[type="radio"] {
     vertical-align: middle;
@@ -155,6 +163,10 @@
     white-space: pre-wrap;
 }
 
+.holdingdiv.opened {
+    display: inline-block;
+}
+
 .popupdiv {
     position: absolute;
     left: 0;
@@ -177,6 +189,11 @@
 
 .opened {
     color: #990000;
+}
+
+.focused {
+    border: red 2px solid;
+    border-radius: 4px;
 }
 
 .nowrap {
