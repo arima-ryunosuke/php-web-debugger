@@ -34,7 +34,7 @@ class ArrayTable extends AbstractHtml
             <?php foreach ($values as $n => $row) : ?>
                 <tr>
                     <?php foreach ($headers as $header) : ?>
-                        <?php if (array_key_exists($header, $row)): ?>
+                        <?php if (\ryunosuke\WebDebugger\attr_exists($header, $row)): ?>
                             <td class="nowrap <?= $header ?>"
                                 style="<?= isset($styles[$n][$header]) ? $styles[$n][$header] : '' ?>"
                             >

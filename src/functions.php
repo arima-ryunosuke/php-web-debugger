@@ -808,8 +808,8 @@ if (!isset($excluded_functions["array_sprintf"]) && (!function_exists("ryunosuke
      * ```
      *
      * @param iterable $array 対象配列
-     * @param string|callable $format 書式文字列あるいはクロージャ
-     * @param string $glue 結合文字列。未指定時は implode しない
+     * @param string|callable|null $format 書式文字列あるいはクロージャ
+     * @param ?string $glue 結合文字列。未指定時は implode しない
      * @return array|string sprintf された配列
      */
     function array_sprintf($array, $format = null, $glue = null)
@@ -1182,7 +1182,7 @@ if (!isset($excluded_functions["array_all"]) && (!function_exists("ryunosuke\\We
      * ```
      *
      * @param iterable $array 対象配列
-     * @param callable $callback 評価クロージャ。 null なら値そのもので評価
+     * @param ?callable $callback 評価クロージャ。 null なら値そのもので評価
      * @param bool|mixed $default 空配列の場合のデフォルト値
      * @return bool 全要素が true なら true
      */
@@ -1260,7 +1260,7 @@ if (!isset($excluded_functions["class_loader"]) && (!function_exists("ryunosuke\
      * that(class_loader())->isInstanceOf(\Composer\Autoload\ClassLoader::class);
      * ```
      *
-     * @param string $startdir 高速化用の検索開始ディレクトリを指定するが、どちらかと言えばテスト用
+     * @param ?string $startdir 高速化用の検索開始ディレクトリを指定するが、どちらかと言えばテスト用
      * @return \Composer\Autoload\ClassLoader クラスローダ
      */
     function class_loader($startdir = null)
@@ -1756,7 +1756,7 @@ if (!isset($excluded_functions["delegate"]) && (!function_exists("ryunosuke\\Web
      *
      * @param \Closure $invoker クロージャを実行するためのクロージャ（実処理）
      * @param callable $callable 最終的に実行したいクロージャ
-     * @param int $arity 引数の数
+     * @param ?int $arity 引数の数
      * @return callable $callable を実行するクロージャ
      */
     function delegate($invoker, $callable, $arity = null)
@@ -2704,7 +2704,7 @@ if (!isset($excluded_functions["mb_substr_replace"]) && (!function_exists("ryuno
      * @param string $string 対象文字列
      * @param string $replacement 置換文字列
      * @param int $start 開始位置
-     * @param int $length 置換長
+     * @param ?int $length 置換長
      * @return string 置換した文字列
      */
     function mb_substr_replace($string, $replacement, $start, $length = null)
@@ -2767,13 +2767,13 @@ if (!isset($excluded_functions["evaluate"]) && (!function_exists("ryunosuke\\Web
 
         try {
             if ($cachefile) {
-                return (static function () {
+                return ($dummy = static function () {
                     extract(func_get_arg(1));
                     return require func_get_arg(0);
                 })($cachefile, $contextvars);
             }
             else {
-                return (static function () {
+                return ($dummy = static function () {
                     extract(func_get_arg(1));
                     return eval(func_get_arg(0));
                 })($phpcode, $contextvars);
@@ -2954,7 +2954,7 @@ if (!isset($excluded_functions["get_uploaded_files"]) && (!function_exists("ryun
      *
      * サンプルを書くと長くなるので例は{@source \ryunosuke\Test\Package\UtilityTest::test_get_uploaded_files() テストファイル}を参照。
      *
-     * @param array $files $_FILES の同じ構造の配列。省略時は $_FILES
+     * @param ?array $files $_FILES の同じ構造の配列。省略時は $_FILES
      * @return array $_FILES を $_POST などと同じ構造にした配列
      */
     function get_uploaded_files($files = null)
@@ -3030,7 +3030,7 @@ if (!isset($excluded_functions["cache"]) && (!function_exists("ryunosuke\\WebDeb
      *
      * @param string $key キャッシュのキー
      * @param callable $provider キャッシュがない場合にコールされる callable
-     * @param string $namespace 名前空間
+     * @param ?string $namespace 名前空間
      * @return mixed キャッシュ
      */
     function cache($key, $provider, $namespace = null)
@@ -3268,7 +3268,7 @@ if (!isset($excluded_functions["stacktrace"]) && (!function_exists("ryunosuke\\W
      * 情報量が増える分、機密も含まれる可能性があるため、 mask オプションで塗りつぶすキーや引数名を指定できる（クロージャの引数までは手出ししないため留意）。
      * limit と format は比較的指定頻度が高いかつ互換性維持のため配列オプションではなく直に渡すことが可能になっている。
      *
-     * @param array $traces debug_backtrace 的な配列
+     * @param ?array $traces debug_backtrace 的な配列
      * @param int|string|array $option オプション
      * @return string|array トレース文字列（delimiter オプションに null を渡すと配列で返す）
      */
@@ -3829,6 +3829,119 @@ if (function_exists("ryunosuke\\WebDebugger\\arrayval") && !defined("ryunosuke\\
     define("ryunosuke\\WebDebugger\\arrayval", "ryunosuke\\WebDebugger\\arrayval");
 }
 
+if (!isset($excluded_functions["attr_exists"]) && (!function_exists("ryunosuke\\WebDebugger\\attr_exists") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\attr_exists"))->isInternal()))) {
+    /**
+     * 配列・オブジェクトを問わずキーやプロパティの存在を確認する
+     *
+     * 配列が与えられた場合は array_key_exists と同じ。
+     * オブジェクトは一旦 isset で確認した後 null の場合は実際にアクセスして試みる。
+     *
+     * Example:
+     * ```php
+     * $array = [
+     *     'k' => 'v',
+     *     'n' => null,
+     * ];
+     * // 配列は array_key_exists と同じ
+     * that(attr_exists('k', $array))->isTrue();  // もちろん存在する
+     * that(attr_exists('n', $array))->isTrue();  // isset ではないので null も true
+     * that(attr_exists('x', $array))->isFalse(); // 存在しないので false
+     *
+     * $object = (object) $array;
+     * // オブジェクトでも使える
+     * that(attr_exists('k', $object))->isTrue();  // もちろん存在する
+     * that(attr_exists('n', $object))->isTrue();  // isset ではないので null も true
+     * that(attr_exists('x', $object))->isFalse(); // 存在しないので false
+     * ```
+     *
+     * @param int|string $key 調べるキー
+     * @param array|object $value 調べられる配列・オブジェクト
+     * @return bool $key が存在するなら true
+     */
+    function attr_exists($key, $value)
+    {
+        return attr_get($key, $value, $dummy = new \stdClass()) !== $dummy;
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\attr_exists") && !defined("ryunosuke\\WebDebugger\\attr_exists")) {
+    define("ryunosuke\\WebDebugger\\attr_exists", "ryunosuke\\WebDebugger\\attr_exists");
+}
+
+if (!isset($excluded_functions["attr_get"]) && (!function_exists("ryunosuke\\WebDebugger\\attr_get") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\attr_get"))->isInternal()))) {
+    /**
+     * 配列・オブジェクトを問わずキーやプロパティの値を取得する
+     *
+     * 配列が与えられた場合は array_key_exists でチェック。
+     * オブジェクトは一旦 isset で確認した後 null の場合は実際にアクセスして取得する。
+     *
+     * Example:
+     * ```php
+     * $array = [
+     *     'k' => 'v',
+     *     'n' => null,
+     * ];
+     * that(attr_get('k', $array))->isSame('v');                  // もちろん存在する
+     * that(attr_get('n', $array))->isSame(null);                 // isset ではないので null も true
+     * that(attr_get('x', $array, 'default'))->isSame('default'); // 存在しないのでデフォルト値
+     *
+     * $object = (object) $array;
+     * // オブジェクトでも使える
+     * that(attr_get('k', $object))->isSame('v');                  // もちろん存在する
+     * that(attr_get('n', $object))->isSame(null);                 // isset ではないので null も true
+     * that(attr_get('x', $object, 'default'))->isSame('default'); // 存在しないのでデフォルト値
+     * ```
+     *
+     * @param int|string $key 取得するキー
+     * @param array|object $value 取得される配列・オブジェクト
+     * @param mixed $default なかった場合のデフォルト値
+     * @return mixed $key の値
+     */
+    function attr_get($key, $value, $default = null)
+    {
+        if (is_array($value)) {
+            // see https://www.php.net/manual/function.array-key-exists.php#107786
+            return isset($value[$key]) || array_key_exists($key, $value) ? $value[$key] : $default;
+        }
+
+        if ($value instanceof \ArrayAccess) {
+            // あるならあるでよい
+            if (isset($value[$key])) {
+                return $value[$key];
+            }
+            // 問題は「ない場合」と「あるが null だった場合」の区別で、ArrayAccess の実装次第なので一元的に確定するのは不可能
+            // ここでは「ない場合はなんらかのエラー・例外が出るはず」という前提で実際に値を取得して確認する
+            try {
+                error_clear_last();
+                $result = @$value[$key];
+                return error_get_last() ? $default : $result;
+            }
+            catch (\Throwable $t) {
+                return $default;
+            }
+        }
+
+        // 上記のプロパティ版
+        if (is_object($value)) {
+            if (isset($value->$key)) {
+                return $value->$key;
+            }
+            try {
+                error_clear_last();
+                $result = @$value->$key;
+                return error_get_last() ? $default : $result;
+            }
+            catch (\Throwable $t) {
+                return $default;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('%s must be array or object (%s).', '$value', var_type($value)));
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\attr_get") && !defined("ryunosuke\\WebDebugger\\attr_get")) {
+    define("ryunosuke\\WebDebugger\\attr_get", "ryunosuke\\WebDebugger\\attr_get");
+}
+
 if (!isset($excluded_functions["is_empty"]) && (!function_exists("ryunosuke\\WebDebugger\\is_empty") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\is_empty"))->isInternal()))) {
     /**
      * 値が空か検査する
@@ -3983,6 +4096,75 @@ if (function_exists("ryunosuke\\WebDebugger\\is_countable") && !defined("ryunosu
     define("ryunosuke\\WebDebugger\\is_countable", "ryunosuke\\WebDebugger\\is_countable");
 }
 
+if (!isset($excluded_functions["var_type"]) && (!function_exists("ryunosuke\\WebDebugger\\var_type") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\var_type"))->isInternal()))) {
+    /**
+     * 値の型を取得する（gettype + get_class）
+     *
+     * プリミティブ型（gettype で得られるやつ）はそのまま、オブジェクトのときのみクラス名を返す。
+     * ただし、オブジェクトの場合は先頭に '\\' が必ず付く。
+     * また、 $valid_name を true にするとタイプヒントとして正当な名前を返す（integer -> int, double -> float など）。
+     * 互換性のためデフォルト false になっているが、将来的にこの引数は削除されるかデフォルト true に変更される。
+     *
+     * 無名クラスの場合は extends, implements の優先順位でその名前を使う。
+     * 継承も実装もされていない場合は標準の get_class の結果を返す。
+     *
+     * Example:
+     * ```php
+     * // プリミティブ型は gettype と同義
+     * that(var_type(false))->isSame('boolean');
+     * that(var_type(123))->isSame('integer');
+     * that(var_type(3.14))->isSame('double');
+     * that(var_type([1, 2, 3]))->isSame('array');
+     * // オブジェクトは型名を返す
+     * that(var_type(new \stdClass))->isSame('\\stdClass');
+     * that(var_type(new \Exception()))->isSame('\\Exception');
+     * // 無名クラスは継承元の型名を返す（インターフェース実装だけのときはインターフェース名）
+     * that(var_type(new class extends \Exception{}))->isSame('\\Exception');
+     * that(var_type(new class implements \JsonSerializable{
+     *     public function jsonSerialize() { return ''; }
+     * }))->isSame('\\JsonSerializable');
+     * ```
+     *
+     * @param mixed $var 型を取得する値
+     * @param bool $valid_name タイプヒントとして有効な名前を返すか
+     * @return string 型名
+     */
+    function var_type($var, $valid_name = false)
+    {
+        if (is_object($var)) {
+            $ref = new \ReflectionObject($var);
+            if ($ref->isAnonymous()) {
+                if ($pc = $ref->getParentClass()) {
+                    return '\\' . $pc->name;
+                }
+                if ($is = $ref->getInterfaceNames()) {
+                    return '\\' . reset($is);
+                }
+            }
+            return '\\' . get_class($var);
+        }
+        $type = gettype($var);
+        if (!$valid_name) {
+            return $type;
+        }
+        switch ($type) {
+            default:
+                return $type;
+            case 'NULL':
+                return 'null';
+            case 'boolean':
+                return 'bool';
+            case 'integer':
+                return 'int';
+            case 'double':
+                return 'float';
+        }
+    }
+}
+if (function_exists("ryunosuke\\WebDebugger\\var_type") && !defined("ryunosuke\\WebDebugger\\var_type")) {
+    define("ryunosuke\\WebDebugger\\var_type", "ryunosuke\\WebDebugger\\var_type");
+}
+
 if (!isset($excluded_functions["var_export2"]) && (!function_exists("ryunosuke\\WebDebugger\\var_export2") || (!false && (new \ReflectionFunction("ryunosuke\\WebDebugger\\var_export2"))->isInternal()))) {
     /**
      * 組み込みの var_export をいい感じにしたもの
@@ -4070,7 +4252,6 @@ if (!isset($excluded_functions["var_export2"]) && (!function_exists("ryunosuke\\
                 $kvl = '';
                 $parents[] = $value;
                 foreach ($value as $k => $v) {
-                    /** @noinspection PhpUndefinedVariableInspection */
                     $keystr = $hashed ? $keys[$k] . str_repeat(' ', $maxlen - strlen($keys[$k])) . ' => ' : '';
                     $kvl .= $spacer1 . $keystr . $export($v, $nest + 1, $parents) . ",\n";
                 }
