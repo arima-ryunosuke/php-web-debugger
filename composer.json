@@ -19,7 +19,7 @@
       "ryunosuke\\WebDebugger\\": "src/WebDebugger"
     },
     "files": [
-      "src/functions.php"
+      "src/functions.stub"
     ]
   },
   "autoload-dev": {
@@ -38,7 +38,7 @@
     "phpunit/phpunit": "7.*",
     "smarty/smarty": "3.*",
     "doctrine/dbal": "2.*",
-    "ryunosuke/functions": "1.4.14"
+    "ryunosuke/functions": "1.4.15"
   },
   "scripts": {
     "build": [
