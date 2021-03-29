@@ -132,7 +132,7 @@ $(function () {
             var td = tr.children('td:eq(' + index + ')');
             var value = td.text();
             if (td.children('.numeric').length) {
-                value = parseFloat(value.replace(/,/g));
+                value = parseFloat(value.replace(/,/g, ''));
             }
             sets.push({
                 o: tr,

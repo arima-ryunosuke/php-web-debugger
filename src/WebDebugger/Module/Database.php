@@ -275,7 +275,7 @@ class Database extends AbstractModule
 
             $t = $log['time'] ?? null;
             $time += $t;
-            $log['time'] = $t === null ? 'null' : number_format($t, 3);
+            $log['time'] = $t === null ? 'null' : $t;
 
             if ($this->explain && !empty($this->setting['explain'])) {
                 $log['explain'] = $this->explain($sql, $params);

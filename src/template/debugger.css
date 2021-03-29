@@ -110,12 +110,14 @@
     font-style: italic;
 }
 
-.debug_table.array_table td div.numeric {
-    text-align: right;
-}
-
 .debug_table.hash_table td div.numeric {
     text-align: left;
+    white-space: nowrap;
+}
+
+.debug_table.array_table td div.numeric {
+    text-align: right;
+    white-space: nowrap;
 }
 
 .debug_table caption {

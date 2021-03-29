@@ -114,7 +114,7 @@ class Performance extends AbstractModule
             $callerlist = [];
             foreach ($callers as $caller => $times) {
                 $elem = array_combine(['file', 'line'], \ryunosuke\WebDebugger\multiexplode('#', $caller, -2));
-                $elem['times'] = number_format(array_sum($times), 6, '.', '');
+                $elem['times'] = array_sum($times);
                 $callerlist[] = $elem;
             }
             $totals = array_merge(...array_values($callers));
@@ -129,19 +129,19 @@ class Performance extends AbstractModule
                 ''       => '-',
                 'callee' => $callee,
                 'count'  => $count,
-                'min'    => number_format($min, 6, '.', ''),
-                'max'    => number_format($max, 6, '.', ''),
-                'sum'    => number_format($sum, 6, '.', ''),
-                'avg'    => number_format($avg, 6, '.', ''),
-                'med'    => number_format($med, 6, '.', ''),
+                'min'    => $min,
+                'max'    => $max,
+                'sum'    => $sum,
+                'avg'    => $avg,
+                'med'    => $med,
                 'caller' => $callerlist,
             ];
         }
 
         return [
             'Performance' => [
-                'ProcessTime'  => number_format(microtime(true) - $this->start_time, 6),
-                'MemoryUsage'  => number_format(memory_get_peak_usage(true)),
+                'ProcessTime'  => microtime(true) - $this->start_time,
+                'MemoryUsage'  => memory_get_peak_usage(true),
                 'IncludedFile' => get_included_files(),
             ],
             'Timeline'    => $timelines,
@@ -158,7 +158,7 @@ class Performance extends AbstractModule
     {
         $result = [];
         if (count($stored['Timeline'])) {
-            $result[] = 'has '.count($stored['Timeline']).' timeline';
+            $result[] = 'has ' . count($stored['Timeline']) . ' timeline';
         }
         return $result;
     }
@@ -213,7 +213,7 @@ class Performance extends AbstractModule
                             class="bar"
                             style="text-align:right; background: #ccf; position: relative;left: <?= htmlspecialchars($left / $total * 98); ?>%;width: <?= htmlspecialchars($timeline['time'] / $total * 98); ?>%;"
                         >
-                            <?= htmlspecialchars(number_format($timeline['time'] * 1000, 3)); ?>ms
+                            <?= htmlspecialchars($timeline['time'] * 1000); ?>ms
                         </div>
                     </td>
                 </tr>

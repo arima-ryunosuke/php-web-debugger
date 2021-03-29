@@ -26,9 +26,11 @@ abstract class AbstractHtml
         elseif (is_null($var) || is_bool($var)) {
             return "<div class='prewrap simple'>" . ($var === null ? 'null' : ($var ? 'true' : 'false')) . "</div>";
         }
-        // 数値は右寄せ
+        // 数値は右寄せとフォーマット
         elseif (is_numeric($var)) {
-            return "<div class='prewrap numeric'>" . $this->escapeHtml($var) . "</div>";
+            $var = strval($var);
+            [, $dec] = explode('.', $var, 2) + [1 => ''];
+            return "<div class='prewrap numeric'>" . $this->escapeHtml(number_format($var, min(strlen($dec), 6))) . "</div>";
         }
         // その他のスカラー値は普通に表示
         elseif (is_scalar($var)) {
