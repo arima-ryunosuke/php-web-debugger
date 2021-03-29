@@ -20,6 +20,13 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.11
+
+- [change][Module/Smarty] Smarty モジュールを廃止
+- [feature][Module/Database] logger の traversable 対応
+- [feature][Module/Performance] OPcache 情報を追加
+- [fixbug][Html/AbstractHtml] numeric の扱いに不具合があったので修正
+
 ## 1.0.10
 
 - [feature] bump version
