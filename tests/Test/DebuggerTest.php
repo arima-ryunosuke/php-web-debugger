@@ -214,9 +214,9 @@ class DebuggerTest extends AbstractTestCase
             'rtype'    => 'html',
         ]);
         $debugger->initialize([
-            Ajax::class   => [],
-            Server::class => [],
-            History::class  => [],
+            Ajax::class    => [],
+            Server::class  => [],
+            History::class => [],
         ]);
         $response = $debugger->start();
         $this->assertContains('is not found', $response);

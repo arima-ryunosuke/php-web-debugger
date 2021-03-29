@@ -10,7 +10,7 @@ class VariableTest extends AbstractTestCase
     {
         $module = new Variable();
         $module->initialize([
-            'array'   => [
+            'array' => [
                 ['id' => 1, 'name' => 'nameA', 'group' => 'X'],
                 ['id' => 2, 'name' => 'nameB', 'group' => 'Y'],
                 ['id' => 3, 'name' => 'nameC', 'group' => 'X'],

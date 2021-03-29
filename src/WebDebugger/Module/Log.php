@@ -110,7 +110,7 @@ class Log extends AbstractModule
     {
         $result = [];
         if (count($stored['Log'])) {
-            $result[] = 'has '.count($stored['Log']).' log';
+            $result[] = 'has ' . count($stored['Log']) . ' log';
         }
         return $result;
     }

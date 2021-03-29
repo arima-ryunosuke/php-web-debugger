@@ -2,8 +2,6 @@
 namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
-use ryunosuke\WebDebugger\Html\HashTable;
-use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
 
 class History extends AbstractModule
