@@ -4,6 +4,9 @@ namespace ryunosuke\WebDebugger\Module;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 
+/**
+ * @codeCoverageIgnore
+ */
 class Smarty extends AbstractModule
 {
     /** @var \Smarty */

@@ -116,27 +116,6 @@ try {
         <?php
     })($pdo);
 
-    // Smarty モジュール用
-    (function (\Smarty $smarty) {
-        $large = range(0, 1000);
-        $a = [];
-        $a['self'] = $a;
-        $c = new stdClass();
-        $c->self = $c;
-        $smarty->assignGlobal('foo', 'BAR');
-        $smarty->assign('hoge', 'HOGE');
-        $smarty->assign('large', $large);
-        $smarty->assign('array', $a);
-        $smarty->assign('object', $c);
-        ?>
-        <fieldset>
-            <legend>Smarty</legend>
-            <div><?php echo $smarty->fetch('hoge.tpl') ?></div>
-            <p>テンプレートのコンパイル履歴やアサインした変数などが確認できます</p>
-        </fieldset>
-        <?php
-    })($smarty);
-
     // Variable モジュール用
     (function () {
         ?>

@@ -36,7 +36,6 @@
   "require-dev": {
     "ext-pdo": "*",
     "phpunit/phpunit": "7.*",
-    "smarty/smarty": "3.*",
     "doctrine/dbal": "2.*",
     "ryunosuke/functions": "1.4.15"
   },
