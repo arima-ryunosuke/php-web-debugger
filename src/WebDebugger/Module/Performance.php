@@ -1,6 +1,7 @@
 <?php
 namespace ryunosuke\WebDebugger\Module;
 
+use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
@@ -95,6 +96,19 @@ class Performance extends AbstractModule
 
     protected function _gather()
     {
+        $opcache = GlobalFunction::opcache_get_status() ?: ['opcache_enabled' => false];
+        if (isset($opcache['scripts'])) {
+            foreach ($opcache['scripts'] as &$script) {
+                $script = [
+                    'full_path'     => $script['full_path'],
+                    'hits'          => $script['hits'],
+                    'memory_usage'  => $script['memory_consumption'],
+                    'last_used'     => date('Y/m/d H:i:s', $script['last_used_timestamp']),
+                    'last_modified' => date('Y/m/d H:i:s', $script['timestamp']),
+                ];
+            }
+        }
+
         $last = null;
         $timelines = [];
         foreach ($this->timelines as $n => $timeline) {
@@ -144,6 +158,7 @@ class Performance extends AbstractModule
                 'MemoryUsage'  => memory_get_peak_usage(true),
                 'IncludedFile' => get_included_files(),
             ],
+            'OPcache'     => $opcache,
             'Timeline'    => $timelines,
             'Profile'     => $profiles,
         ];
@@ -165,6 +180,10 @@ class Performance extends AbstractModule
 
     protected function _render($stored)
     {
+        if (isset($stored['OPcache']['scripts'])) {
+            $stored['OPcache']['scripts'] = new ArrayTable('', $stored['OPcache']['scripts']);
+        }
+
         $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');
 
         foreach ($stored['Profile'] as &$profile) {
@@ -226,6 +245,7 @@ class Performance extends AbstractModule
 
         return [
             'Performance' => new HashTable('Performance', $stored['Performance']),
+            'OPcache'     => new HashTable('OPcache', $stored['OPcache']),
             'Timeline'    => new Raw($html),
             'Profile'     => new ArrayTable($caption, $stored['Profile']),
         ];
@@ -235,6 +255,7 @@ class Performance extends AbstractModule
     {
         return [
             'Performance' => ['hashtable' => $stored['Performance']],
+            'OPcache'     => ['hashtable' => $stored['OPcache']],
             'Timeline'    => ['table' => $stored['Timeline']],
             'Profile'     => ['table' => $stored['Profile']],
         ];

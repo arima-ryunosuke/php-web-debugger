@@ -12,6 +12,7 @@ namespace ryunosuke\WebDebugger;
  * @method static bool headers_sent()
  * @method static void register_shutdown_function(callable $callback, ...$mixed)
  * @method static void call_shutdown_function()
+ * @method static array|false opcache_get_status($include_scripts = true)
  */
 class GlobalFunction
 {

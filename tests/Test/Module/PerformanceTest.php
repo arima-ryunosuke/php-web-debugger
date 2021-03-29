@@ -64,8 +64,11 @@ class PerformanceTest extends AbstractTestCase
 
         $stored = $module->gather([]);
         $this->assertArrayHasKey('Performance', $stored);
+        $this->assertArrayHasKey('OPcache', $stored);
         $this->assertArrayHasKey('Timeline', $stored);
         $this->assertArrayHasKey('Profile', $stored);
+        $this->assertTrue($stored['OPcache']['opcache_enabled']);
+        $this->assertEquals(99, $stored['OPcache']['scripts']['path/to/file1']['hits']);
         $this->assertEquals("a ～ b", $stored['Timeline'][0]['name']);
         $this->assertCount(3, $stored['Profile'][0]['caller']);
         $this->assertCount(2, $stored['Profile'][1]['caller']);
@@ -83,6 +86,7 @@ class PerformanceTest extends AbstractTestCase
 
         $htmls = $module->render($module->gather([]));
         $this->assertContains('<caption>Performance', $htmls);
+        $this->assertContains('<caption>OPcache', $htmls);
         $this->assertContains('<caption>Timeline', $htmls);
         $this->assertContains('<caption>Profile', $htmls);
     }

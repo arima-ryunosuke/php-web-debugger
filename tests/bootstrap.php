@@ -53,3 +53,24 @@ $that->shutdowns = [];
     }
     return $content;
 });
+\ryunosuke\WebDebugger\GlobalFunction::override('opcache_get_status', function ($include_scripts = true) {
+    return [
+        'opcache_enabled' => true,
+        'scripts'         => [
+            'path/to/file1' => [
+                'full_path'           => '/full/path/to/file1',
+                'hits'                => 99,
+                'memory_consumption'  => 12345,
+                'last_used_timestamp' => strtotime('2001/03/23 12:34:56'),
+                'timestamp'           => strtotime('2001/02/13 12:34:56'),
+            ],
+            'path/to/file2' => [
+                'full_path'           => '/full/path/to/file2',
+                'hits'                => 9,
+                'memory_consumption'  => 1234,
+                'last_used_timestamp' => strtotime('2011/03/23 12:34:56'),
+                'timestamp'           => strtotime('2011/02/13 12:34:56'),
+            ],
+        ],
+    ];
+});
