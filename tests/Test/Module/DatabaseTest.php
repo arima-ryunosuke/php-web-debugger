@@ -27,16 +27,16 @@ class DatabaseTest extends AbstractTestCase
         $connection->query('select 1');
         $connection->prepare('select ?')->execute([1]);
 
-        $logs = $adapter['logger']();
+        $logs = iterator_to_array($adapter['logger']);
 
         $this->assertArraySubset([
             'sql'    => 'select 1',
             'params' => [],
-        ], $logs[1]);
+        ], $logs[0]);
         $this->assertArraySubset([
             'sql'    => 'select ?',
             'params' => [1],
-        ], $logs[2]);
+        ], $logs[1]);
     }
 
     function test_initialize()
@@ -47,7 +47,7 @@ class DatabaseTest extends AbstractTestCase
             $module->initialize();
         });
 
-        $this->assertException(new \InvalidArgumentException('"logger" is not callable.'), function () use ($module) {
+        $this->assertException(new \InvalidArgumentException('"logger" is not callable/traversable.'), function () use ($module) {
             $module->initialize([
                 'pdo'    => $this->pdo,
                 'logger' => 'hoge',

@@ -29,19 +29,36 @@ class Database extends AbstractModule
         return function () use ($connection) {
             $configration = $connection->getConfiguration();
 
-            $logger = new \Doctrine\DBAL\Logging\DebugStack();
+            $logger = new class() implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
+                private $queries = [];
+
+                public function startQuery($sql, ?array $params = null, ?array $types = null)
+                {
+                    $this->queries[] = [
+                        'sql'    => $sql,
+                        'params' => $params,
+                        'time'   => microtime(true),
+                        'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                    ];
+                }
+
+                public function stopQuery()
+                {
+                    $current = count($this->queries) - 1;
+                    $this->queries[$current]['time'] = microtime(true) - $this->queries[$current]['time'];
+                }
+
+                public function getIterator()
+                {
+                    yield from $this->queries;
+                }
+            };
             $currentLogger = $configration->getSQLLogger();
             $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
 
             return [
                 'pdo'    => $connection->getWrappedConnection(),
-                'logger' => function () use ($logger) {
-                    return array_map(function ($log) {
-                        $log['time'] = $log['executionMS'];
-                        unset($log['executionMS'], $log['types']);
-                        return $log;
-                    }, $logger->queries);
-                }
+                'logger' => $logger,
             ];
         };
     }
@@ -90,7 +107,7 @@ class Database extends AbstractModule
              * いずれにせよ何らかの方法で（フレームワークなどが握っている） PDO インスタンスを差し替える必要がある。
              * （大抵の DB Adapter には pdo インスタンスを指定する機能が存在するはず）。
              *
-             * logger を渡す場合、最低限 [['sql' => $sql, 'params' => $params]] 形式の配列を返す callable である必要がある。
+             * logger を渡す場合、最低限 [['sql' => $sql, 'params' => $params]] 形式の配列を返す callable/traversable である必要がある。
              * 渡す場合、大抵の DB Adapter にはクエリログを取る機能が付属しているのでそれを使うとよい。
              */
             'logger'    => null,
@@ -186,8 +203,8 @@ class Database extends AbstractModule
         if (!$this->pdo instanceof \PDO) {
             throw new \InvalidArgumentException('"pdo" is not PDO.');
         }
-        if (!is_callable($this->logger)) {
-            throw new \InvalidArgumentException('"logger" is not callable.');
+        if (!is_callable($this->logger) && !$this->logger instanceof \Traversable) {
+            throw new \InvalidArgumentException('"logger" is not callable/traversable.');
         }
         if (!is_callable($this->scorer)) {
             throw new \InvalidArgumentException('"scorer" is not callable.');
@@ -266,7 +283,7 @@ class Database extends AbstractModule
         $logs = [];
         $time = 0;
 
-        foreach (call_user_func($this->logger) as $n => $log) {
+        foreach (is_callable($this->logger) ? ($this->logger)() : $this->logger as $n => $log) {
             $log = ['id' => $n] + $log;
             $sql = $log['sql'];
             $params = $log['params'];
@@ -283,7 +300,7 @@ class Database extends AbstractModule
             $logs[] = $log;
         }
 
-        $summary = " (" . count($logs) . " queries, $time ms)";
+        $summary = " (" . count($logs) . " queries, $time second)";
 
         return [
             'Query' => [
@@ -302,7 +319,7 @@ class Database extends AbstractModule
     {
         $error = [];
         if (count($stored['Query']['logs'])) {
-            $error['has '.count($stored['Query']['logs']). ' quries'] = true;
+            $error['has ' . count($stored['Query']['logs']) . ' quries'] = true;
         }
         foreach ($stored['Query']['logs'] as $log) {
             if (isset($log['explain'])) {
