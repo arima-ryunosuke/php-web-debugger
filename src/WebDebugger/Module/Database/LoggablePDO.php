@@ -1,8 +1,12 @@
 <?php
+/** @noinspection PhpDeprecationInspection */
 /** @noinspection PhpMissingParentConstructorInspection */
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 namespace ryunosuke\WebDebugger\Module\Database;
 
+/**
+ * @codeCoverageIgnore
+ * @deprecated
+ */
 class LoggablePDO extends \PDO
 {
     /** @var \PDO */

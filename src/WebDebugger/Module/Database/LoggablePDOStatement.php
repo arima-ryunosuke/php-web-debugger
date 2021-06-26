@@ -1,6 +1,10 @@
 <?php
 namespace ryunosuke\WebDebugger\Module\Database;
 
+/**
+ * @codeCoverageIgnore
+ * @deprecated
+ */
 class LoggablePDOStatement extends \PDOStatement
 {
     /** @var LoggablePDO */
