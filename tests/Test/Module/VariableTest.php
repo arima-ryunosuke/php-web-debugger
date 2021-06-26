@@ -75,20 +75,26 @@ class VariableTest extends AbstractTestCase
                 new \ArrayObject(['id' => 2, 'name' => 'nameB', 'group' => 'Y']),
                 new \ArrayObject(['id' => 3, 'name' => 'nameC', 'group' => 'Z']),
             ]),
+            'mixed' => [
+                ['hoge_id' => 1, 'hoge_name' => 'nameA'],
+                ['fuga_id' => 2, 'fuga_name' => 'nameB'],
+            ],
             'empty'   => new \ArrayObject([]),
             'list'    => ['a', 'b'],
             "string"  => "this is string",
         ]);
         $htmls = $module->render($module->gather([]));
-        $this->assertContains('<caption>hash', $htmls);
-        $this->assertContains('<caption>array', $htmls);
-        $this->assertContains('<caption>objects', $htmls);
-        $this->assertContains('id</th>', $htmls);
-        $this->assertContains('name</th>', $htmls);
-        $this->assertContains('group</th>', $htmls);
-        $this->assertContains('ArrayObject#', $htmls);
-        $this->assertContains('array(2)</a>', $htmls);
-        $this->assertContains('this is string', $htmls);
+        $this->assertStringContainsString('<caption>hash', $htmls);
+        $this->assertStringContainsString('<caption>array', $htmls);
+        $this->assertStringContainsString('<caption>objects', $htmls);
+        $this->assertStringContainsString('id</th>', $htmls);
+        $this->assertStringContainsString('name</th>', $htmls);
+        $this->assertStringContainsString('group</th>', $htmls);
+        $this->assertStringContainsString('ArrayObject#', $htmls);
+        $this->assertStringContainsString('hoge_id</span>', $htmls);
+        $this->assertStringContainsString('fuga_name</span>', $htmls);
+        $this->assertStringContainsString('array(2)</a>', $htmls);
+        $this->assertStringContainsString('this is string', $htmls);
     }
 
     function test_console()

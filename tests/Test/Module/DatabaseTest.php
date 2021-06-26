@@ -12,7 +12,7 @@ class DatabaseTest extends AbstractTestCase
      */
     private $pdo;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 
@@ -21,11 +21,14 @@ class DatabaseTest extends AbstractTestCase
 
     function test_doctrineAdapter()
     {
-        $connection = \Doctrine\DBAL\DriverManager::getConnection(['pdo' => $this->getPdoConnection()]);
+        $connection = \Doctrine\DBAL\DriverManager::getConnection([
+            'driverClass' => \PDODriver::class,
+            'pdo'         => $this->getPdoConnection(),
+        ]);
         $adapter = Database::doctrineAdapter($connection)();
 
-        $connection->query('select 1');
-        $connection->prepare('select ?')->execute([1]);
+        $connection->executeQuery('select 1');
+        $connection->prepare('select ?')->executeQuery([1]);
 
         $logs = iterator_to_array($adapter['logger']);
 
@@ -90,7 +93,7 @@ class DatabaseTest extends AbstractTestCase
             'path'    => 'database-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
-        $this->assertContains("<div class='prewrap scalar'>hoge</div>", (string) $response);
+        $this->assertStringContainsString("<div class='prewrap scalar'>hoge</div>", (string) $response);
 
         $_POST['sql'] = 'select "hoge" from dual where 0';
         $response = $module->fook([
@@ -98,7 +101,7 @@ class DatabaseTest extends AbstractTestCase
             'path'    => 'database-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
-        $this->assertContains("<div class='prewrap scalar'>empty</div>", (string) $response);
+        $this->assertStringContainsString("<div class='prewrap scalar'>empty</div>", (string) $response);
 
         $_POST['sql'] = 'selec "hoge"';
         $response = $module->fook([
@@ -106,7 +109,7 @@ class DatabaseTest extends AbstractTestCase
             'path'    => 'database-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
-        $this->assertContains('<a href="javascript:void(0)" class="popup">error</a>', (string) $response);
+        $this->assertStringContainsString('<a href="javascript:void(0)" class="popup">error</a>', (string) $response);
 
         $response = $module->fook(['is_ajax' => false]);
         $this->assertNull($response);
@@ -137,7 +140,7 @@ class DatabaseTest extends AbstractTestCase
         $module->setting(['explain' => 1]);
         $this->pdo->prepare('SELECT * FROM information_schema.TABLES')->execute();
         $error = $module->getError($module->gather([]));
-        $this->assertContains('has slow query', $error);
+        $this->assertStringContainsString('has slow query', $error);
         $module->finalize();
 
         $module = new Database();
@@ -176,8 +179,8 @@ class DatabaseTest extends AbstractTestCase
         catch (\Exception $ex) {
         }
         $htmls = $module->render($module->gather([]));
-        $this->assertContains('<caption>Query', $htmls);
-        $this->assertContains('background:#fcc', $htmls);
+        $this->assertStringContainsString('<caption>Query', $htmls);
+        $this->assertStringContainsString('background:#fcc', $htmls);
     }
 
     function test_console()

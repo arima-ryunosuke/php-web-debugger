@@ -56,8 +56,14 @@ class Database extends AbstractModule
             $currentLogger = $configration->getSQLLogger();
             $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
 
+            // doctrine2系と3系で PDO の取得方法が異なる
+            $wconn = $connection->getWrappedConnection();
+            if ($wconn instanceof \Doctrine\DBAL\Driver\PDO\Connection) {
+                $wconn = $wconn->getWrappedConnection();
+            }
+
             return [
-                'pdo'    => $connection->getWrappedConnection(),
+                'pdo'    => $wconn,
                 'logger' => $logger,
             ];
         };
@@ -224,7 +230,6 @@ class Database extends AbstractModule
     {
         // クエリ実行リクエストだったら実行して exit
         if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'database-exec') !== false) {
-            $popup = null;
             try {
                 $stmt = $this->pdo->query($_POST['sql']);
                 if ($stmt === false) {

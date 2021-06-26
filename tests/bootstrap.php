@@ -10,6 +10,34 @@ if (false) {
     function dtime($name = '') { }
 }
 
+// PDO 由来の Connection が作成できなくなってるので代替する driver クラス（mysql 前提）
+class PDODriver implements \Doctrine\DBAL\Driver
+{
+    public function connect(array $params)
+    {
+        return (function ($pdo) {
+            $this->connection = $pdo;
+            $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            return $this;
+        })->call((new \ReflectionClass(\Doctrine\DBAL\Driver\PDO\Connection::class))->newInstanceWithoutConstructor(), $params['pdo']);
+    }
+
+    public function getDatabasePlatform()
+    {
+        return new \Doctrine\DBAL\Platforms\MySQLPlatform();
+    }
+
+    public function getSchemaManager(\Doctrine\DBAL\Connection $conn, \Doctrine\DBAL\Platforms\AbstractPlatform $platform)
+    {
+        return new \Doctrine\DBAL\Schema\MySQLSchemaManager($conn, $platform);
+    }
+
+    public function getExceptionConverter(): \Doctrine\DBAL\Driver\API\ExceptionConverter
+    {
+        return new \Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter();
+    }
+}
+
 $that = new \stdClass();
 $that->headers = [];
 $that->shutdowns = [];

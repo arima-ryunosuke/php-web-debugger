@@ -12,7 +12,7 @@ class LoggablePDOTest extends AbstractTestCase
      */
     private $pdo;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 

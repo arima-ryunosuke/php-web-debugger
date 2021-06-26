@@ -9,7 +9,7 @@ class AjaxTest extends AbstractTestCase
     function test_prepareOuter()
     {
         $module = new Ajax();
-        $this->assertContains('fetch', $module->prepareOuter());
+        $this->assertStringContainsString('fetch', $module->prepareOuter());
     }
 
     function test_gather()
@@ -30,6 +30,6 @@ class AjaxTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
         $htmls = $module->render($module->gather([]));
-        $this->assertContains('<caption>AjaxRequest', $htmls);
+        $this->assertStringContainsString('<caption>AjaxRequest', $htmls);
     }
 }

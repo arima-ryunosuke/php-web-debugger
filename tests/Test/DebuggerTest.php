@@ -16,7 +16,7 @@ class DebuggerTest extends AbstractTestCase
     private $post;
     private $cookie;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 
@@ -29,7 +29,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
     }
 
-    function tearDown()
+    function tearDown(): void
     {
         parent::tearDown();
 
@@ -96,7 +96,7 @@ class DebuggerTest extends AbstractTestCase
         $debugger->initialize([
             Server::class => [],
         ]);
-        $this->assertContains('phpinfo()', (string) $debugger->start());
+        $this->assertStringContainsString('phpinfo()', (string) $debugger->start());
     }
 
     function test_start_stopprg()
@@ -150,7 +150,7 @@ class DebuggerTest extends AbstractTestCase
         echo '<html><head></head><body></body></html>';
         GlobalFunction::call_shutdown_function();
         ob_end_flush();
-        $this->assertContains('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
+        $this->assertStringContainsString('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
         $this->expectOutputRegex('#<!-- this is web debugger head injection -->#u');
         $this->expectOutputRegex('#<!-- this is web debugger body injection -->#u');
     }

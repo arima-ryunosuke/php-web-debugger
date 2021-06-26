@@ -6,7 +6,7 @@ use ryunosuke\WebDebugger\Module\AbstractModule;
 class Debugger
 {
     /** @var array */
-    private $options = [];
+    private $options;
 
     /** @var array */
     private $request = [];

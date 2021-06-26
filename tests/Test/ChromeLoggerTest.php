@@ -6,7 +6,7 @@ use ryunosuke\WebDebugger\GlobalFunction;
 
 class ChromeLoggerTest extends AbstractTestCase
 {
-    function tearDown()
+    function tearDown(): void
     {
         parent::tearDown();
 
@@ -25,7 +25,7 @@ class ChromeLoggerTest extends AbstractTestCase
     {
         ChromeLogger::info('test');
         ChromeLogger::send();
-        $this->assertContains('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
+        $this->assertStringContainsString('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
     }
 
     function test_stack()
@@ -44,7 +44,7 @@ class ChromeLoggerTest extends AbstractTestCase
         $logger->groupEnd();
 
         $logger->send();
-        $this->assertContains('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
+        $this->assertStringContainsString('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
 
         $this->assertEquals([
             [

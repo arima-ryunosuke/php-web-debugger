@@ -82,8 +82,8 @@ class ErrorTest extends AbstractTestCase
     {
         $module = new Error();
         $error = $module->getError($stored);
-        $this->assertContains('has 1 error', $error);
-        $this->assertContains('has exception', $error);
+        $this->assertStringContainsString('has 1 error', $error);
+        $this->assertStringContainsString('has exception', $error);
     }
 
     /**
@@ -94,8 +94,8 @@ class ErrorTest extends AbstractTestCase
     {
         $module = new Error();
         $htmls = $module->render($stored);
-        $this->assertContains('<caption><pre>Error', $htmls);
-        $this->assertContains('<caption><pre>Exception', $htmls);
+        $this->assertStringContainsString('<caption><pre>Error', $htmls);
+        $this->assertStringContainsString('<caption><pre>Exception', $htmls);
     }
 
     /**

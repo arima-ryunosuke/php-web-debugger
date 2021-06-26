@@ -23,11 +23,11 @@ class HashTableTest extends AbstractTestCase
         );
 
         // caption は foobar
-        $this->assertContains('<caption>foobar</caption>', $table);
+        $this->assertStringContainsString('<caption>foobar</caption>', $table);
 
         // ヘッダは指定されたもの
-        $this->assertContains('<th>hoge</th>', $table);
-        $this->assertContains('<th>FUGA</th>', $table);
+        $this->assertStringContainsString('<th>hoge</th>', $table);
+        $this->assertStringContainsString('<th>FUGA</th>', $table);
 
         // color:red は4個(th, td の両方にあたる)
         $this->assertEquals(4, substr_count($table, 'color:red'));

@@ -52,7 +52,7 @@ class Performance extends AbstractModule
         if (!function_exists($options['function'])) {
             $funcname = $options['function'];
             $class = __CLASS__;
-            eval("function $funcname(){return call_user_func_array('$class::time', func_get_args());}");
+            eval(/** @lang */"function $funcname(){return call_user_func_array('$class::time', func_get_args());}");
         }
 
         $this->profiler_options = $options['profiler_options'];

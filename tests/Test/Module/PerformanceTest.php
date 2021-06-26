@@ -85,10 +85,10 @@ class PerformanceTest extends AbstractTestCase
         require __DIR__ . '/Performance/profiler.php';
 
         $htmls = $module->render($module->gather([]));
-        $this->assertContains('<caption>Performance', $htmls);
-        $this->assertContains('<caption>OPcache', $htmls);
-        $this->assertContains('<caption>Timeline', $htmls);
-        $this->assertContains('<caption>Profile', $htmls);
+        $this->assertStringContainsString('<caption>Performance', $htmls);
+        $this->assertStringContainsString('<caption>OPcache', $htmls);
+        $this->assertStringContainsString('<caption>Timeline', $htmls);
+        $this->assertStringContainsString('<caption>Profile', $htmls);
     }
 
     function test_console()

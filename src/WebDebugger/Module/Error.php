@@ -79,7 +79,7 @@ class Error extends AbstractModule
             call_user_func_array($this->errorHolder->already, func_get_args());
         }
         // @付きの場合は 0 になるので無視する
-        if (error_reporting() == 0) {
+        if (!(error_reporting() & $level)) {
             return false;
         }
 

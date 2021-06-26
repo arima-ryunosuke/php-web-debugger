@@ -10,7 +10,7 @@ class PopupTest extends AbstractTestCase
     {
         $popup = (string) new Popup('foobar', '<b>bold</b>');
 
-        $this->assertContains('<a href="javascript:void(0)" class="popup">foobar</a>', $popup);
-        $this->assertContains('<div class="extends popupdiv"><b>bold</b></div>', $popup);
+        $this->assertStringContainsString('<a href="javascript:void(0)" class="popup">foobar</a>', $popup);
+        $this->assertStringContainsString('<div class="extends popupdiv"><b>bold</b></div>', $popup);
     }
 }

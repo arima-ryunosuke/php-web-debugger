@@ -10,7 +10,7 @@ class AbstractHtmlTest extends AbstractTestCase
     /** @var AbstractHtml */
     private $mock;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 
@@ -49,24 +49,24 @@ class AbstractHtmlTest extends AbstractTestCase
     function test_export_array()
     {
         $export = (string) $this->export([1, 2, 3]);
-        $this->assertContains('<a href="javascript:void(0)" class="holding">array(3)</a>', $export);
+        $this->assertStringContainsString('<a href="javascript:void(0)" class="holding">array(3)</a>', $export);
     }
 
     function test_export_resource()
     {
         $export = (string) $this->export(STDIN);
-        $this->assertContains("<div class='prewrap resource'>stream Resource id #1</div>", $export);
+        $this->assertStringContainsString("<div class='prewrap resource'>stream Resource id #1</div>", $export);
     }
 
     function test_export_object()
     {
         $export = (string) $this->export(new \stdClass());
-        $this->assertContains('stdClass#', $export);
+        $this->assertStringContainsString('stdClass#', $export);
     }
 
     function test_export_toolong()
     {
         $export = (string) $this->export(range(0, 2000));
-        $this->assertContains("more 1901 elements", $export);
+        $this->assertStringContainsString("more 1901 elements", $export);
     }
 }

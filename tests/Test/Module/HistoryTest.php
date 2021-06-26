@@ -88,6 +88,6 @@ class HistoryTest extends AbstractTestCase
             'url'      => 'url',
             'workpath' => __FILE__,
         ]));
-        $this->assertContains('<caption>history', $htmls);
+        $this->assertStringContainsString('<caption>history', $htmls);
     }
 }

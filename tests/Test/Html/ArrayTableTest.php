@@ -23,12 +23,12 @@ class ArrayTableTest extends AbstractTestCase
         );
 
         // caption は foobar
-        $this->assertContains('<caption>foobar</caption>', $table);
+        $this->assertStringContainsString('<caption>foobar</caption>', $table);
 
         // ヘッダは和集合
-        $this->assertContains('<th class="nowrap">a</th>', $table);
-        $this->assertContains('<th class="nowrap">b</th>', $table);
-        $this->assertContains('<th class="nowrap">c</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">a</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">b</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">c</th>', $table);
 
         // color:red は2個
         $this->assertEquals(2, substr_count($table, 'color:red'));
@@ -45,11 +45,11 @@ class ArrayTableTest extends AbstractTestCase
         );
 
         // caption は foobar
-        $this->assertContains('<caption>foobar</caption>', $table);
+        $this->assertStringContainsString('<caption>foobar</caption>', $table);
 
         // ヘッダは和集合
-        $this->assertContains('<th class="nowrap">a</th>', $table);
-        $this->assertContains('<th class="nowrap">b</th>', $table);
-        $this->assertContains('<th class="nowrap">c</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">a</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">b</th>', $table);
+        $this->assertStringContainsString('<th class="nowrap">c</th>', $table);
     }
 }

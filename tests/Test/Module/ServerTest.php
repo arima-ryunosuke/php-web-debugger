@@ -12,7 +12,7 @@ class ServerTest extends AbstractTestCase
     private $post;
     private $files;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 
@@ -22,7 +22,7 @@ class ServerTest extends AbstractTestCase
         $this->files = $_FILES;
     }
 
-    function tearDown()
+    function tearDown(): void
     {
         parent::tearDown();
 
@@ -39,7 +39,7 @@ class ServerTest extends AbstractTestCase
 
         $response = $module->fook(['is_ajax' => true, 'path' => 'phpinfo']);
         $this->assertTrue($response instanceof Popup);
-        $this->assertContains("phpinfo", (string) $response);
+        $this->assertStringContainsString("phpinfo", (string) $response);
 
         $_POST['session'] = '{"a": 1, "b": 2}';
         $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
@@ -97,8 +97,8 @@ class ServerTest extends AbstractTestCase
         $module = new Server();
         $module->initialize();
         $error = $module->getError($module->gather([]));
-        $this->assertContains('has same key', $error);
-        $this->assertContains('has vulnerability', $error);
+        $this->assertStringContainsString('has same key', $error);
+        $this->assertStringContainsString('has vulnerability', $error);
     }
 
     function test_render()
@@ -110,12 +110,12 @@ class ServerTest extends AbstractTestCase
         $module = new Server();
         $module->initialize();
         $htmls = $module->render($module->gather([]));
-        $this->assertContains('<caption>GET', $htmls);
-        $this->assertContains('<caption>POST', $htmls);
-        $this->assertContains('<caption>FILES', $htmls);
-        $this->assertContains('<caption>COOKIE', $htmls);
-        $this->assertContains('<caption>SESSION', $htmls);
-        $this->assertContains('<caption>SERVER', $htmls);
+        $this->assertStringContainsString('<caption>GET', $htmls);
+        $this->assertStringContainsString('<caption>POST', $htmls);
+        $this->assertStringContainsString('<caption>FILES', $htmls);
+        $this->assertStringContainsString('<caption>COOKIE', $htmls);
+        $this->assertStringContainsString('<caption>SESSION', $htmls);
+        $this->assertStringContainsString('<caption>SERVER', $htmls);
 
         $this->assertEquals(6, substr_count($htmls, 'color:red'));
     }

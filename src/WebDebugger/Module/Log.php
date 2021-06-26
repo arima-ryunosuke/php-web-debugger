@@ -46,7 +46,7 @@ class Log extends AbstractModule
         if (!function_exists($options['function'])) {
             $funcname = $options['function'];
             $class = __CLASS__;
-            eval("function $funcname(){return call_user_func_array('$class::log', func_get_args());}");
+            eval(/** @lang */ "function $funcname(){return call_user_func_array('$class::log', func_get_args());}");
         }
 
         self::$instance = $this;

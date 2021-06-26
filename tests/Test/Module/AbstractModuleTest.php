@@ -12,7 +12,7 @@ class AbstractModuleTest extends AbstractTestCase
     /** @var AbstractModule */
     private $mock;
 
-    function setUp()
+    function setUp(): void
     {
         parent::setUp();
 
