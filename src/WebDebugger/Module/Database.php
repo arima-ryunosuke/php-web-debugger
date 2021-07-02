@@ -24,9 +24,9 @@ class Database extends AbstractModule
     /** @var callable */
     private $scorer;
 
-    public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection)
+    public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection, $options = [])
     {
-        return function () use ($connection) {
+        return function () use ($connection, $options) {
             $configration = $connection->getConfiguration();
 
             $logger = new class() implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
@@ -62,10 +62,10 @@ class Database extends AbstractModule
                 $wconn = $wconn->getWrappedConnection();
             }
 
-            return [
+            return array_replace($options, [
                 'pdo'    => $wconn,
                 'logger' => $logger,
-            ];
+            ]);
         };
     }
 
