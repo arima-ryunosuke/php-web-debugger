@@ -93,28 +93,24 @@ try {
     })();
 
     // Database モジュール用
-    (function (\PDO $pdo) {
+    (function (\Doctrine\DBAL\Connection $connection) {
         // query/prepare ではないメソッド群
-        $pdo->beginTransaction();
-        $pdo->exec('set @hoge=0');
-        $pdo->rollBack();
+        $connection->beginTransaction();
+        $connection->executeStatement('set @hoge=0');
+        $connection->rollBack();
 
         // query/prepare など
-        $pdo->query('SELECT * FROM TABLES JOIN COLUMNS USING(TABLE_NAME) WHERE TABLE_NAME="TABLES" LIMIT 1');
-        $stmt = $pdo->prepare('(Select ?) Union (Select ?)');
-        $stmt->bindValue(1, 1);
-        $stmt->bindValue(2, 2);
-        $stmt->execute();
-        $stmt->bindValue(1, 3);
-        $stmt->bindValue(2, 4);
-        $stmt->execute();
+        $connection->executeQuery('SELECT * FROM TABLES JOIN COLUMNS USING(TABLE_NAME) WHERE TABLE_NAME="TABLES" LIMIT 1');
+        $stmt = $connection->prepare('(Select ?) Union (Select ?)');
+        $stmt->executeQuery([1, 2]);
+        $stmt->executeQuery([3, 4]);
         ?>
         <fieldset>
             <legend>Database</legend>
             <p>リクエスト中で実行したクエリの実行時間やパラメータなどが確認できます</p>
         </fieldset>
         <?php
-    })($pdo);
+    })($connection);
 
     // Variable モジュール用
     (function () {
@@ -138,7 +134,7 @@ try {
 
 
     // Error モジュール用
-    (function (\PDO $pdo) {
+    (function () {
         // Notice
         $a = [];
         $a['t'] = $a['undefined'];
@@ -149,12 +145,13 @@ try {
         </fieldset>
         <?php
 
-        // PDO の例外
-        $pdo->query('invalid query hoge');
-    })($pdo);
+        throw new \Exception('dummy exception');
+    })();
+}
+catch (\Throwable $t) {
+    throw $t;
 }
 finally {
     ob_end_flush();
     echo "</body>";
-    fastcgi_finish_request();
 }

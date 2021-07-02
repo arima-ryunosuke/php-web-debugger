@@ -2,9 +2,10 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// example 実行用に PDO を用意
-$pdo = new \ryunosuke\WebDebugger\Module\Database\LoggablePDO(new \PDO('mysql:dbname=information_schema', 'root', ''));
-$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+// example 実行用に Connection を用意
+$connection = \Doctrine\DBAL\DriverManager::getConnection([
+    'url' => 'mysql://root:@localhost/information_schema',
+]);
 
 // デバッガを初期化・登録
 $debugger = new \ryunosuke\WebDebugger\Debugger([
@@ -16,7 +17,7 @@ $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Ajax::class        => [],
     \ryunosuke\WebDebugger\Module\Error::class       => [],
     \ryunosuke\WebDebugger\Module\Server::class      => [],
-    \ryunosuke\WebDebugger\Module\Database::class    => ['pdo' => $pdo],
+    \ryunosuke\WebDebugger\Module\Database::class    => \ryunosuke\WebDebugger\Module\Database::doctrineAdapter($connection),
     \ryunosuke\WebDebugger\Module\Performance::class => [],
     \ryunosuke\WebDebugger\Module\Log::class         => [],
     \ryunosuke\WebDebugger\Module\Variable::class    => ['server' => function () { return $_SERVER; }],
