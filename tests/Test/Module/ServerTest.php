@@ -2,7 +2,7 @@
 namespace ryunosuke\Test\WebDebugger\Module;
 
 use ryunosuke\Test\WebDebugger\AbstractTestCase;
-use ryunosuke\WebDebugger\Html\Popup;
+use ryunosuke\WebDebugger\Html\Raw;
 use ryunosuke\WebDebugger\Module\Server;
 
 class ServerTest extends AbstractTestCase
@@ -38,7 +38,7 @@ class ServerTest extends AbstractTestCase
         $module->initialize();
 
         $response = $module->fook(['is_ajax' => true, 'path' => 'phpinfo']);
-        $this->assertTrue($response instanceof Popup);
+        $this->assertTrue($response instanceof Raw);
         $this->assertStringContainsString("phpinfo", (string) $response);
 
         $_POST['session'] = '{"a": 1, "b": 2}';

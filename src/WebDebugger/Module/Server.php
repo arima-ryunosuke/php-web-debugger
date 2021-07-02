@@ -26,11 +26,16 @@ class Server extends AbstractModule
                 $(function() {
                     $(document).on("click", ".phpinfo", function() {
                         var $this = $(this);
-                        $.post("phpinfo", function(response) {
-                            var popup = $this.next(".phpinfo_area").html(response);
-                            popup.find(".popupdiv").addClass("removable");
-                            popup.find(".popup").click();
-                        }, "html");
+                        if ($this.hasClass("done")) {
+                            $this.next(".phpinfo_area").html("");
+                            $this.removeClass("done");
+                        }
+                        else {
+                            $.post("phpinfo", function(response) {
+                                $this.next(".phpinfo_area").html(response);
+                                $this.addClass("done");
+                            }, "html");
+                        }
                     });
                     $(document).on("click", ".savesession", function() {
                         $.post("savesession", {
@@ -58,8 +63,7 @@ class Server extends AbstractModule
             ob_start();
             phpinfo();
             $phpinfo = ob_get_clean();
-            $popup = new Popup('', new Raw($phpinfo));
-            return GlobalFunction::response($popup);
+            return GlobalFunction::response(new Raw($phpinfo));
         }
 
         if ($request['is_ajax'] && strpos($request['path'], 'savesession') !== false) {
@@ -122,7 +126,7 @@ class Server extends AbstractModule
         }
 
         $result = [
-            new Raw('<button type="button" class="phpinfo">phpinfo</button><span class="phpinfo_area"></span>'),
+            new Raw('<button type="button" class="phpinfo">phpinfo</button><div class="phpinfo_area"></div>'),
         ];
         foreach ($stored as $category => $data) {
             if ($category === 'SESSION(data)') {
@@ -131,7 +135,7 @@ class Server extends AbstractModule
                 $result[$category] = new Raw("<table class='debug_table' style='width:100%'>
                     <caption>
                         {$category}
-                        <button type='button' class='savesession' style='float:right'>save</button><span class='phpinfo_area'></span>
+                        <button type='button' class='savesession' style='float:right'>save</button>
                     </caption>
                     <tr>
                         <td><textarea id='session-data' style='line-height:16.8px;width:100%;height:{$h}px;'>$sdata</textarea></td>
