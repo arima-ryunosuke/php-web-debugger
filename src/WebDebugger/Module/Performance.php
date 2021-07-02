@@ -96,19 +96,6 @@ class Performance extends AbstractModule
 
     protected function _gather()
     {
-        $opcache = GlobalFunction::opcache_get_status() ?: ['opcache_enabled' => false];
-        if (isset($opcache['scripts'])) {
-            foreach ($opcache['scripts'] as &$script) {
-                $script = [
-                    'full_path'     => $script['full_path'],
-                    'hits'          => $script['hits'],
-                    'memory_usage'  => $script['memory_consumption'],
-                    'last_used'     => date('Y/m/d H:i:s', $script['last_used_timestamp']),
-                    'last_modified' => date('Y/m/d H:i:s', $script['timestamp']),
-                ];
-            }
-        }
-
         $last = null;
         $timelines = [];
         foreach ($this->timelines as $n => $timeline) {
@@ -121,6 +108,19 @@ class Performance extends AbstractModule
                     'time' => $timeline['time'] - $last['time'],
                 ] + $timeline;
             $last = $timeline;
+        }
+
+        $opcache = GlobalFunction::opcache_get_status() ?: ['opcache_enabled' => false];
+        if (isset($opcache['scripts'])) {
+            foreach ($opcache['scripts'] as &$script) {
+                $script = [
+                    'full_path'     => $script['full_path'],
+                    'hits'          => $script['hits'],
+                    'memory_usage'  => $script['memory_consumption'],
+                    'last_used'     => date('Y/m/d H:i:s', $script['last_used_timestamp']),
+                    'last_modified' => date('Y/m/d H:i:s', $script['timestamp']),
+                ];
+            }
         }
 
         $profiles = [];
@@ -158,8 +158,8 @@ class Performance extends AbstractModule
                 'MemoryUsage'  => memory_get_peak_usage(true),
                 'IncludedFile' => get_included_files(),
             ],
-            'OPcache'     => $opcache,
             'Timeline'    => $timelines,
+            'OPcache'     => $opcache,
             'Profile'     => $profiles,
         ];
     }
@@ -180,28 +180,7 @@ class Performance extends AbstractModule
 
     protected function _render($stored)
     {
-        if (isset($stored['OPcache']['scripts'])) {
-            $stored['OPcache']['scripts'] = new ArrayTable('', $stored['OPcache']['scripts']);
-        }
-
         $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');
-
-        foreach ($stored['Profile'] as &$profile) {
-            try {
-                $parts = preg_split('#::|->#', $profile['callee'], 2);
-                $ref = count($parts) > 1 ? new \ReflectionMethod(...$parts) : new \ReflectionFunction(...$parts);
-                if (!$ref->isInternal()) {
-                    $profile[''] = $this->toOpenable([
-                        'file' => $ref->getFileName(),
-                        'line' => $ref->getStartLine(),
-                    ])[''];
-                }
-            }
-            catch (\ReflectionException $e) {
-            }
-            $popuptitle = sprintf('caller(%d)', count($profile['caller']));
-            $profile['caller'] = new Popup($popuptitle, new ArrayTable('', array_map([$this, 'toOpenable'], $profile['caller'])));
-        }
 
         ob_start();
         ?>
@@ -241,12 +220,34 @@ class Performance extends AbstractModule
             </tbody>
         </table>
         <?php
-        $html = ob_get_clean();
+        $timelinehtml = ob_get_clean();
+
+        $stored['OPcache']['memory_usage'] = new HashTable('', $stored['OPcache']['memory_usage'] ?? [], []);
+        $stored['OPcache']['interned_strings_usage'] = new HashTable('', $stored['OPcache']['interned_strings_usage'] ?? []);
+        $stored['OPcache']['opcache_statistics'] = new HashTable('', $stored['OPcache']['opcache_statistics'] ?? []);
+        $stored['OPcache']['scripts'] = new ArrayTable('', $stored['OPcache']['scripts'] ?? []);
+
+        foreach ($stored['Profile'] as &$profile) {
+            try {
+                $parts = preg_split('#::|->#', $profile['callee'], 2);
+                $ref = count($parts) > 1 ? new \ReflectionMethod(...$parts) : new \ReflectionFunction(...$parts);
+                if (!$ref->isInternal()) {
+                    $profile[''] = $this->toOpenable([
+                        'file' => $ref->getFileName(),
+                        'line' => $ref->getStartLine(),
+                    ])[''];
+                }
+            }
+            catch (\ReflectionException $e) {
+            }
+            $popuptitle = sprintf('caller(%d)', count($profile['caller']));
+            $profile['caller'] = new Popup($popuptitle, new ArrayTable('', array_map([$this, 'toOpenable'], $profile['caller'])));
+        }
 
         return [
             'Performance' => new HashTable('Performance', $stored['Performance']),
+            'Timeline'    => new Raw($timelinehtml),
             'OPcache'     => new HashTable('OPcache', $stored['OPcache']),
-            'Timeline'    => new Raw($html),
             'Profile'     => new ArrayTable($caption, $stored['Profile']),
         ];
     }
@@ -255,8 +256,8 @@ class Performance extends AbstractModule
     {
         return [
             'Performance' => ['hashtable' => $stored['Performance']],
-            'OPcache'     => ['hashtable' => $stored['OPcache']],
             'Timeline'    => ['table' => $stored['Timeline']],
+            'OPcache'     => ['hashtable' => $stored['OPcache']],
             'Profile'     => ['table' => $stored['Profile']],
         ];
     }
