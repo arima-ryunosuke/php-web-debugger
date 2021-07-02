@@ -162,7 +162,7 @@ class Debugger
             }
 
             // ゴミの削除
-            array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -1000));
+            array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -100));
         });
 
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
