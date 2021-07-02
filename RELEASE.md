@@ -20,6 +20,14 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.13
+
+- [change][template] 軽微な見た目の変更
+- [change][Debugger] ログが結構な容量を食べるので 1000 から 100 に変更
+- [change][Module/Performance] 見た目の変更
+- [feature][Module/Database] doctrineAdapter を使う際に他のオプションを渡す機能
+- [fixbug][Module/Server] phpinfo が消えない不具合を修正
+
 ## 1.0.12
 
 - [feature] bump version
