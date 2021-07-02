@@ -128,6 +128,10 @@
     white-space: nowrap;
 }
 
+.debug_table caption pre {
+    white-space: break-spaces;
+}
+
 .debug_table th, .debug_table td {
     color: #000;
     border: 1px solid #ccc;
@@ -158,6 +162,7 @@
     word-break: break-all;
     word-wrap: break-word;
     white-space: normal;
+    vertical-align: top;
 }
 
 .holdingdiv {
