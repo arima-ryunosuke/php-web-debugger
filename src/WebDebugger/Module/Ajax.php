@@ -55,6 +55,7 @@ class Ajax extends AbstractModule
                             }
                             return _fetch.call(this, input, init).then(function(response) {
                                 complete(response.headers.get("X-Debug-Ajax"));
+                                return response;
                             });
                         };
                     }
