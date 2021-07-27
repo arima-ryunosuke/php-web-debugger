@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.14
+
+- [fixbug][template] 不要なオブジェクトの div まで開いていた不具合を修正
+- [fixbug][Module/Ajax] 飛び元で fetch を使用すると死ぬ不具合を修正
+- [feature][Module/Performance] preload 対応
+
 ## 1.0.13
 
 - [change][template] 軽微な見た目の変更
