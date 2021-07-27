@@ -90,7 +90,7 @@ $(function () {
         var pre = $this.closest('pre');
         var objects = pre.find('[data-id=' + id + ']');
         pre.find('.holding.focused').removeClass('focused');
-        objects.parents('.holdingdiv').show();
+        objects.eq(0).parents('.holdingdiv').show();
         objects.filter('[data-type="object"]').closest('.holdingdiv').prev().addClass('focused')[0].scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',
