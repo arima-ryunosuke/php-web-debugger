@@ -225,6 +225,7 @@ class Performance extends AbstractModule
         $stored['OPcache']['memory_usage'] = new HashTable('', $stored['OPcache']['memory_usage'] ?? [], []);
         $stored['OPcache']['interned_strings_usage'] = new HashTable('', $stored['OPcache']['interned_strings_usage'] ?? []);
         $stored['OPcache']['opcache_statistics'] = new HashTable('', $stored['OPcache']['opcache_statistics'] ?? []);
+        $stored['OPcache']['preload_statistics'] = new HashTable('', $stored['OPcache']['preload_statistics'] ?? []);
         $stored['OPcache']['scripts'] = new ArrayTable('', $stored['OPcache']['scripts'] ?? []);
 
         foreach ($stored['Profile'] as &$profile) {
