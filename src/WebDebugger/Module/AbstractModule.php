@@ -182,17 +182,17 @@ abstract class AbstractModule
      * info 数を返す
      *
      * @param array $stored gather の返り値
-     * @return int
+     * @return ?int
      */
     public final function getCount($stored)
     {
         if ($this->isDisabled()) {
-            return;
+            return null;
         }
         return $this->_getCount($stored);
     }
 
-    protected function _getCount($stored) { }
+    protected function _getCount($stored) { return null; }
 
     /**
      * エラーを返す

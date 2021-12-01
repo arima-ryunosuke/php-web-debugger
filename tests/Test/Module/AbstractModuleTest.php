@@ -66,10 +66,10 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertEquals([
             ''     => "<a href='javascript:void(0)' data-href='file=filename&amp;line=99' title='filename#99'>*</a>",
             'file' => 'filename',
-            'line' => 99
+            'line' => 99,
         ], $this->invoke('toOpenable', [
             'file' => 'filename',
-            'line' => 99
+            'line' => 99,
         ]));
     }
 }

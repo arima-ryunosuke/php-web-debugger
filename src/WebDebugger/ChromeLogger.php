@@ -23,7 +23,7 @@ class ChromeLogger
     private $data = [
         'version' => '1.0.0',
         'columns' => ['log', 'backtrace', 'type'],
-        'rows'    => []
+        'rows'    => [],
     ];
 
     public static function getInstance()
@@ -125,7 +125,7 @@ class ChromeLogger
             $this->data['rows'][] = [
                 [$value],
                 null,
-                trim($type, '_')
+                trim($type, '_'),
             ];
         }
     }

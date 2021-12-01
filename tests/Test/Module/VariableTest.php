@@ -75,7 +75,7 @@ class VariableTest extends AbstractTestCase
                 new \ArrayObject(['id' => 2, 'name' => 'nameB', 'group' => 'Y']),
                 new \ArrayObject(['id' => 3, 'name' => 'nameC', 'group' => 'Z']),
             ]),
-            'mixed' => [
+            'mixed'   => [
                 ['hoge_id' => 1, 'hoge_name' => 'nameA'],
                 ['fuga_id' => 2, 'fuga_name' => 'nameB'],
             ],

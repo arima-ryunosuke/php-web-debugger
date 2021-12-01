@@ -197,8 +197,8 @@ class DebuggerTest extends AbstractTestCase
             History::class  => [],
         ]);
         $response = $debugger->start();
-        $this->assertContains('<div class="debug_plugin">', $response);
-        $this->assertContains('<caption>SERVER</caption>', $response);
+        $this->assertStringContainsString('<div class="debug_plugin">', $response);
+        $this->assertStringContainsString('<caption>SERVER</caption>', $response);
     }
 
     /**
@@ -219,6 +219,6 @@ class DebuggerTest extends AbstractTestCase
             History::class => [],
         ]);
         $response = $debugger->start();
-        $this->assertContains('is not found', $response);
+        $this->assertStringContainsString('is not found', $response);
     }
 }

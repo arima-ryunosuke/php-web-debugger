@@ -157,11 +157,11 @@ class Error extends AbstractModule
         return [
             'Error'     => [
                 'summary' => $error_summary,
-                'data'    => $this->errorHolder->errors
+                'data'    => $this->errorHolder->errors,
             ],
             'Exception' => [
                 'summary' => $ex_summary,
-                'data'    => $this->exceptionHolder->stacktrace
+                'data'    => $this->exceptionHolder->stacktrace,
             ],
         ];
     }

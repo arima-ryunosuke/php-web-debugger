@@ -3,7 +3,6 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\HashTable;
-use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
 
 class Server extends AbstractModule

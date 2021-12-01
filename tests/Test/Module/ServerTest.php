@@ -47,7 +47,7 @@ class ServerTest extends AbstractTestCase
 
         $_POST['session'] = 'hoge';
         $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
-        $this->assertContains('json format is invalid', $response);
+        $this->assertStringContainsString('json format is invalid', $response);
     }
 
     function test_gather()

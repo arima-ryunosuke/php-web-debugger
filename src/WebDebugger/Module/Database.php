@@ -237,7 +237,7 @@ class Database extends AbstractModule
                 }
                 $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
                 $rows = array_slice($rows, 0, 256) ?: [
-                    ['exec' => 'empty']
+                    ['exec' => 'empty'],
                 ];
                 $table = new ArrayTable('', $rows);
                 $popup = new Popup('result', $table);
