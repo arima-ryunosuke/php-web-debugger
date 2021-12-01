@@ -199,6 +199,17 @@ class Debugger
                 $buffer = sprintf('<body><p style="padding-left:24px;font-size:40px;">Redirecting to<br /><a href="%1$s">%1$s</a></p></body>', $location) . $buffer;
             }
 
+            // Ajax でない通常リクエストで application/json ならアグレッシブに書き換える（html 化してデバッグを容易にする）
+            if (!$this->request['is_ajax'] && preg_match('#^Content-Type: application/json#mi', $headers)) {
+                $json = json_decode($buffer, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $json = htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8');
+                    $buffer = "<html><head></head><body><pre style='margin:0 20px'>$json</pre></body></html>";
+                    GlobalFunction::header('Content-Type: text/html');
+                    $headers = implode("\n", GlobalFunction::headers_list());
+                }
+            }
+
             // Ajax ならリクエストパスを返すのみ(ヘッダ埋め込み)
             if ($this->request['is_ajax']) {
                 GlobalFunction::header("X-Debug-Ajax: " . $this->request['workpath']);

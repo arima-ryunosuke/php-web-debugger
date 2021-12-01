@@ -147,7 +147,8 @@ class DebuggerTest extends AbstractTestCase
             Performance::class => [],
         ]);
         $debugger->start();
-        echo '<html><head></head><body></body></html>';
+        GlobalFunction::header('Content-type: application/json');
+        echo json_encode(['a' => ['b' => ['c' => ['x', 'y', 'z']]]]);
         GlobalFunction::call_shutdown_function();
         ob_end_flush();
         $this->assertStringContainsString('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
