@@ -168,7 +168,7 @@ class DebuggerTest extends AbstractTestCase
         $debugger->initialize([
             Ajax::class     => [],
             Server::class   => [],
-            Database::class => ['pdo' => new Database\LoggablePDO($this->getPdoConnection())],
+            Database::class => ['pdo' => $this->getPdoConnection(), 'logger' => fn() => []],
             History::class  => [],
         ]);
         $debugger->start();
@@ -194,7 +194,7 @@ class DebuggerTest extends AbstractTestCase
         $debugger->initialize([
             Ajax::class     => [],
             Server::class   => [],
-            Database::class => ['pdo' => new Database\LoggablePDO($this->getPdoConnection())],
+            Database::class => ['pdo' => $this->getPdoConnection(), 'logger' => fn() => []],
             History::class  => [],
         ]);
         $response = $debugger->start();

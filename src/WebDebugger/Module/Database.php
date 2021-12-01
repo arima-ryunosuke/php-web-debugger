@@ -5,11 +5,10 @@ use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
-use ryunosuke\WebDebugger\Module\Database\LoggablePDO;
 
 class Database extends AbstractModule
 {
-    /** @var LoggablePDO */
+    /** @var \PDO */
     private $pdo;
 
     /** @var callable */
@@ -27,10 +26,21 @@ class Database extends AbstractModule
     public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection, $options = [])
     {
         return function () use ($connection, $options) {
-            $configration = $connection->getConfiguration();
+            // doctrine2系と3系で PDO の取得方法が異なる
+            $wconn = $connection->getWrappedConnection();
+            if ($wconn instanceof \Doctrine\DBAL\Driver\PDO\Connection) {
+                $wconn = $wconn->getWrappedConnection();
+            }
 
-            $logger = new class() implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
+            $logger = new class($wconn) implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
+                /** @var \PDO */
+                private $pdo;
                 private $queries = [];
+
+                public function __construct($pdo)
+                {
+                    $this->pdo = $pdo;
+                }
 
                 public function startQuery($sql, ?array $params = null, ?array $types = null)
                 {
@@ -46,21 +56,27 @@ class Database extends AbstractModule
                 {
                     $current = count($this->queries) - 1;
                     $this->queries[$current]['time'] = microtime(true) - $this->queries[$current]['time'];
+
+                    // 成功か失敗かを得る術がないので errorInfo で確認（ただし stmt のエラーは取れないし互換性担保のために近い）
+                    $error = $this->pdo->errorInfo();
+                    if ($error[0] !== '00000' && strlen($error[2])) {
+                        $this->queries[$current]['message'] = $error[2];
+                    }
                 }
 
                 public function getIterator()
                 {
                     yield from $this->queries;
                 }
+
+                public function clear()
+                {
+                    $this->queries = [];
+                }
             };
+            $configration = $connection->getConfiguration();
             $currentLogger = $configration->getSQLLogger();
             $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
-
-            // doctrine2系と3系で PDO の取得方法が異なる
-            $wconn = $connection->getWrappedConnection();
-            if ($wconn instanceof \Doctrine\DBAL\Driver\PDO\Connection) {
-                $wconn = $wconn->getWrappedConnection();
-            }
 
             return array_replace($options, [
                 'pdo'    => $wconn,
@@ -147,8 +163,9 @@ class Database extends AbstractModule
         $this->pdo = $options['pdo'];
 
         // 管理下にある PDO なら logger は getLog で確定
-        if ($options['logger'] === null && $this->pdo instanceof LoggablePDO) {
-            $options['logger'] = [$this->pdo, 'getLog'];
+        /** @noinspection PhpDeprecationInspection */
+        if ($options['logger'] === null && $this->pdo instanceof \ryunosuke\WebDebugger\Module\Database\LoggablePDO) {
+            $options['logger'] = [$this->pdo, 'getLog']; // @codeCoverageIgnore
         }
 
         // formatter に非callableが来た場合はクロージャ化
@@ -217,24 +234,12 @@ class Database extends AbstractModule
         }
     }
 
-    protected function _finalize()
-    {
-        if ($this->pdo === null) {
-            return;
-        }
-
-        $this->pdo->clearLog();
-    }
-
     protected function _fook(array $request)
     {
         // クエリ実行リクエストだったら実行して exit
         if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'database-exec') !== false) {
             try {
                 $stmt = $this->pdo->query($_POST['sql']);
-                if ($stmt === false) {
-                    throw new \Exception(implode(' ', $this->pdo->errorInfo()));
-                }
                 $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
                 $rows = array_slice($rows, 0, 256) ?: [
                     ['exec' => 'empty'],
