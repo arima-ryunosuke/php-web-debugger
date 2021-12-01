@@ -1,5 +1,6 @@
 /vendor
 /tests/coverage
 /tests/phpunit.xml
+/tests/.phpunit.result.cache
 /example/compiled/*
 !/example/compiled/.gitkeep
