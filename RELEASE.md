@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.0.15
+
+- [refactor][Database] LoggablePDO がコード中に生き残っていたので除去
+- [feature][Debugger] json 返却時に強制的に html にしてデバッグ機能を使用する機能
+- [fixbug][Debugger] unlink エラーがでることがあるのを修正
+
 ## 1.0.14
 
 - [fixbug][template] 不要なオブジェクトの div まで開いていた不具合を修正
