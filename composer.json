@@ -35,9 +35,9 @@
   },
   "require-dev": {
     "ext-pdo": "*",
-    "phpunit/phpunit": "8.*",
+    "phpunit/phpunit": "9.*",
     "doctrine/dbal": "3.*",
-    "ryunosuke/functions": "1.4.*"
+    "ryunosuke/functions": "1.5.*"
   },
   "scripts": {
     "build": [
