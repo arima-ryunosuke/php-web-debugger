@@ -1,7 +1,7 @@
 <?php
 
 $h = function ($string) {
-    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) $string, ENT_QUOTES, 'UTF-8');
 };
 
 /**

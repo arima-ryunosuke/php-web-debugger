@@ -64,7 +64,7 @@ class Database extends AbstractModule
                     }
                 }
 
-                public function getIterator()
+                public function getIterator(): \Generator
                 {
                     yield from $this->queries;
                 }
@@ -205,10 +205,10 @@ class Database extends AbstractModule
                     if (array_key_exists($col, $exrow)) {
                         $result[$col] = 0;
                         foreach ($scores as $str => $score) {
-                            if (ctype_digit(trim($str, '<=>')) && eval("return '{$exrow[$col]}'{$str};")) {
+                            if (ctype_digit(trim($str, '<=>')) && eval("return (int) '{$exrow[$col]}'{$str};")) {
                                 $result[$col] += $score;
                             }
-                            if (strpos($exrow[$col], $str) !== false) {
+                            if (strpos((string) $exrow[$col], $str) !== false) {
                                 $result[$col] += $score;
                             }
                         }

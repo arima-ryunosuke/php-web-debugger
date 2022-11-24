@@ -77,7 +77,7 @@ class History extends AbstractModule
             $first = !isset($first);
             $histories[] = [
                 ''         => new Raw('<label><input type="radio" name="historyrow" value="' . htmlspecialchars($history['file'], ENT_QUOTES) . '" ' . ($first ? ' checked' : '') . '></label>'),
-                'datetime' => date('Y/m/d H:i:s', $history['time']),
+                'datetime' => date('Y/m/d H:i:s', (int) $history['time']),
                 'method'   => $history['method'],
                 'url'      => $history['url'],
             ];

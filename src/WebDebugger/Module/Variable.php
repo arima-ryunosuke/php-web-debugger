@@ -86,7 +86,7 @@ class Variable extends AbstractModule
         // iterable なら HashTable か ArrayTable にできる可能性がある
         if (is_iterable($value)) {
             // ただし、空っぽだと何も判断できない
-            if (\ryunosuke\WebDebugger\is_countable($value) && count($value) === 0) {
+            if (is_countable($value) && count($value) === 0) {
                 return null;
             }
             // 連想配列は hash 確定
