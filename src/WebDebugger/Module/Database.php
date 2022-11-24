@@ -23,16 +23,13 @@ class Database extends AbstractModule
     /** @var callable */
     private $scorer;
 
+    /** @noinspection PhpDeprecationInspection */
     public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection, $options = [])
     {
         return function () use ($connection, $options) {
-            // doctrine2系と3系で PDO の取得方法が異なる
-            $wconn = $connection->getWrappedConnection();
-            if ($wconn instanceof \Doctrine\DBAL\Driver\PDO\Connection) {
-                $wconn = $wconn->getWrappedConnection();
-            }
+            $pdo = $connection->getNativeConnection();
 
-            $logger = new class($wconn) implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
+            $logger = new class($pdo) implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
                 /** @var \PDO */
                 private $pdo;
                 private $queries = [];
@@ -79,7 +76,7 @@ class Database extends AbstractModule
             $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
 
             return array_replace($options, [
-                'pdo'    => $wconn,
+                'pdo'    => $pdo,
                 'logger' => $logger,
             ]);
         };
