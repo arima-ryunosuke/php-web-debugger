@@ -64,7 +64,7 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertEquals('scalr', $this->invoke('toOpenable', 'scalr'));
         $this->assertEquals(['simple', 'array'], $this->invoke('toOpenable', ['simple', 'array']));
         $this->assertEquals([
-            ''     => "<a href='javascript:void(0)' data-href='file=filename&amp;line=99' title='filename#99'>*</a>",
+            ''     => "<a href='javascript:void(0)' data-href='filename:99' title='filename:99'>*</a>",
             'file' => 'filename',
             'line' => 99,
         ], $this->invoke('toOpenable', [

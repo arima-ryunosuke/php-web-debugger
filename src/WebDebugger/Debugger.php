@@ -32,7 +32,7 @@ class Debugger
             /** string リクエストファイル置き場 */
             'workdir'  => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
             /** string パスを開く URL */
-            'opener'   => 'http://localhost:9999/exec',
+            'opener'   => 'http://localhost:9090',
         ];
 
         // グローバル設定

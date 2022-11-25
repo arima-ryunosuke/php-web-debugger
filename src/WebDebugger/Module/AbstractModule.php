@@ -253,13 +253,9 @@ abstract class AbstractModule
         if (!is_array($array) || !isset($array['file'], $array['line'])) {
             return $array;
         }
-        $href = htmlspecialchars(http_build_query([
-            'file' => $array['file'],
-            'line' => $array['line'],
-        ]), ENT_QUOTES);
-        $title = htmlspecialchars($array['file'] . '#' . $array['line'], ENT_QUOTES);
+        $href = htmlspecialchars($array['file'] . ':' . $array['line'], ENT_QUOTES);
         $appendix = [
-            '' => new Raw("<a href='javascript:void(0)' data-href='$href' title='$title'>*</a>"),
+            '' => new Raw("<a href='javascript:void(0)' data-href='$href' title='$href'>*</a>"),
         ];
         return $appendix + $array;
     }

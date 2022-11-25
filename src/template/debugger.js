@@ -113,7 +113,11 @@ $(function () {
     });
     $document.delegate('a[data-href]', 'click', function () {
         if (vars.opener) {
-            $.ajax(vars.opener + '?' + $(this).data('href'), {dataType: 'jsonp'});
+            $.ajax(vars.opener + $(this).data('href'), {
+                xhrFields: {
+                    withCredentials: false,
+                },
+            });
         }
     });
     $document.delegate('table.debug_table thead th', 'click', function () {
