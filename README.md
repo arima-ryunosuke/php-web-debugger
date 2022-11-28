@@ -61,7 +61,7 @@ $debugger = new \ryunosuke\WebDebugger\Debugger([
     /** string リクエストファイル置き場 */
     'workdir'  => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
     /** string パスを開く URL */
-    'opener'   => 'http://localhost:9999/exec',
+    'opener'   => 'http://localhost:9090',
 ]);
 $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Ajax::class        => [/* 固有のモジュールオプション */],
@@ -97,11 +97,13 @@ $debugger->initialize([
 
 ### opener
 
-`http://localhost:9999/exec` について補足すると、エラーログのトレースやログの呼び出し箇所など、各モジュールでは随所に「ファイルパス：行番号」という情報が埋め込まれます。
+`opener` について補足すると、エラーログのトレースやログの呼び出し箇所など、各モジュールでは随所に「ファイルパス：行番号」という情報が埋め込まれます。
 `opener` を設定しておくと、画面クリック時にその URL に file, line パラメータ付きでリクエストを飛ばせます。
 
 飛び先で file, line に基づいて phpstorm などで指定ファイル・行番号を開くように設定しておけばそのファイルをその行番号で開くようにできます。
 要するに IDE ジャンプを http で模したものです。
+
+`bin` ディレクトリにリファレンス実装があります。
 
 ## License
 

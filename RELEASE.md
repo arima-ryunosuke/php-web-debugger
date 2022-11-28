@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.1.0
+
+- [*change][Database] doctrineAdapter で2系の切り捨て
+- [*change][AbstractModule] exec を汎用的に変更
+- [all] php8.1 対応
+
 ## 1.0.15
 
 - [refactor][Database] LoggablePDO がコード中に生き残っていたので除去
