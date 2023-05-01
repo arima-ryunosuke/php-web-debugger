@@ -97,15 +97,4 @@ class ErrorTest extends AbstractTestCase
         $this->assertStringContainsString('<caption><pre>Error', $htmls);
         $this->assertStringContainsString('<caption><pre>Exception', $htmls);
     }
-
-    /**
-     * @depends test_gather
-     * @param $stored
-     */
-    function test_console($stored)
-    {
-        $module = new Error();
-        $consoles = $module->console($stored);
-        $this->assertArrayHasKey('table', reset($consoles));
-    }
 }

@@ -56,31 +56,6 @@ class Variable extends AbstractModule
         return $result;
     }
 
-    protected function _console($stored)
-    {
-        $result = [];
-        $others = [];
-        foreach ($stored as $name => $data) {
-            switch ($this->detectType($data)) {
-                default:
-                    $others[$name] = $data;
-                    break;
-
-                case 'array':
-                    $result[$name] = ['table' => $data];
-                    break;
-
-                case 'hash':
-                    $result[$name] = ['hashtable' => $data];
-                    break;
-            }
-        }
-        if ($others) {
-            $result[''] = ['hashtable' => $others];
-        }
-        return $result;
-    }
-
     private function detectType($value)
     {
         // iterable なら HashTable か ArrayTable にできる可能性がある

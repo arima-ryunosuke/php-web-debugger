@@ -227,22 +227,6 @@ abstract class AbstractModule
     protected function _render($stored) { }
 
     /**
-     * Console 用配列を返す
-     *
-     * @param array $stored gather の返り値
-     * @return array|null|void null の時は http ヘッダを送出しない
-     */
-    public final function console($stored)
-    {
-        if ($this->isDisabled()) {
-            return null;
-        }
-        return $this->_console($stored);
-    }
-
-    protected function _console($stored) { }
-
-    /**
      * パスを開く列を追加する
      *
      * @param array $array

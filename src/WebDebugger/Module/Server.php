@@ -147,13 +147,4 @@ class Server extends AbstractModule
         }
         return $result;
     }
-
-    protected function _console($stored)
-    {
-        $result = [];
-        foreach ($stored as $category => $data) {
-            $result[$category] = ['hashtable' => $data];
-        }
-        return $result;
-    }
 }

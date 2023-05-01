@@ -96,33 +96,4 @@ class VariableTest extends AbstractTestCase
         $this->assertStringContainsString('array(2)</a>', $htmls);
         $this->assertStringContainsString('this is string', $htmls);
     }
-
-    function test_console()
-    {
-        $module = new Variable();
-        $module->initialize([
-            'hash'    => ['a' => 'A', 'b' => ['B']],
-            'array'   => [
-                ['id' => 1, 'name' => 'nameA', 'group' => 'X'],
-                ['id' => 2, 'name' => 'nameB', 'group' => 'Y'],
-                ['id' => 3, 'name' => 'nameC', 'group' => 'X'],
-            ],
-            'objects' => new \ArrayObject([
-                new \ArrayObject(['id' => 1, 'name' => 'nameA', 'group' => 'X']),
-                new \ArrayObject(['id' => 2, 'name' => 'nameB', 'group' => 'Y']),
-                new \ArrayObject(['id' => 3, 'name' => 'nameC', 'group' => 'Z']),
-            ]),
-            'empty'   => new \ArrayObject([]),
-            'list'    => ['a', 'b'],
-            "string"  => "this is string",
-        ]);
-        $consoles = $module->console($module->gather([]));
-        $this->assertArrayHasKey('hashtable', $consoles['hash']);
-        $this->assertArrayHasKey('table', $consoles['array']);
-        $this->assertArrayHasKey('table', $consoles['objects']);
-        $this->assertArrayHasKey('hashtable', $consoles['']);
-        $this->assertArrayHasKey('empty', $consoles['']['hashtable']);
-        $this->assertArrayHasKey('list', $consoles['']['hashtable']);
-        $this->assertArrayHasKey('string', $consoles['']['hashtable']);
-    }
 }

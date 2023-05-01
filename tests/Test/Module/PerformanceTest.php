@@ -90,17 +90,4 @@ class PerformanceTest extends AbstractTestCase
         $this->assertStringContainsString('<caption>Timeline', $htmls);
         $this->assertStringContainsString('<caption>Profile', $htmls);
     }
-
-    function test_console()
-    {
-        $module = new Performance();
-        $module->initialize();
-        $module->setting(['profile' => true]);
-        require __DIR__ . '/Performance/profiler.php';
-
-        $consoled = $module->console($module->gather([]));
-        $this->assertArrayHasKey('hashtable', $consoled['Performance']);
-        $this->assertArrayHasKey('table', $consoled['Timeline']);
-        $this->assertArrayHasKey('table', $consoled['Profile']);
-    }
 }

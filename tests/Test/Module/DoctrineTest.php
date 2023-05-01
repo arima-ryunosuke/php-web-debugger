@@ -122,15 +122,6 @@ class DoctrineTest extends AbstractTestCase
         $this->assertStringContainsString('<caption>Query', $htmls);
     }
 
-    function test_console()
-    {
-        $module = new Doctrine();
-        $module->initialize(['connection' => $this->connection]);
-        $consoles = $module->console($module->gather([]));
-        $this->assertArrayHasKey('hashtable', reset($consoles));
-        $this->assertArrayHasKey('table', next($consoles));
-    }
-
     function test_misc()
     {
         $module = new Doctrine();

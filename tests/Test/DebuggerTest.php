@@ -142,19 +142,16 @@ class DebuggerTest extends AbstractTestCase
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',
-            'rtype'    => ['html', 'console'],
         ]);
         $debugger->initialize([
             Performance::class => [],
         ]);
+
         $debugger->start();
-        GlobalFunction::header('Content-type: application/json');
-        echo json_encode(['a' => ['b' => ['c' => ['x', 'y', 'z']]]]);
-        GlobalFunction::call_shutdown_function();
+        GlobalFunction::header('Content-type: text/plain');
+        echo 'plaintext';
         ob_end_flush();
-        $this->assertStringContainsString('X-ChromeLogger-Data', implode("\n", GlobalFunction::headers_list()));
-        $this->expectOutputRegex('#<!-- this is web debugger head injection -->#u');
-        $this->expectOutputRegex('#<!-- this is web debugger body injection -->#u');
+        $this->expectOutputRegex('#plaintext</pre>#');
     }
 
     function test_start_response_ajax()
@@ -164,7 +161,6 @@ class DebuggerTest extends AbstractTestCase
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',
-            'rtype'    => ['html'],
         ]);
         $debugger->initialize([
             Ajax::class        => [],
@@ -191,7 +187,6 @@ class DebuggerTest extends AbstractTestCase
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',
-            'rtype'    => 'html',
         ]);
         $debugger->initialize([
             Ajax::class        => [],
@@ -215,7 +210,6 @@ class DebuggerTest extends AbstractTestCase
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',
-            'rtype'    => 'html',
         ]);
         $debugger->initialize([
             Ajax::class    => [],
@@ -224,5 +218,25 @@ class DebuggerTest extends AbstractTestCase
         ]);
         $response = $debugger->start();
         $this->assertStringContainsString('is not found', $response);
+    }
+
+    function test_formatContentType()
+    {
+        $this->assertEquals(<<<JSON
+        {
+            "a": "A",
+            "b": "B"
+        }
+        JSON, Debugger::formatApplicationJson(json_encode(['a' => 'A', 'b' => 'B'])));
+        $this->assertEquals(null, Debugger::formatApplicationJson('invalid'));
+
+        $this->assertEquals(<<<XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <root>
+          <p>hoge</p>
+        </root>
+        
+        XML, Debugger::formatApplicationXml('<?xml version="1.0"?><root><p>hoge</p></root>', ';charset=UTF-8'));
+        $this->assertEquals(null, Debugger::formatApplicationXml('invalid', ';charset=UTF-8'));
     }
 }

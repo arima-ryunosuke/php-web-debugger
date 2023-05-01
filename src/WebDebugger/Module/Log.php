@@ -241,11 +241,4 @@ class Log extends AbstractModule
             'Log' => new ArrayTable($caption, array_merge($logs, $stored['Log'])),
         ];
     }
-
-    protected function _console($stored)
-    {
-        return [
-            'Log' => ['table' => $stored['Log']],
-        ];
-    }
 }

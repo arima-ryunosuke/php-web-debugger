@@ -252,14 +252,4 @@ class Performance extends AbstractModule
             'Profile'     => new ArrayTable($caption, $stored['Profile']),
         ];
     }
-
-    protected function _console($stored)
-    {
-        return [
-            'Performance' => ['hashtable' => $stored['Performance']],
-            'Timeline'    => ['table' => $stored['Timeline']],
-            'OPcache'     => ['hashtable' => $stored['OPcache']],
-            'Profile'     => ['table' => $stored['Profile']],
-        ];
-    }
 }

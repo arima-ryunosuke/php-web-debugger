@@ -347,12 +347,4 @@ class Doctrine extends AbstractModule
             'Query'      => new ArrayTable($caption, $stored['Query']['logs'], $styles),
         ];
     }
-
-    protected function _console($stored)
-    {
-        return [
-            'Connection'                          => ['hashtable' => $stored['Connection']],
-            'Query' . $stored['Query']['summary'] => ['table' => $stored['Query']['logs']],
-        ];
-    }
 }

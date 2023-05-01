@@ -17,12 +17,40 @@ class Debugger
     /** @var array */
     private $stores;
 
+    public static function formatApplicationJson($contents)
+    {
+        $json = json_decode($contents, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+        return null;
+    }
+
+    public static function formatApplicationXml($contents, $matches)
+    {
+        try {
+            preg_match('#charset=(.*)#i', $matches, $misc);
+            $dom = new \DOMDocument();
+            $dom->loadXML($contents);
+            $dom->encoding ??= $misc[1] ?? 'UTF-8';
+            $dom->formatOutput = true;
+            return $dom->saveXML();
+        }
+        catch (\Throwable $t) {
+            return null;
+        }
+    }
+
     public function __construct(array $options = [])
     {
         // デフォルトオプション
         $default = [
-            /** array 表示形態（html: DOM 埋め込み, console: ChromeLogger）複数指定可 */
-            'rtype'    => ['html', 'console'],
+            /** ひっかけるレスポンスヘッダー */
+            'rewrite'  => [
+                'text/.*'          => fn($contents) => $contents,
+                'application/json' => [static::class, 'formatApplicationJson'],
+                'application/xml'  => [static::class, 'formatApplicationXml'],
+            ],
             /** bool PRG パターンの抑止フラグ */
             'stopprg'  => true,
             /** string ひっかけるパス */
@@ -37,7 +65,6 @@ class Debugger
 
         // グローバル設定
         $this->options = array_replace_recursive($default, $options);
-        $this->options['rtype'] = (array) (is_callable($this->options['rtype']) ? ($this->options['rtype'])() : $this->options['rtype']);
 
         // $request 変数
         $this->request['time'] = GlobalFunction::microtime(true);
@@ -148,18 +175,16 @@ class Debugger
             $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
-            if (in_array('html', $this->options['rtype'])) {
-                file_set_contents($this->request['workfile'], serialize([
-                    'request' => $this->request,
-                    'stores'  => array_kmap($this->stores, function ($v, $k) {
-                        return [
-                            'count' => $this->modules[$k]->getCount($v),
-                            'error' => $this->modules[$k]->getError($v),
-                            'html'  => $this->modules[$k]->render($v),
-                        ];
-                    }),
-                ]));
-            }
+            file_set_contents($this->request['workfile'], serialize([
+                'request' => $this->request,
+                'stores'  => array_kmap($this->stores, function ($v, $k) {
+                    return [
+                        'count' => $this->modules[$k]->getCount($v),
+                        'error' => $this->modules[$k]->getError($v),
+                        'html'  => $this->modules[$k]->render($v),
+                    ];
+                }),
+            ]));
 
             // ゴミの削除
             @array_map('unlink', array_slice(glob($this->options['workdir'] . '/*'), 0, -100));
@@ -168,26 +193,6 @@ class Debugger
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
         ob_start(function ($buffer) {
             $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
-
-            // js コンソールへの出力
-            if (in_array('console', $this->options['rtype'])) {
-                ChromeLogger::groupCollapsed($this->request['method'] . ' ' . $this->request['path']);
-                foreach ($this->modules as $name => $module) {
-                    $fires = $module->console($this->stores[$name]);
-                    if ($fires !== null) {
-                        ChromeLogger::groupCollapsed($module->getName());
-                        foreach ($fires as $title => $fire) {
-                            ChromeLogger::info($title);
-                            foreach ($fire as $method => $data) {
-                                ChromeLogger::$method($data);
-                            }
-                        }
-                        ChromeLogger::groupEnd();
-                    }
-                }
-                ChromeLogger::groupEnd();
-                ChromeLogger::send();
-            }
 
             $headers = implode("\n", GlobalFunction::headers_list());
 
@@ -199,14 +204,20 @@ class Debugger
                 $buffer = sprintf('<body><p style="padding-left:24px;font-size:40px;">Redirecting to<br /><a href="%1$s">%1$s</a></p></body>', $location) . $buffer;
             }
 
-            // Ajax でない通常リクエストで application/json ならアグレッシブに書き換える（html 化してデバッグを容易にする）
-            if (!$this->request['is_ajax'] && preg_match('#^Content-Type: application/json#mi', $headers)) {
-                $json = json_decode($buffer, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $json = htmlspecialchars(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8');
-                    $buffer = "<html><head></head><body><pre style='margin:0 20px'>$json</pre></body></html>";
-                    GlobalFunction::header('Content-Type: text/html');
-                    $headers = implode("\n", GlobalFunction::headers_list());
+            // Ajax でない通常リクエストで特定ヘッダーならアグレッシブに書き換える（html 化してデバッグを容易にする）
+            if (!$this->request['is_ajax']) {
+                foreach ($this->options['rewrite'] as $ctype => $callback) {
+                    // $ctype を preg_quote していないのでは意図的（"text/.*?" みたいに引っ掛けたい）
+                    if (!preg_match('#^Content-Type:\s*text/html#mi', $headers) && preg_match("#^Content-Type:\s*($ctype.*)$#mi", $headers, $matches)) {
+                        $rewritten = $callback($buffer, $matches[1]);
+                        if ($rewritten !== null) {
+                            $buffer = "<html><head></head><body><pre style='margin:0 20px'>" . htmlspecialchars($rewritten, ENT_QUOTES, 'UTF-8') . "</pre></body></html>";
+                            GlobalFunction::header("X-Original-Content-Type: {$matches[1]}");
+                            GlobalFunction::header("Content-Type: text/html");
+                            $headers = implode("\n", GlobalFunction::headers_list());
+                            break;
+                        }
+                    }
                 }
             }
 

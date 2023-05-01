@@ -396,13 +396,4 @@ class Database extends AbstractModule
         }
         return $result;
     }
-
-    protected function _console($stored)
-    {
-        $result = [];
-        foreach ($stored as $category => $data) {
-            $result[$category . $data['summary']] = ['table' => $data['logs']];
-        }
-        return $result;
-    }
 }

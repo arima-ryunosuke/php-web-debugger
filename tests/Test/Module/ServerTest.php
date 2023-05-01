@@ -119,18 +119,4 @@ class ServerTest extends AbstractTestCase
 
         $this->assertEquals(6, substr_count($htmls, 'color:red'));
     }
-
-    function test_console()
-    {
-        $module = new Server();
-        $module->initialize();
-        $consoles = $module->console($module->gather([]));
-        $this->assertArrayHasKey('hashtable', $consoles['GET']);
-        $this->assertArrayHasKey('hashtable', $consoles['POST']);
-        $this->assertArrayHasKey('hashtable', $consoles['FILES']);
-        $this->assertArrayHasKey('hashtable', $consoles['COOKIE']);
-        $this->assertArrayHasKey('hashtable', $consoles['SESSION(param)']);
-        $this->assertArrayHasKey('hashtable', $consoles['SESSION(data)']);
-        $this->assertArrayHasKey('hashtable', $consoles['SERVER']);
-    }
 }

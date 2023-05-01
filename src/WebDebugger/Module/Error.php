@@ -199,13 +199,4 @@ class Error extends AbstractModule
         }
         return $result;
     }
-
-    protected function _console($stored)
-    {
-        $result = [];
-        foreach ($stored as $category => $data) {
-            $result[$category . $data['summary']] = ['table' => $data['data']];
-        }
-        return $result;
-    }
 }

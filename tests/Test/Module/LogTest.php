@@ -116,18 +116,6 @@ class LogTest extends AbstractTestCase
         $this->assertStringContainsString('&lt;b&gt;bold&lt;/b&gt;', $htmls);
     }
 
-    function test_console()
-    {
-        $module = new Log();
-        $module->initialize();
-        $module->setting([]);
-
-        $module->log('xxx');
-
-        $consoled = $module->console($module->gather([]));
-        $this->assertArrayHasKey('table', $consoled['Log']);
-    }
-
     function test_thridparty()
     {
         $monolog = new Logger('app');
