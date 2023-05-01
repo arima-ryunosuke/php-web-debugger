@@ -20,6 +20,13 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.0
+
+- [example] 変更点を反映
+- [*change] ChromeLogger を廃止して Content-Type 由来の書き換えに変更
+- [feature] Log モジュールの psr3/monolog 対応
+- [feature] Database を Doctrine に改名
+
 ## 1.1.0
 
 - [*change][Database] doctrineAdapter で2系の切り捨て

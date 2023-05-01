@@ -17,7 +17,6 @@ WebDebugger
 - 任意ログ出力機能
 - PRG パターン時のリダイレクト抑止
 - ファイルパスの関連付け実行
-- js console への出力
 
 ## ScreenShot
 
@@ -50,8 +49,10 @@ WebDebugger
 
 ```php
 $debugger = new \ryunosuke\WebDebugger\Debugger([
-    /** array 表示形態（html: DOM 埋め込み, console: ChromeLogger）複数指定可 */
-    'rtype'    => ['html', 'console'],
+    /** ひっかけるレスポンスヘッダー */
+    'rewrite'  => [
+        'content-type 正規表現' => fn($contents) => "書き換えたコンテンツ",
+    ],
     /** bool PRG パターンの抑止フラグ */
     'stopprg'  => true,
     /** string ひっかけるパス */
@@ -76,8 +77,8 @@ Database の Master/Slave など、同じモジュールを複数の設定で使
 
 ```php
 $debugger->initialize([
-    \ryunosuke\WebDebugger\Module\Database::getInstance('Master')->initialize(['pdo' => $masterPdo]),
-    \ryunosuke\WebDebugger\Module\Database::getInstance('Slave')->initialize(['pdo' => $slavePdo]),
+    \ryunosuke\WebDebugger\Module\Doctrine::getInstance('Master')->initialize(['connection' => $masterConnection]),
+    \ryunosuke\WebDebugger\Module\Doctrine::getInstance('Slave')->initialize(['connection' => $slaveConnection]),
 ])->start();
 ```
 
@@ -94,6 +95,16 @@ $debugger->initialize([
 
 上記のような各種情報を集めるクラスを「モジュール」と呼びます。
 モジュールは AbstractModule さえ継承していれば任意に実装・追加が可能です。
+
+### rewrite
+
+`rewrite` について補足すると、前提として body にデバッグ用 html/js/css を差し込んで表示しているため、content-type が text/html でないとアイコン群が表示されません。
+例えば JSON な WebAPI や Ajax 処理を作ったとして、その URL を直に叩いてもデバッガは表示されません。
+
+このオプションを指定するとマッチした Content-Type のときに強制的に text/html とみなし、コンテンツも html に書き換えます。
+視認性のため、元のコンテンツは整形表示され、pre として埋め込まれます。
+
+それなりにアグレッシブな挙動であり、本来と異なる結果になりうることもあるため、なにかおかしな点があったら無効にして様子を見てみてください。
 
 ### opener
 
