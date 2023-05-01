@@ -4,7 +4,7 @@ namespace ryunosuke\Test\WebDebugger;
 use ryunosuke\WebDebugger\Debugger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Module\Ajax;
-use ryunosuke\WebDebugger\Module\Database;
+use ryunosuke\WebDebugger\Module\Doctrine;
 use ryunosuke\WebDebugger\Module\History;
 use ryunosuke\WebDebugger\Module\Performance;
 use ryunosuke\WebDebugger\Module\Server;
@@ -130,7 +130,8 @@ class DebuggerTest extends AbstractTestCase
             Server::class => [],
         ]);
         $debugger->start();
-        $_GET['pdo'] = $this->getPdoConnection();
+
+        $_GET['connection'] = $this->getConnection();
         ob_end_flush();
         $this->expectOutputString('');
     }
@@ -166,10 +167,11 @@ class DebuggerTest extends AbstractTestCase
             'rtype'    => ['html'],
         ]);
         $debugger->initialize([
-            Ajax::class     => [],
-            Server::class   => [],
-            Database::class => ['pdo' => $this->getPdoConnection(), 'logger' => fn() => []],
-            History::class  => [],
+            Ajax::class        => [],
+            Server::class      => [],
+            Performance::class => [],
+            Doctrine::class    => ['connection' => $this->getConnection(), 'logger' => fn() => []],
+            History::class     => [],
         ]);
         $debugger->start();
         ob_end_flush();
@@ -192,10 +194,11 @@ class DebuggerTest extends AbstractTestCase
             'rtype'    => 'html',
         ]);
         $debugger->initialize([
-            Ajax::class     => [],
-            Server::class   => [],
-            Database::class => ['pdo' => $this->getPdoConnection(), 'logger' => fn() => []],
-            History::class  => [],
+            Ajax::class        => [],
+            Server::class      => [],
+            Performance::class => [],
+            Doctrine::class    => ['connection' => $this->getConnection(), 'logger' => fn() => []],
+            History::class     => [],
         ]);
         $response = $debugger->start();
         $this->assertStringContainsString('<div class="debug_plugin">', $response);

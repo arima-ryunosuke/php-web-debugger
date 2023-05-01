@@ -1,64 +1,57 @@
 <?php
 namespace ryunosuke\Test\WebDebugger\Module;
 
+use Doctrine\DBAL\Connection;
 use ryunosuke\Test\WebDebugger\AbstractTestCase;
 use ryunosuke\WebDebugger\Html\Popup;
-use ryunosuke\WebDebugger\Module\Database;
+use ryunosuke\WebDebugger\Module\Doctrine;
 
-class DatabaseTest extends AbstractTestCase
+class DoctrineTest extends AbstractTestCase
 {
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $connection;
-
-    private $adapter;
 
     function setUp(): void
     {
         parent::setUp();
 
-        $this->connection = \Doctrine\DBAL\DriverManager::getConnection([
-            'driverClass' => \PDODriver::class,
-            'pdo'         => $this->getPdoConnection(),
-        ]);
-        $this->adapter = Database::doctrineAdapter($this->connection)();
-        $this->adapter['logger']->clear();
+        $this->connection = $this->getConnection();
     }
 
     function test_initialize()
     {
-        $module = new Database();
+        $module = new Doctrine();
 
-        $this->assertException(new \InvalidArgumentException('"pdo" is not PDO.'), function () use ($module) {
+        $this->assertException(new \InvalidArgumentException('"connection" is not Doctrine\DBAL\Connection.'), function () use ($module) {
             $module->initialize();
         });
 
         $this->assertException(new \InvalidArgumentException('"logger" is not callable/traversable.'), function () use ($module) {
             $module->initialize([
-                'pdo'    => $this->adapter['pdo'],
-                'logger' => 'hoge',
+                'connection' => $this->connection,
+                'logger'     => 'hoge',
             ]);
         });
 
         $this->assertException(new \InvalidArgumentException('"scorer" is not callable.'), function () use ($module) {
             $module->initialize([
-                'pdo'    => $this->adapter['pdo'],
-                'logger' => $this->adapter['logger'],
-                'scorer' => 'hoge',
+                'connection' => $this->connection,
+                'scorer'     => 'hoge',
             ]);
         });
     }
 
     function test_fook()
     {
-        $module = new Database();
-        $module->initialize($this->adapter);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection]);
 
         $_POST['sql'] = 'select "hoge"';
         $response = $module->fook([
             'is_ajax' => true,
-            'path'    => 'database-exec',
+            'path'    => 'doctrine-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
         $this->assertStringContainsString("<div class='prewrap scalar'>hoge</div>", (string) $response);
@@ -66,7 +59,7 @@ class DatabaseTest extends AbstractTestCase
         $_POST['sql'] = 'select "hoge" from dual where 0';
         $response = $module->fook([
             'is_ajax' => true,
-            'path'    => 'database-exec',
+            'path'    => 'doctrine-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
         $this->assertStringContainsString("<div class='prewrap scalar'>empty</div>", (string) $response);
@@ -74,7 +67,7 @@ class DatabaseTest extends AbstractTestCase
         $_POST['sql'] = 'selec "hoge"';
         $response = $module->fook([
             'is_ajax' => true,
-            'path'    => 'database-exec',
+            'path'    => 'doctrine-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
         $this->assertStringContainsString('<a href="javascript:void(0)" class="popup">error</a>', (string) $response);
@@ -85,8 +78,8 @@ class DatabaseTest extends AbstractTestCase
 
     function test_gather()
     {
-        $module = new Database();
-        $module->initialize($this->adapter + ['formatter' => false]);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection, 'formatter' => false]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('select 1')->executeQuery();
         $stored = $module->gather([]);
@@ -97,36 +90,25 @@ class DatabaseTest extends AbstractTestCase
 
     function test_getError()
     {
-        $module = new Database();
-        $module->initialize($this->adapter);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES')->executeQuery();
         $error = $module->getError($module->gather([]));
         $this->assertStringContainsString('has slow query', $error);
 
-        $module = new Database();
-        $module->initialize($this->adapter);
-        $module->setting(['explain' => 1]);
-        try {
-            $this->connection->executeQuery('ERROR!');
-        }
-        catch (\Exception $ex) {
-        }
-        $error = $module->getError($module->gather([]));
-        $this->assertEquals('has 2 quries,has slow query,has error query', $error);
-
-        $module = new Database();
-        $module->initialize($this->adapter);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT 1')->executeQuery();
         $error = $module->getError($module->gather([]));
-        $this->assertEquals('has 3 quries,has slow query,has error query', $error);
+        $this->assertEquals('has 1 quries', $error);
     }
 
     function test_render()
     {
-        $module = new Database();
-        $module->initialize($this->adapter);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES')->executeQuery();
         $this->connection->prepare('SELECT ?')->executeQuery([1]);
@@ -142,15 +124,16 @@ class DatabaseTest extends AbstractTestCase
 
     function test_console()
     {
-        $module = new Database();
-        $module->initialize($this->adapter);
+        $module = new Doctrine();
+        $module->initialize(['connection' => $this->connection]);
         $consoles = $module->console($module->gather([]));
-        $this->assertArrayHasKey('table', reset($consoles));
+        $this->assertArrayHasKey('hashtable', reset($consoles));
+        $this->assertArrayHasKey('table', next($consoles));
     }
 
     function test_misc()
     {
-        $module = new Database();
+        $module = new Doctrine();
 
         $quote = function ($sql, $params) use ($module) {
             $ref = new \ReflectionMethod($module, 'quote');
@@ -173,20 +156,21 @@ class DatabaseTest extends AbstractTestCase
             return call_user_func($ref->getValue($module), $exrow);
         };
 
-        $module->initialize($this->adapter);
+        $module->initialize(['connection' => $this->connection]);
         $this->assertEquals("select '1', NULL, '??', '$1'", $quote('select ?, ?, ?, ?', [1, null, '??', '$1']));
 
-        $module->initialize($this->adapter + ['formatter' => 'compress']);
+        $module->initialize(['connection' => $this->connection, 'formatter' => 'compress']);
         $this->assertEquals("select\n  1", $format('select    1'));
 
-        $module->initialize($this->adapter + ['formatter' => 'pretty']);
+        $module->initialize(['connection' => $this->connection, 'formatter' => 'pretty']);
         $this->assertEquals("select\n  1", $format('select    1'));
 
-        $module->initialize($this->adapter + ['formatter' => false]);
+        $module->initialize(['connection' => $this->connection, 'formatter' => false]);
         $this->assertEquals("select    1", $format('select    1'));
 
-        $module->initialize($this->adapter + [
-                'scorer' => [
+        $module->initialize([
+                'connection' => $this->connection,
+                'scorer'     => [
                     'rows' => [
                         '>=0' => 100,
                     ],

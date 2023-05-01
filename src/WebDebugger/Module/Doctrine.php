@@ -1,18 +1,19 @@
 <?php
 namespace ryunosuke\WebDebugger\Module;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Logging\LoggerChain;
+use Doctrine\DBAL\Logging\SQLLogger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\ArrayTable;
+use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
 
-/**
- * @codeCoverageIgnore
- */
-class Database extends AbstractModule
+class Doctrine extends AbstractModule
 {
-    /** @var \PDO */
-    private $pdo;
+    /** @var Connection */
+    private $connection;
 
     /** @var callable */
     private $logger;
@@ -25,65 +26,6 @@ class Database extends AbstractModule
 
     /** @var callable */
     private $scorer;
-
-    /** @noinspection PhpDeprecationInspection */
-    public static function doctrineAdapter(\Doctrine\DBAL\Connection $connection, $options = [])
-    {
-        return function () use ($connection, $options) {
-            $pdo = $connection->getNativeConnection();
-
-            $logger = new class($pdo) implements \Doctrine\DBAL\Logging\SQLLogger, \IteratorAggregate {
-                /** @var \PDO */
-                private $pdo;
-                private $queries = [];
-
-                public function __construct($pdo)
-                {
-                    $this->pdo = $pdo;
-                }
-
-                public function startQuery($sql, ?array $params = null, ?array $types = null)
-                {
-                    $this->queries[] = [
-                        'sql'    => $sql,
-                        'params' => $params,
-                        'time'   => microtime(true),
-                        'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
-                    ];
-                }
-
-                public function stopQuery()
-                {
-                    $current = count($this->queries) - 1;
-                    $this->queries[$current]['time'] = microtime(true) - $this->queries[$current]['time'];
-
-                    // 成功か失敗かを得る術がないので errorInfo で確認（ただし stmt のエラーは取れないし互換性担保のために近い）
-                    $error = $this->pdo->errorInfo();
-                    if ($error[0] !== '00000' && strlen($error[2])) {
-                        $this->queries[$current]['message'] = $error[2];
-                    }
-                }
-
-                public function getIterator(): \Generator
-                {
-                    yield from $this->queries;
-                }
-
-                public function clear()
-                {
-                    $this->queries = [];
-                }
-            };
-            $configration = $connection->getConfiguration();
-            $currentLogger = $configration->getSQLLogger();
-            $configration->setSQLLogger($currentLogger ? new \Doctrine\DBAL\Logging\LoggerChain([$currentLogger, $logger]) : $logger);
-
-            return array_replace($options, [
-                'pdo'    => $pdo,
-                'logger' => $logger,
-            ]);
-        };
-    }
 
     public function prepareInner()
     {
@@ -107,7 +49,7 @@ class Database extends AbstractModule
                     $(document).on("click", ".execsql", function() {
                         var $this = $(this);
                         var sql = $this.prevAll("[contenteditable]").text();
-                        $.post("database-exec", {sql: sql}, function(response) {
+                        $.post("doctrine-exec", {sql: sql}, function(response) {
                             $this.nextAll(".result_area").html(response).find(".popup").click();
                         }, "html");
                     });
@@ -119,24 +61,14 @@ class Database extends AbstractModule
     protected function _initialize(array $options = [])
     {
         $options = array_replace_recursive([
-            /** \PDO PDO インスタンス */
-            'pdo'       => null,
-            /**
-             * callable|null ログ蒐集 callable
-             *
-             * logger オプションを省略するためには pdo に LoggablePDO インスタンスを渡す必要がある。
-             * これについては LoggablePDO::replace/reflect を参照。
-             * いずれにせよ何らかの方法で（フレームワークなどが握っている） PDO インスタンスを差し替える必要がある。
-             * （大抵の DB Adapter には pdo インスタンスを指定する機能が存在するはず）。
-             *
-             * logger を渡す場合、最低限 [['sql' => $sql, 'params' => $params]] 形式の配列を返す callable/traversable である必要がある。
-             * 渡す場合、大抵の DB Adapter にはクエリログを取る機能が付属しているのでそれを使うとよい。
-             */
-            'logger'    => null,
+            /** Connection DBAL Connection */
+            'connection' => null,
+            /** logger iterable|callable クエリログを返す */
+            'logger'     => null,
             /** string|callable SQL フォーマッタ（省略時は format + highlight） */
-            'formatter' => 'highlight',
+            'formatter'  => 'highlight',
             /** string explain 接頭辞 */
-            'explain'   => 'EXPLAIN',
+            'explain'    => 'EXPLAIN',
             /**
              * array|callable slow スコア算出クロージャ（省略時は explain の結果からよしなに算出）
              *
@@ -145,7 +77,7 @@ class Database extends AbstractModule
              *
              * クロージャではなく [col => [str => $score]] 形式の配列を与えた場合、EXPLAIN の1行のカラムとその包含文字列で計算する。
              */
-            'scorer'    => [
+            'scorer'     => [
                 // for mysql
                 'type'  => [
                     'ALL'   => 1,
@@ -159,13 +91,41 @@ class Database extends AbstractModule
             ],
         ], $options);
 
-        // pdo ありきなので先に代入（チェックは後）
-        $this->pdo = $options['pdo'];
+        // dbal ありきなので先に代入
+        $this->connection = $options['connection'];
+        if (!$this->connection instanceof Connection) {
+            throw new \InvalidArgumentException('"connection" is not Doctrine\DBAL\Connection.');
+        }
 
-        // 管理下にある PDO なら logger は getLog で確定
-        /** @noinspection PhpDeprecationInspection */
-        if ($options['logger'] === null && $this->pdo instanceof \ryunosuke\WebDebugger\Module\Database\LoggablePDO) {
-            $options['logger'] = [$this->pdo, 'getLog']; // @codeCoverageIgnore
+        // logger が来ていない場合はデフォルトロガー（SQLLogger は非推奨だが 3 系である限りは大丈夫）
+        if (!isset($options['logger'])) {
+            $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
+                private $queries = [];
+
+                public function startQuery($sql, ?array $params = null, ?array $types = null)
+                {
+                    $this->queries[] = [
+                        'sql'    => $sql,
+                        'params' => $params,
+                        'time'   => microtime(true),
+                        'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                    ];
+                }
+
+                public function stopQuery()
+                {
+                    $current = count($this->queries) - 1;
+                    $this->queries[$current]['time'] = microtime(true) - $this->queries[$current]['time'];
+                }
+
+                public function getIterator(): \Generator
+                {
+                    yield from $this->queries;
+                }
+            };
+            $configration = $this->connection->getConfiguration();
+            $currentLogger = $configration->getSQLLogger();
+            $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
         }
 
         // formatter に非callableが来た場合はクロージャ化
@@ -223,9 +183,6 @@ class Database extends AbstractModule
         $this->explain = $options['explain'];
         $this->scorer = $options['scorer'];
 
-        if (!$this->pdo instanceof \PDO) {
-            throw new \InvalidArgumentException('"pdo" is not PDO.');
-        }
         if (!is_callable($this->logger) && !$this->logger instanceof \Traversable) {
             throw new \InvalidArgumentException('"logger" is not callable/traversable.');
         }
@@ -237,10 +194,9 @@ class Database extends AbstractModule
     protected function _fook(array $request)
     {
         // クエリ実行リクエストだったら実行して exit
-        if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'database-exec') !== false) {
+        if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'doctrine-exec') !== false) {
             try {
-                $stmt = $this->pdo->query($_POST['sql']);
-                $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                $rows = $this->connection->executeQuery($_POST['sql'])->fetchAllAssociative();
                 $rows = array_slice($rows, 0, 256) ?: [
                     ['exec' => 'empty'],
                 ];
@@ -260,7 +216,7 @@ class Database extends AbstractModule
         return preg_replace_callback('/(\?)|(:([a-z_][a-z_0-9]*))/ui', function ($m) use ($params, &$pos) {
             $name = $m[1] === '?' ? $pos++ : $m[3];
             if (array_key_exists($name, $params)) {
-                return $params[$name] === null ? 'NULL' : $this->pdo->quote($params[$name]);
+                return $params[$name] === null ? 'NULL' : $this->connection->quote($params[$name]);
             }
         }, $sql);
     }
@@ -274,9 +230,7 @@ class Database extends AbstractModule
 
         $explains = [];
         try {
-            $stmt = $this->pdo->prepare("$this->explain $sql");
-            $stmt->execute($params);
-            $explains = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $explains = $this->connection->executeQuery("$this->explain $sql", $params ?? [])->fetchAllAssociative();
             foreach ($explains as $n => $explain) {
                 $explains[$n] = $explain;
                 $explains[$n]['score'] = array_sum(call_user_func($this->scorer, $explain));
@@ -313,7 +267,12 @@ class Database extends AbstractModule
         $summary = " (" . count($logs) . " queries, $time second)";
 
         return [
-            'Query' => [
+            'Connection' => [
+                'params' => $this->connection->getParams(),
+                'native' => $this->connection->getNativeConnection(),
+                'config' => $this->connection->getConfiguration(),
+            ],
+            'Query'      => [
                 'summary' => $summary,
                 'logs'    => $logs,
             ],
@@ -340,69 +299,60 @@ class Database extends AbstractModule
                     }
                 }
             }
-            if (isset($log['message'])) {
-                $error['has error query'] = true;
-            }
         }
         return array_keys($error);
     }
 
     protected function _render($stored)
     {
-        $result = [];
-        foreach ($stored as $category => $data) {
-            $styles = [];
-            foreach ($data['logs'] as $n => &$log) {
-                // sql は textarea で exec ボタンを用意
-                $log['sql'] = call_user_func($this->formatter, $log['sql']);
-                $html = '<div contenteditable="true">' . $log['sql'] . '</div><button class="execsql">execute</button><span class="result_area"></span>';
-                $log['sql'] = new Raw($html);
+        $styles = [];
+        foreach ($stored['Query']['logs'] as $n => &$log) {
+            // sql は textarea で exec ボタンを用意
+            $log['sql'] = call_user_func($this->formatter, $log['sql']);
+            $html = '<div contenteditable="true">' . $log['sql'] . '</div><button class="execsql">execute</button><span class="result_area"></span>';
+            $log['sql'] = new Raw($html);
 
-                // explain はテーブル＋ポップアップ化
-                if (isset($log['explain'])) {
-                    // slow と思われる原因を赤くする
-                    $styles2 = [];
-                    foreach ($log['explain'] as $m => $explain) {
-                        $scores = call_user_func($this->scorer, $explain);
-                        foreach ($scores as $col => $score) {
-                            if ($score) {
-                                $styles2[$m][$col] = 'background:#fdd;';
-                            }
+            // explain はテーブル＋ポップアップ化
+            if (isset($log['explain'])) {
+                // slow と思われる原因を赤くする
+                $styles2 = [];
+                foreach ($log['explain'] as $m => $explain) {
+                    $scores = call_user_func($this->scorer, $explain);
+                    foreach ($scores as $col => $score) {
+                        if ($score) {
+                            $styles2[$m][$col] = 'background:#fdd;';
                         }
                     }
-                    $scores = array_map(function ($v) { return $v['score']; }, $log['explain']) ?: [0];
-                    $max = max($scores);
-                    if ($max >= 1.0) {
-                        $styles[$n]['explain'] = 'background:#fdd;';
-                    }
-                    $title = sprintf('explain(table:%d, max:%d, avg:%.2f)', count($log['explain']), $max, array_sum($scores) / count($scores));
-                    $table = new ArrayTable('', $log['explain'], $styles2);
-                    $log['explain'] = new Popup($title, $table);
                 }
-                // trace は関連実行＋テーブル＋ポップアップ化
-                if (isset($log['trace'])) {
-                    $log['trace'] = array_map([$this, 'toOpenable'], $log['trace']);
-                    $table = new ArrayTable('', $log['trace']);
-                    $log['trace'] = new Popup('trace', $table);
+                $scores = array_map(function ($v) { return $v['score']; }, $log['explain']) ?: [0];
+                $max = max($scores);
+                if ($max >= 1.0) {
+                    $styles[$n]['explain'] = 'background:#fdd;';
                 }
-                // 実行に失敗した例外
-                if (isset($log['message'])) {
-                    $styles[$n]['sql'] = 'background:#fcc;';
-                    $styles[$n]['message'] = 'background:#fcc;';
-                }
+                $title = sprintf('explain(table:%d, max:%d, avg:%.2f)', count($log['explain']), $max, array_sum($scores) / count($scores));
+                $table = new ArrayTable('', $log['explain'], $styles2);
+                $log['explain'] = new Popup($title, $table);
             }
-            $caption = new Raw($category . $data['summary'] . ' <label><input name="explain" class="debug_plugin_setting" type="checkbox">explain</label>');
-            $result[$category] = new ArrayTable($caption, $data['logs'], $styles);
+            // trace は関連実行＋テーブル＋ポップアップ化
+            if (isset($log['trace'])) {
+                $log['trace'] = array_map([$this, 'toOpenable'], $log['trace']);
+                $table = new ArrayTable('', $log['trace']);
+                $log['trace'] = new Popup('trace', $table);
+            }
         }
-        return $result;
+        $caption = new Raw('Query' . $stored['Query']['summary'] . ' <label><input name="explain" class="debug_plugin_setting" type="checkbox">explain</label>');
+
+        return [
+            'Connection' => new HashTable('connection', $stored['Connection']),
+            'Query'      => new ArrayTable($caption, $stored['Query']['logs'], $styles),
+        ];
     }
 
     protected function _console($stored)
     {
-        $result = [];
-        foreach ($stored as $category => $data) {
-            $result[$category . $data['summary']] = ['table' => $data['logs']];
-        }
-        return $result;
+        return [
+            'Connection'                          => ['hashtable' => $stored['Connection']],
+            'Query' . $stored['Query']['summary'] => ['table' => $stored['Query']['logs']],
+        ];
     }
 }

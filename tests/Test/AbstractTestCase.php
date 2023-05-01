@@ -1,15 +1,17 @@
 <?php
 namespace ryunosuke\Test\WebDebugger;
 
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Tools\DsnParser;
+
 abstract class AbstractTestCase extends \PHPUnit\Framework\TestCase
 {
-    protected function getPdoConnection()
+    protected function getConnection()
     {
-        $host = defined('PDO_HOST') ? constant('PDO_HOST') : $this->markTestIncomplete();
-        $port = defined('PDO_PORT') ? constant('PDO_PORT') : $this->markTestIncomplete();
-        $username = defined('PDO_USERNAME') ? constant('PDO_USERNAME') : $this->markTestIncomplete();
-        $password = defined('PDO_PASSWORD') ? constant('PDO_PASSWORD') : $this->markTestIncomplete();
-        return new \PDO("mysql:host=$host;port=$port", $username, $password);
+        $dsn = defined('DOCTRINE_DSN') ? constant('DOCTRINE_DSN') : $this->markTestIncomplete();
+        $parser = new DsnParser();
+        static $connections = [];
+        return $connections[$dsn] ??= DriverManager::getConnection($parser->parse($dsn));
     }
 
     public static function assertException(\Exception $e, callable $callback)

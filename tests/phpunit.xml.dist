@@ -7,10 +7,7 @@
 
     <!--
     <php>
-        <const name="PDO_HOST" value="localhost"/>
-        <const name="PDO_PORT" value="3306"/>
-        <const name="PDO_USERNAME" value=""/>
-        <const name="PDO_PASSWORD" value=""/>
+        <const name="DOCTRINE_DSN" value="pdo-mysql://root:password@127.0.0.1"/>
     </php>
     <-->
 
