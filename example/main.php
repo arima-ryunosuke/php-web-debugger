@@ -10,15 +10,33 @@ session_start();
 echo '<body style="padding:2em;">';
 
 try {
+    // POST リクエストなら PRG する
+    if (strpos($_SERVER['REQUEST_URI'], 'webdebugger-action') === false && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        header('Location: ?prg');
+        echo "POST が一時停止します。そのリクエストの情報が左のアイコンで確認可能です";
+        exit;
+    }
+
+    // レスポンス用
+    (function () {
+        ?>
+        <fieldset>
+            <legend>Response</legend>
+            <p>左上のアイコンのようにリクエスト中の各種情報が蒐集されます。アイコンをクリックするとそのモジュールの詳細が表示されます。</p>
+            <p>原則として text/html なレスポンスが対象ですが、一部の利便性のため、Web アプリでよくある Content-Type も html とみなして書き換えられます</p>
+            <p>例えば下記を開くと、本来はそれぞれの Content-Type が返されるはずですが、text/html に書き換えられ、アイコン群が有効になっています</p>
+            <ul>
+                <li><a href="./rewrite.php?type=plain">text/plain</a></li>
+                <li><a href="./rewrite.php?type=json">application/json</a></li>
+                <li><a href="./rewrite.php?type=xml">application/xml</a></li>
+            </ul>
+            <p>この挙動は rewrite オプションで変更可能です。また、元の Content-Type は X-Original-Content-Type として格納されます</p>
+        </fieldset>
+        <?php
+    })();
+
     // Server モジュール用
     (function () {
-        // POST リクエストなら PRG する
-        if (strpos($_SERVER['REQUEST_URI'], 'webdebugger-action') === false && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            header('Location: ?prg');
-            echo "POST が一時停止します。そのリクエストの情報が左のアイコンで確認可能です";
-            exit;
-        }
-
         // 表示のため適当なセッションを入れる
         if (!$_SESSION) {
             $_SESSION['hoge'] = 'fuga';
@@ -61,18 +79,23 @@ try {
     })();
 
     // Log モジュール用
-    (function () {
+    (function (\Psr\Log\LoggerInterface $monolog, \Psr\Log\LoggerInterface $psr3log) {
         // 直接呼んでも良い
         \ryunosuke\WebDebugger\Module\Log::log('piyo');
         // グローバルに定義されているものでも良い
         dlog([1, 2, 3]);
+        // monolog のロガーも送られる
+        $monolog->info('monolog');
+        // psr3 のロガーも送られる
+        $psr3log->info('psr3log');
         ?>
         <fieldset>
             <legend>Log</legend>
             <p>随所で dlog(mixed) を呼ぶことで任意の値が確認できます</p>
+            <p>monolog や psr3 のロギングも可能です</p>
         </fieldset>
         <?php
-    })();
+    })($monolog, $psr3log);
 
     // Performance モジュール用
     (function () {
@@ -92,7 +115,7 @@ try {
         <?php
     })();
 
-    // Database モジュール用
+    // Doctrine モジュール用
     (function (\Doctrine\DBAL\Connection $connection) {
         // query/prepare ではないメソッド群
         $connection->beginTransaction();
@@ -106,7 +129,7 @@ try {
         $stmt->executeQuery([3, 4]);
         ?>
         <fieldset>
-            <legend>Database</legend>
+            <legend>Doctrine</legend>
             <p>リクエスト中で実行したクエリの実行時間やパラメータなどが確認できます</p>
         </fieldset>
         <?php
