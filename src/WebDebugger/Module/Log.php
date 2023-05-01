@@ -1,11 +1,17 @@
 <?php
 namespace ryunosuke\WebDebugger\Module;
 
+use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Logger;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\AbstractHtml;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\arrayize;
 
 class Log extends AbstractModule
 {
@@ -17,6 +23,9 @@ class Log extends AbstractModule
 
     /** @var string 保存ディレクトリ */
     private $logdir;
+
+    /** @var LoggerAwareInterface[]|Logger[] */
+    private $loggers = [];
 
     public static function log($value, $name = '')
     {
@@ -41,6 +50,14 @@ class Log extends AbstractModule
             'function' => 'dlog',
             /** string preserve 時の保存ディレクトリ */
             'logfile'  => sys_get_temp_dir() . '/wd-module/Log/logfile.txt',
+            /**
+             * psr3/monolog インスタンスを渡すとこのモジュールにもログられるようになる
+             *
+             * monolog はデファクトに近いので特別扱いで対応している。
+             * psr3 は内部ロガーの差し替え機構が存在しないので LoggerAwareInterface のみ対応。
+             * 内部ロガーを変更するので留意。
+             */
+            'logger'   => [],
         ], $options);
 
         if (!function_exists($options['function'])) {
@@ -49,15 +66,97 @@ class Log extends AbstractModule
             eval(/** @lang */ "function $funcname(){return call_user_func_array('$class::log', func_get_args());}");
         }
 
-        self::$instance = $this;
-
         $this->logdir = dirname($options['logfile']); // for compatible
         @mkdir($this->logdir, 0777, true);
+
+        foreach (arrayize($options['logger']) as $logger) {
+            if ($logger instanceof Logger) {
+                $logger->pushHandler(new class($logger->getName()) extends AbstractProcessingHandler {
+                    private string $name;
+
+                    public function __construct(string $name)
+                    {
+                        $this->name = $name;
+                        parent::__construct(Logger::DEBUG, true);
+                    }
+
+                    protected function write(array $record): void
+                    {
+                        $name = $this->name;
+
+                        // monolog ならほぼ必ず level_name 要素が生えているはずなので特別扱いする
+                        if (isset($record['level_name'])) {
+                            $name .= "." . $record['level_name'];
+                            unset($record['level'], $record['level_name']);
+                        }
+
+                        // 原則として不要（channel は name だし datetime は独自に取ってるし・・・）
+                        unset($record['channel'], $record['datetime'], $record['formatted']);
+
+                        Log::log($record, $name);
+                    }
+                });
+            }
+            elseif ($logger instanceof LoggerAwareInterface) {
+                $logger->setLogger(new class($logger) extends AbstractLogger {
+                    /** @var LoggerInterface[] */
+                    private array $loggers;
+
+                    public function __construct(LoggerAwareInterface $logger)
+                    {
+                        // LoggerAwareInterface ならなんらかの内部ロガーを持っているはず
+                        $gather = function ($member) use (&$gather) {
+                            $result = [];
+                            foreach ((array) $member as $field) {
+                                if ($field instanceof LoggerInterface) {
+                                    $result[spl_object_id($field)] = $field;
+                                }
+                                if (is_array($field) || is_object($field)) {
+                                    $result += $gather($field);
+                                }
+                            }
+                            return $result;
+                        };
+                        $loggers = $gather($logger);
+
+                        // 持ってないなら移譲できずにロギングをぶんどることになってしまうので例外とする
+                        if (!$loggers) {
+                            throw new \InvalidArgumentException('LoggerAwareInterface does not have internal LoggerInterface');
+                        }
+                        $this->loggers = $loggers;
+                    }
+
+                    public function log($level, $message, array $context = [])
+                    {
+                        foreach ($this->loggers as $logger) {
+                            $logger->log($level, $message, $context);
+                        }
+
+                        if ($context) {
+                            $context = ['message' => $message] + $context;
+                        }
+                        else {
+                            $context = $message;
+                        }
+
+                        Log::log($context, "psr3." . $level);
+                    }
+                });
+            }
+            else {
+                throw new \InvalidArgumentException('logger must be (Logger|LoggerAwareInterface)[]');
+            }
+
+            $this->loggers[] = $logger;
+        }
+
+        self::$instance = $this;
     }
 
     protected function _finalize()
     {
         self::$instance = null;
+        $this->loggers = [];
     }
 
     protected function _setting()

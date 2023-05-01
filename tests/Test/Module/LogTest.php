@@ -1,6 +1,10 @@
 <?php
 namespace ryunosuke\Test\WebDebugger\Module;
 
+use Monolog\Logger;
+use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 use ryunosuke\Test\WebDebugger\AbstractTestCase;
 use ryunosuke\WebDebugger\Module\Log;
 
@@ -41,7 +45,7 @@ class LogTest extends AbstractTestCase
         unset($actual['trace']);
         $this->assertEquals([
             'file' => __FILE__,
-            'line' => 35,
+            'line' => 39,
             'name' => "",
             'log'  => "xxx",
             'time' => '2000/12/24 12:34:56.123',
@@ -122,5 +126,91 @@ class LogTest extends AbstractTestCase
 
         $consoled = $module->console($module->gather([]));
         $this->assertArrayHasKey('table', $consoled['Log']);
+    }
+
+    function test_thridparty()
+    {
+        $monolog = new Logger('app');
+        $psr3log = new class() extends AbstractLogger implements LoggerAwareInterface {
+            private LoggerInterface $internalLogger;
+
+
+            public function log($level, $message, array $context = [])
+            {
+                $this->internalLogger->log($level, $message, $context);
+            }
+
+            public function setLogger(LoggerInterface $logger)
+            {
+                $this->internalLogger = $logger;
+            }
+        };
+        $psr3log->setLogger(new class() extends AbstractLogger {
+            public function log($level, $message, array $context = [])
+            {
+                // noop
+            }
+        });
+
+        $module = new Log();
+        $module->initialize([
+            'logger' => [$monolog, $psr3log],
+        ]);
+        $module->setting([]);
+
+        $monolog->info('monolog');
+        $psr3log->info('psr3log');
+        $psr3log->notice('psr3log', ['data' => [1, 2, 3]]);
+
+        $logs = $module->gather([]);
+        $this->assertCount(3, $logs['Log']);
+
+        $this->assertEquals('app.INFO', $logs['Log'][0]['name']);
+        $this->assertEquals([
+            'message' => 'monolog',
+            'context' => [],
+            'extra'   => [],
+        ], $logs['Log'][0]['log']);
+
+        $this->assertEquals('psr3.info', $logs['Log'][1]['name']);
+        $this->assertEquals('psr3log', $logs['Log'][1]['log']);
+
+        $this->assertEquals('psr3.notice', $logs['Log'][2]['name']);
+        $this->assertEquals([
+            'message' => 'psr3log',
+            'data'    => [1, 2, 3],
+        ], $logs['Log'][2]['log']);
+    }
+
+    function test_thridparty_misc()
+    {
+        $psr3log = new class() extends AbstractLogger implements LoggerAwareInterface {
+            private LoggerInterface $internalLogger;
+
+
+            public function log($level, $message, array $context = [])
+            {
+                $this->internalLogger->log($level, $message, $context);
+            }
+
+            public function setLogger(LoggerInterface $logger)
+            {
+                $this->internalLogger = $logger;
+            }
+        };
+
+        $module = new Log();
+
+        $this->assertException(new \InvalidArgumentException('logger must be'), function () use ($module) {
+            $module->initialize([
+                'logger' => 'invalid',
+            ]);
+        });
+
+        $this->assertException(new \InvalidArgumentException('does not have internal'), function () use ($module, $psr3log) {
+            $module->initialize([
+                'logger' => $psr3log,
+            ]);
+        });
     }
 }
