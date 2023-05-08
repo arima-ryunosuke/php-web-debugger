@@ -168,12 +168,18 @@ class Log extends AbstractModule
 
     protected function _log($value, $name = '')
     {
-        $traces = \ryunosuke\WebDebugger\backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
-            // 自身の log でもグローバルな dlog でもないものを探す
-            'file' => function ($file) {
-                return strpos($file, __FILE__) === false;
-            },
-        ]);
+        $traces = [];
+        foreach (array_reverse(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)) as $trace) {
+            if (isset($trace['file']) && strpos($trace['file'], __FILE__) !== false) {
+                break;
+            }
+            if (isset($trace['class']) && is_subclass_of($trace['class'], LoggerInterface::class)) {
+                $traces[] = $trace;
+                break;
+            }
+            $traces[] = $trace;
+        }
+        $traces = array_reverse($traces);
 
         $this->logs[] = [
             'time'  => GlobalFunction::microtime(true),
