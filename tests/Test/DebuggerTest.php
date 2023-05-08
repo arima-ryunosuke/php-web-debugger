@@ -4,6 +4,7 @@ namespace ryunosuke\Test\WebDebugger;
 use ryunosuke\WebDebugger\Debugger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Module\Ajax;
+use ryunosuke\WebDebugger\Module\Directory;
 use ryunosuke\WebDebugger\Module\Doctrine;
 use ryunosuke\WebDebugger\Module\History;
 use ryunosuke\WebDebugger\Module\Performance;
@@ -191,6 +192,7 @@ class DebuggerTest extends AbstractTestCase
         $debugger->initialize([
             Ajax::class        => [],
             Server::class      => [],
+            Directory::class   => [],
             Performance::class => [],
             Doctrine::class    => ['connection' => $this->getConnection(), 'logger' => fn() => []],
             History::class     => [],
