@@ -135,6 +135,16 @@ try {
         <?php
     })($connection);
 
+    // Directory モジュール用
+    (function () {
+        ?>
+        <fieldset>
+            <legend>Directory</legend>
+            <p>ディレクトリの一覧表示です。主な用途は一時ファイルやキャッシュファイルなどの削除です（Symfony/PhpFileCache など）</p>
+        </fieldset>
+        <?php
+    })();
+
     // Variable モジュール用
     (function () {
         ?>
