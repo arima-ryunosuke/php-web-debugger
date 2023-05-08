@@ -20,6 +20,11 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.1
+
+- [feature] Directory モジュールを追加
+- [fixbug] log の trace に psr3/monolog が紛れ込む不具合を修正
+
 ## 1.2.0
 
 - [example] 変更点を反映
