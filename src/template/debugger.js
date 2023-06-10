@@ -113,7 +113,7 @@ $(function () {
     });
     $document.delegate('a[data-href]', 'click', function () {
         if (vars.opener) {
-            $.ajax(vars.opener + $(this).data('href'), {
+            $.ajax(vars.opener + $(this).data('href') + '?' + vars.opener_query, {
                 xhrFields: {
                     withCredentials: false,
                 },

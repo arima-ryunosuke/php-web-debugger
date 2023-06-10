@@ -23,6 +23,7 @@ $h = function ($string) {
 
 <div id="js-variable">
     <input type="hidden" name="opener" value="<?= $h($this->options['opener']) ?>">
+    <input type="hidden" name="opener_query" value="<?= $h($this->options['opener_query']) ?>">
 </div>
 
 <div class="debug_plugin">

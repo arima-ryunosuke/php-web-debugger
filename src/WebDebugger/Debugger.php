@@ -46,21 +46,22 @@ class Debugger
         // デフォルトオプション
         $default = [
             /** ひっかけるレスポンスヘッダー */
-            'rewrite'  => [
+            'rewrite'      => [
                 'text/.*'          => fn($contents) => $contents,
                 'application/json' => [static::class, 'formatApplicationJson'],
                 'application/xml'  => [static::class, 'formatApplicationXml'],
             ],
             /** bool PRG パターンの抑止フラグ */
-            'stopprg'  => true,
+            'stopprg'      => true,
             /** string ひっかけるパス */
-            'fookpath' => 'webdebugger-action',
+            'fookpath'     => 'webdebugger-action',
             /** string 無視するパス */
-            'ignore'   => '#\.(ico|map)$#',
+            'ignore'       => '#\.(ico|map)$#',
             /** string リクエストファイル置き場 */
-            'workdir'  => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
-            /** string パスを開く URL */
-            'opener'   => 'http://localhost:9090',
+            'workdir'      => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
+            /** string パスを開く URL とパラメータ */
+            'opener'       => 'http://localhost:9090',
+            'opener_query' => 'project=X&remote=true',
         ];
 
         // グローバル設定
