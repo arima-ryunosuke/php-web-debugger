@@ -29,9 +29,7 @@ $config = (function () {
     $path = strstr($_SERVER['REQUEST_URI'] . '?', '?', true);
     [$file, $line] = explode(':', $path, 2);
 
-    foreach ($config['path_map'] as $remote => $local) {
-        $file = str_replace($remote, $local, $file);
-    }
+    $file = $config['path_map']($file);
     return [sprintf($exec, escapeshellarg($file), escapeshellarg($line)), $file, $line];
 })();
 
