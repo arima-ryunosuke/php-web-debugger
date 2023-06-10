@@ -38,7 +38,7 @@
     "phpunit/phpunit": "9.*",
     "doctrine/dbal": "3.*",
     "monolog/monolog": "2.*",
-    "ryunosuke/functions": "1.5.*"
+    "ryunosuke/functions": "1.6.*"
   },
   "scripts": {
     "build": [
