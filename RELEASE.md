@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.3
+
+- [bin] opener_query の対応（クロージャ化）
+- [feature] opener_query を新設して opener のクエリとして飛ぶように変更
+- [feature] 出力から Psr16 を除外
+
 ## 1.2.2
 
 - [fixbug] ビルド漏れ

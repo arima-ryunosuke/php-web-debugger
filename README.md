@@ -50,19 +50,20 @@ WebDebugger
 ```php
 $debugger = new \ryunosuke\WebDebugger\Debugger([
     /** ひっかけるレスポンスヘッダー */
-    'rewrite'  => [
+    'rewrite'      => [
         'content-type 正規表現' => fn($contents) => "書き換えたコンテンツ",
     ],
     /** bool PRG パターンの抑止フラグ */
-    'stopprg'  => true,
+    'stopprg'      => true,
     /** string ひっかけるパス */
-    'fookpath' => 'webdebugger-action',
+    'fookpath'     => 'webdebugger-action',
     /** string 無視するパス */
-    'ignore'   => '#\.(ico|map)$#',
+    'ignore'       => '#\.(ico|map)$#',
     /** string リクエストファイル置き場 */
-    'workdir'  => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
+    'workdir'      => sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wd-working',
     /** string パスを開く URL */
-    'opener'   => 'http://localhost:9090',
+    'opener'       => 'http://localhost:9090',
+    'opener_query' => 'project=X&remote=true',
 ]);
 $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Ajax::class        => [/* 固有のモジュールオプション */],
@@ -110,6 +111,7 @@ $debugger->initialize([
 
 `opener` について補足すると、エラーログのトレースやログの呼び出し箇所など、各モジュールでは随所に「ファイルパス：行番号」という情報が埋め込まれます。
 `opener` を設定しておくと、画面クリック時にその URL に file, line パラメータ付きでリクエストを飛ばせます。
+`opener_query` も設定しておくとクエリパラメータも一緒に飛びます。
 
 飛び先で file, line に基づいて phpstorm などで指定ファイル・行番号を開くように設定しておけばそのファイルをその行番号で開くようにできます。
 要するに IDE ジャンプを http で模したものです。
