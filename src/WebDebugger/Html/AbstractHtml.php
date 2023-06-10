@@ -42,13 +42,18 @@ abstract class AbstractHtml
         }
 
         // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるのである程度制限する（注入できるようにしたい）
+        /** @noinspection PhpUndefinedClassInspection */
+        /** @noinspection PhpUndefinedNamespaceInspection */
         return \ryunosuke\WebDebugger\var_pretty($var, [
-            'return'    => true,
-            'context'   => 'html',
-            'maxdepth'  => 10,
-            'maxcount'  => 100,
-            'maxlength' => 1024 * 24,
-            'callback'  => function (&$string, $var, $nest) {
+            'return'       => true,
+            'context'      => 'html',
+            'maxdepth'     => 10,
+            'maxcount'     => 100,
+            'maxlength'    => 1024 * 24,
+            'excludeclass' => [
+                \Psr\SimpleCache\CacheInterface::class,
+            ],
+            'callback'     => function (&$string, $var, $nest) {
                 if (is_array($var) && count($var) === 0) {
                     $string = '[]';
                 }
