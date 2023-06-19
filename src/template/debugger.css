@@ -167,7 +167,7 @@
 
 .holdingdiv {
     display: none;
-    white-space: pre-wrap;
+    white-space: pre;
 }
 
 .holdingdiv.opened {
