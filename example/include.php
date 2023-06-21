@@ -16,7 +16,6 @@ $monolog = new Logger('app');
 $psr3log = new class() extends AbstractLogger implements LoggerAwareInterface {
     private LoggerInterface $internalLogger;
 
-
     public function log($level, $message, array $context = [])
     {
         $this->internalLogger->log($level, $message, $context);
@@ -48,6 +47,6 @@ $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Performance::class => [],
     \ryunosuke\WebDebugger\Module\Log::class         => ['logger' => [$monolog, $psr3log]],
     \ryunosuke\WebDebugger\Module\Directory::class   => [sys_get_temp_dir() => []],
-    \ryunosuke\WebDebugger\Module\Variable::class    => ['server' => function () { return $_SERVER; }],
+    \ryunosuke\WebDebugger\Module\Variable::class    => ['markdown' => fn() => ['rows' => $connection->fetchAllAssociative('SELECT * FROM TABLES')]],
     \ryunosuke\WebDebugger\Module\History::class     => [],
 ])->start();
