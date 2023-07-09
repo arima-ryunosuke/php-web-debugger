@@ -20,6 +20,10 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.5
+
+- [composer] update
+
 ## 1.2.4
 
 - [fixbug] markdown 表示が乱れていたので css を変更
