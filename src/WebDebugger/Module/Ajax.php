@@ -42,6 +42,9 @@ class Ajax extends AbstractModule
                     if (typeof(window.fetch) !== "undefined") {
                         var _fetch = window.fetch;
                         window.fetch = function(input, init) {
+                            if (input instanceof Request) {
+                                input.headers.append("X-Debug-Ajax", "fetch");
+                            }
                             if (typeof(init) === "undefined") {
                                 init = {};
                             }
