@@ -93,7 +93,7 @@ class DoctrineTest extends AbstractTestCase
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
-        $this->connection->prepare('SELECT * FROM information_schema.TABLES')->executeQuery();
+        $this->connection->prepare('SELECT * FROM information_schema.TABLES ORDER BY information_schema.TABLES.TABLE_NAME')->executeQuery();
         $error = $module->getError($module->gather([]));
         $this->assertStringContainsString('has slow query', $error);
 
