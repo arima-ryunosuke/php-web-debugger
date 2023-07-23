@@ -96,5 +96,6 @@ class ErrorTest extends AbstractTestCase
         $htmls = $module->render($stored);
         $this->assertStringContainsString('<caption><pre>Error', $htmls);
         $this->assertStringContainsString('<caption><pre>Exception', $htmls);
+        $this->assertStringContainsString('console.error', $htmls);
     }
 }

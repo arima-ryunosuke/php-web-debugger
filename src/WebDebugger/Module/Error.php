@@ -7,6 +7,9 @@ use ryunosuke\WebDebugger\Html\Raw;
 
 class Error extends AbstractModule
 {
+    /** @var bool devtools 出力フラグ */
+    private $console;
+
     /** @var \stdClass エラーホルダ */
     private $errorHolder;
 
@@ -16,6 +19,9 @@ class Error extends AbstractModule
     public function __construct()
     {
         parent::__construct();
+
+        // devtools
+        $this->console = true;
 
         // エラーホルダ
         $this->errorHolder = new \stdClass();
@@ -32,6 +38,13 @@ class Error extends AbstractModule
     {
         $options = array_replace_recursive([
             /**
+             * エラー通知を console にも出力するか
+             *
+             * true にすると devtools のコンソールにも出力される。
+             * ハンドリングしている関係上、アイコンでしかエラーが分からずスルーされてしまうことが多いので、devtools に出せば多少気づきやすくなる。
+             */
+            'js_console'       => true,
+            /**
              * bool デフォルトハンドラを抑制するか
              *
              * true にするとデフォルトハンドラが無効になり、画面へエラー表示が為されなくなる。
@@ -47,6 +60,8 @@ class Error extends AbstractModule
              */
             'exception_getter' => null,
         ], $options);
+
+        $this->console = $options['js_console'];
 
         $this->errorHolder->default = $options['no_default'];
         $this->exceptionHolder->getter = $options['exception_getter'];
@@ -186,6 +201,20 @@ class Error extends AbstractModule
     protected function _render($stored)
     {
         $result = [];
+
+        if ($this->console) {
+            $result['Console'] = '<script>';
+            if (count($stored['Error']['data'])) {
+                $result['Console'] .= 'console.error(' . json_encode($stored['Error']['summary']) . ');';
+                $result['Console'] .= 'console.table(' . json_encode($stored['Error']['data']) . ', ' . json_encode(['file', 'line', 'level', 'message']) . ');';
+            }
+            if (count($stored['Exception']['data'])) {
+                $result['Console'] .= 'console.error(' . json_encode($stored['Exception']['summary']) . ');';
+                $result['Console'] .= 'console.table(' . json_encode($stored['Exception']['data']) . ');';
+            }
+            $result['Console'] .= '</script>';
+        }
+
         foreach ($stored as $category => $data) {
             if ($category === 'Error') {
                 foreach ($data['data'] as &$row) {
