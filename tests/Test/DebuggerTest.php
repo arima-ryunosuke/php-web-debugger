@@ -89,7 +89,7 @@ class DebuggerTest extends AbstractTestCase
     function test_start_fook()
     {
         $_SERVER['REQUEST_URI'] = '/document-root/hogefugapiyo/phpinfo';
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = true;
+        $_SERVER['HTTP_X_DEBUG_AJAX'] = true;
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',
@@ -158,7 +158,7 @@ class DebuggerTest extends AbstractTestCase
     function test_start_response_ajax()
     {
         $_SERVER['REQUEST_URI'] = '/document-root/no-match';
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = true;
+        $_SERVER['HTTP_X_DEBUG_AJAX'] = true;
 
         $debugger = new Debugger([
             'fookpath' => 'hogefugapiyo',

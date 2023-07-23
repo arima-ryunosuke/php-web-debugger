@@ -28,6 +28,11 @@ class Ajax extends AbstractModule
                         var _XMLHttpRequest = window.XMLHttpRequest;
                         window.XMLHttpRequest = function() {
                             var xhr = new _XMLHttpRequest();
+                            var _send = xhr.send;
+                            xhr.send = function (body) {
+                                this.setRequestHeader("X-Debug-Ajax", "xhr");
+                                return _send.call(this, body);
+                            };
                             xhr.addEventListener("loadend", function(response) {
                                 complete(xhr.getResponseHeader("X-Debug-Ajax"));
                             });
@@ -41,17 +46,13 @@ class Ajax extends AbstractModule
                                 init = {};
                             }
                             if (init.headers instanceof Headers) {
-                                if (!init.headers.has("X-Requested-With")) {
-                                    init.headers.append("X-Requested-With", "fetch");
-                                }
+                                init.headers.append("X-Debug-Ajax", "fetch");
                             }
                             else if (typeof(init.headers) === "undefined") {
-                                init.headers = {"X-Requested-With": "fetch"};
+                                init.headers = {"X-Debug-Ajax": "fetch"};
                             }
                             else {
-                                if (!init.headers["X-Requested-With"]) {
-                                    init.headers["X-Requested-With"] = "fetch";
-                                }
+                                init.headers["X-Debug-Ajax"] = "fetch";
                             }
                             return _fetch.call(this, input, init).then(function(response) {
                                 complete(response.headers.get("X-Debug-Ajax"));

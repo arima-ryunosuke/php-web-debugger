@@ -73,7 +73,7 @@ class Debugger
         $this->request['url'] = $_SERVER['REQUEST_URI'] ?? '';
         $this->request['path'] = preg_replace('#\\?.+#', '', $this->request['url']);
         $this->request['method'] = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
-        $this->request['is_ajax'] = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
+        $this->request['is_ajax'] = isset($_SERVER['HTTP_X_DEBUG_AJAX']);
         $this->request['is_internal'] = strpos($this->request['path'], $this->options['fookpath']) !== false;
         $this->request['if_modified_since'] = (int) strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '');
         $this->request['is_ignore'] = !!preg_match($this->options['ignore'], $this->request['path']);
