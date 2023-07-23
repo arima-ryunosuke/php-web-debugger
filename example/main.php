@@ -73,7 +73,10 @@ try {
             <legend>Ajax</legend>
             <input type="button" value="ajax" onclick="$.post('ajax.php', {hoge:'fuga'})">
             <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'PUT', body:'this is body'})">
-            <p>ajax/fetch すると左の Ajax アイコンが増えます。切り替えるとその ajax リクエストの内容が確認できます</p>
+            <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}})">
+            <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}))">
+            <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}), {headers: {'x-custom2': 'custom2'}})">
+            <p>ajax/fetch すると左の Ajax アイコンが増えます。切り替えるとその ajax リクエストの内容が確認できます（fetch ボタンがいくつかあるのは実装の確認用です）</p>
         </fieldset>
         <?php
     })();

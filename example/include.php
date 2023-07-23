@@ -9,7 +9,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 // example 実行用に Connection を用意
 $connection = \Doctrine\DBAL\DriverManager::getConnection([
-    'url' => 'mysqli://root:password@127.0.0.1/information_schema',
+    'url' => 'mysqli://root:Password1234@127.0.0.1/information_schema',
 ]);
 
 $monolog = new Logger('app');
