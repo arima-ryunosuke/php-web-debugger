@@ -20,6 +20,13 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.6
+
+- [refactor] 環境次第でテストがコケていたので修正
+- [fixbug] fetch に Request オブジェクトが来たときに設定されない上に元を消してしまう不具合を修正
+- [fixbug] ajax 検出にデファクトである x-requeted-with を使うべきではない
+- [feature] Error プラグインの console 出力機能
+
 ## 1.2.5
 
 - [composer] update
