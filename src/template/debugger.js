@@ -4,6 +4,9 @@
  */
 
 $(function () {
+    $.ajaxSetup({
+        headers: {"X-Debug-Ajax": "xhr"}
+    });
     var $document = $(document);
 
     // 子から見た親フレーム
