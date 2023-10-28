@@ -48,8 +48,10 @@ abstract class AbstractHtml
             'return'       => true,
             'context'      => 'html',
             'maxdepth'     => 10,
-            'maxcount'     => 100,
+            'maxcount'     => 255,
             'maxlength'    => 1024 * 24,
+            'limit'        => 1024 * 1024,
+            'table'        => fn($v, $nest) => "<div class='tableofarraydiv' style='margin-left:{$nest}em'>" . (new ArrayTable('', $v)) . "</div>",
             'excludeclass' => [
                 \Psr\SimpleCache\CacheInterface::class,
             ],
