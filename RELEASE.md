@@ -20,6 +20,14 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.8
+
+- [fixbug] 操作周りの不具合修正
+- [feature] table 表示を markdown から ArrayTable に変更
+- [refactor] スペースが積もってものすごいサイズになっていたので除去
+- [feature] ArrayTable に連番を振る機能
+- [fixbug] 使用側で session_write_close を呼んでいるとセッションが保存できない不具合を修正
+
 ## 1.2.7
 
 - [fixbug] debugger 側の ajax リクエストが無効になっている不具合を修正
