@@ -15,37 +15,31 @@ class HashTable extends AbstractHtml
         reset($keyvalue);
 
         ob_start();
+        // @formatter:off
         ?>
-        <table class="debug_table hash_table">
-            <?php if ($caption): ?>
-                <caption><?= $this->escapeHtml($caption); ?></caption>
-            <?php endif; ?>
+<table class="debug_table hash_table">
+<?php if ($caption): ?>
+<caption><?= $this->escapeHtml($caption); ?></caption>
+<?php endif; ?>
 
-            <thead>
-            <tr>
-                <th><?= $this->escapeHtml(key($keyvalue)); ?></th>
-                <th><?= $this->escapeHtml(current($keyvalue)); ?></th>
-            </tr>
-            </thead>
+<thead>
+<tr>
+<th><?= $this->escapeHtml(key($keyvalue)); ?></th>
+<th><?= $this->escapeHtml(current($keyvalue)); ?></th>
+</tr>
+</thead>
 
-            <tbody>
-            <?php foreach ($values as $key => $value) : ?>
-                <tr>
-                    <td class="nowrap"
-                        style="<?= isset($styles[$key]) ? $styles[$key] : '' ?>"
-                    >
-                        <?= $this->escapeHtml($key); ?>
-                    </td>
-                    <td class="nowrap"
-                        style="<?= isset($styles[$key]) ? $styles[$key] : '' ?>"
-                    >
-                        <?= $this->export($value); ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+<tbody>
+<?php foreach ($values as $key => $value) : ?>
+<tr>
+<td class="nowrap" style="<?= isset($styles[$key]) ? $styles[$key] : '' ?>"><?= $this->escapeHtml($key); ?></td>
+<td class="nowrap" style="<?= isset($styles[$key]) ? $styles[$key] : '' ?>"><?= $this->export($value); ?></td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
         <?php
-        $this->string = ob_get_clean();
+        // @formatter:on
+        $this->string = trim(ob_get_clean());
     }
 }

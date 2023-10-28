@@ -16,41 +16,39 @@ class ArrayTable extends AbstractHtml
         }, []));
 
         ob_start();
+        // @formatter:off
         ?>
-        <table class="debug_table array_table">
-            <?php if ($caption): ?>
-                <caption><?= $this->escapeHtml($caption) ?></caption>
-            <?php endif; ?>
+<table class="debug_table array_table">
+<?php if ($caption): ?>
+<caption><?= $this->escapeHtml($caption) ?></caption>
+<?php endif; ?>
 
-            <thead>
-            <tr>
-                <th class="nowrap">#</th>
-                <?php foreach ($headers as $header) : ?>
-                    <th class="nowrap"><?= $this->escapeHtml($header) ?></th>
-                <?php endforeach; ?>
-            </tr>
-            </thead>
+<thead>
+<tr>
+<th class="nowrap">#</th>
+<?php foreach ($headers as $header) : ?>
+<th class="nowrap"><?= $this->escapeHtml($header) ?></th>
+<?php endforeach; ?>
+</tr>
+</thead>
 
-            <tbody>
-            <?php foreach ($values as $n => $row) : ?>
-                <tr>
-                    <td class="nowrap _index"><?= $this->export($n) ?></td>
-                    <?php foreach ($headers as $header) : ?>
-                        <?php if (\ryunosuke\WebDebugger\attr_exists($header, $row)): ?>
-                            <td class="nowrap <?= $header ?>"
-                                style="<?= isset($styles[$n][$header]) ? $styles[$n][$header] : '' ?>"
-                            >
-                                <?= $this->export($row[$header]) ?>
-                            </td>
-                        <?php else: ?>
-                            <td class="nowrap">&nbsp;</td>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+<tbody>
+<?php foreach ($values as $n => $row) : ?>
+<tr>
+<td class="nowrap _index"><?= $this->export($n) ?></td>
+<?php foreach ($headers as $header) : ?>
+<?php if (\ryunosuke\WebDebugger\attr_exists($header, $row)): ?>
+<td class="nowrap <?= $header ?>" style="<?= isset($styles[$n][$header]) ? $styles[$n][$header] : '' ?>"><?= $this->export($row[$header]) ?></td>
+<?php else: ?>
+<td class="nowrap">&nbsp;</td>
+<?php endif; ?>
+<?php endforeach; ?>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
         <?php
-        $this->string = ob_get_clean();
+        // @formatter:on
+        $this->string = trim(ob_get_clean());
     }
 }
