@@ -72,7 +72,7 @@ $(function () {
     $document.delegate('.debug_plugin_switch', 'click', function () {
         var $this = $(this);
         var target = $this.next(".debug_plugin_wrap");
-        $this.parent().siblings().find(".debug_plugin_wrap").not(target).hide();
+        $('body').find(".debug_plugin_wrap").not(target).hide();
         $this.next(".debug_plugin_wrap").slideToggle('fast');
     });
     $document.delegate('html,body', 'click', function (e) {
