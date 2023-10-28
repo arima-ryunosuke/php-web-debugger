@@ -72,14 +72,22 @@ class Server extends AbstractModule
                 GlobalFunction::header('X-Session-Invalid: 1');
                 return GlobalFunction::response(sprintf('json format is invalid (%s).', $sdata));
             }
-            // セッションが始まっていないかもしれないので終了時に行う
-            register_shutdown_function(function ($newsession) {
+            // セッションが始まっていないかもしれないのでヘッダーコールバックで行う
+            header_register_callback(function () use ($newsession) {
                 // @codeCoverageIgnoreStart
+                // 逆に session_write_close でセッションが終わっているかもしれないので restart する
+                $status = session_status() === PHP_SESSION_NONE;
+                if ($status) {
+                    session_start();
+                }
                 if (isset($_SESSION)) {
                     $_SESSION = $newsession;
                 }
+                if ($status) {
+                    session_write_close();
+                }
                 // @codeCoverageIgnoreEnd
-            }, $newsession);
+            });
             return true;
         }
     }
