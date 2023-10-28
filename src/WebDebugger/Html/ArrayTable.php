@@ -24,6 +24,7 @@ class ArrayTable extends AbstractHtml
 
             <thead>
             <tr>
+                <th class="nowrap">#</th>
                 <?php foreach ($headers as $header) : ?>
                     <th class="nowrap"><?= $this->escapeHtml($header) ?></th>
                 <?php endforeach; ?>
@@ -33,6 +34,7 @@ class ArrayTable extends AbstractHtml
             <tbody>
             <?php foreach ($values as $n => $row) : ?>
                 <tr>
+                    <td class="nowrap _index"><?= $this->export($n) ?></td>
                     <?php foreach ($headers as $header) : ?>
                         <?php if (\ryunosuke\WebDebugger\attr_exists($header, $row)): ?>
                             <td class="nowrap <?= $header ?>"

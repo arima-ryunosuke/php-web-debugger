@@ -247,8 +247,7 @@ class Doctrine extends AbstractModule
         $logs = [];
         $time = 0;
 
-        foreach (is_callable($this->logger) ? ($this->logger)() : $this->logger as $n => $log) {
-            $log = ['id' => $n] + $log;
+        foreach (is_callable($this->logger) ? ($this->logger)() : $this->logger as $log) {
             $sql = $log['sql'];
             $params = $log['params'];
 
