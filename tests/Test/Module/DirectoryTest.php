@@ -92,5 +92,10 @@ class DirectoryTest extends AbstractTestCase
         $this->assertStringContainsString('span class="dirname"', $html);
         $this->assertStringContainsString('class="cleardirfile"', $html);
         $this->assertStringContainsString('class="deletedirfile"', $html);
+
+        $module->finalize();
+        $stored = $module->gather([]);
+        $count = $module->getCount($stored);
+        $this->assertEquals(0, $count);
     }
 }
