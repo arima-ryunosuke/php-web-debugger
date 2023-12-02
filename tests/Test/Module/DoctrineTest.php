@@ -126,11 +126,6 @@ class DoctrineTest extends AbstractTestCase
     {
         $module = new Doctrine();
 
-        $quote = function ($sql, $params) use ($module) {
-            $ref = new \ReflectionMethod($module, 'quote');
-            $ref->setAccessible(true);
-            return $ref->invoke($module, $sql, $params);
-        };
         $explain = function ($sql, $params) use ($module) {
             $ref = new \ReflectionMethod($module, 'explain');
             $ref->setAccessible(true);
@@ -146,9 +141,6 @@ class DoctrineTest extends AbstractTestCase
             $ref->setAccessible(true);
             return call_user_func($ref->getValue($module), $exrow);
         };
-
-        $module->initialize(['connection' => $this->connection]);
-        $this->assertEquals("select '1', NULL, '??', '$1'", $quote('select ?, ?, ?, ?', [1, null, '??', '$1']));
 
         $module->initialize(['connection' => $this->connection, 'formatter' => 'compress']);
         $this->assertEquals("select\n  1", $format('select    1'));

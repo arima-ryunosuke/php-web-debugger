@@ -210,17 +210,6 @@ class Doctrine extends AbstractModule
         }
     }
 
-    private function quote($sql, $params)
-    {
-        $pos = 0;
-        return preg_replace_callback('/(\?)|(:([a-z_][a-z_0-9]*))/ui', function ($m) use ($params, &$pos) {
-            $name = $m[1] === '?' ? $pos++ : $m[3];
-            if (array_key_exists($name, $params)) {
-                return $params[$name] === null ? 'NULL' : $this->connection->quote($params[$name]);
-            }
-        }, $sql);
-    }
-
     private function explain($sql, $params)
     {
         $simplequery = preg_replace('#(CREATE\s+TEMPORARY\s+TABLE.+)SELECT#uis', 'SELECT', $sql, 1, $count);
@@ -251,7 +240,7 @@ class Doctrine extends AbstractModule
             $sql = $log['sql'];
             $params = $log['params'];
 
-            $log['sql'] = $this->quote($sql, $params);
+            $log['sql'] = \ryunosuke\WebDebugger\sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
 
             $t = $log['time'] ?? null;
             $time += $t;
