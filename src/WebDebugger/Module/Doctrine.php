@@ -297,7 +297,7 @@ class Doctrine extends AbstractModule
         foreach ($stored['Query']['logs'] as $n => &$log) {
             // sql は textarea で exec ボタンを用意
             $log['sql'] = call_user_func($this->formatter, $log['sql']);
-            $html = '<div contenteditable="true">' . $log['sql'] . '</div><button class="execsql">execute</button><span class="result_area"></span>';
+            $html = '<div contenteditable="true" spellcheck="false">' . $log['sql'] . '</div><button class="execsql">execute</button><span class="result_area"></span>';
             $log['sql'] = new Raw($html);
 
             // explain はテーブル＋ポップアップ化

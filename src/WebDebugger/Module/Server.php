@@ -145,7 +145,7 @@ class Server extends AbstractModule
                         <button type='button' class='savesession' style='float:right'>save</button>
                     </caption>
                     <tr>
-                        <td><textarea id='session-data' style='line-height:16.8px;width:100%;height:{$h}px;'>$sdata</textarea></td>
+                        <td><textarea id='session-data' style='line-height:16.8px;width:100%;height:{$h}px;' spellcheck='false'>$sdata</textarea></td>
                     </tr>
                 </table>");
             }
