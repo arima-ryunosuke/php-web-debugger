@@ -3483,6 +3483,227 @@ if (!function_exists('ryunosuke\\WebDebugger\\array_random')) {
     }
 }
 
+assert(!function_exists('ryunosuke\\WebDebugger\\array_range') || (new \ReflectionFunction('ryunosuke\\WebDebugger\\array_range'))->isUserDefined());
+if (!function_exists('ryunosuke\\WebDebugger\\array_range')) {
+    /**
+     * range を少し改良したもの
+     *
+     * - 文字列に対応
+     * - 日時に対応
+     * - $start, $end から $step の自動算出
+     * - $start < $end で $step < 0 の場合、空配列を返す
+     * - $start > $end で $step > 0 の場合、空配列を返す
+     *
+     * 逆に言うと $start, $end の大小を意識しないと正しい値は返らないことになる。
+     * 標準 range の下記の挙動が個人的に違和感があるので実装した。
+     *
+     * - range(1, 3, -1); // [1, 2, 3]
+     * - range(3, 1, +1); // [3, 2, 1]
+     *
+     * Example:
+     * ```php
+     * // 文字列（具体的にはデクリメント）
+     * that(array_range('a', 'c', +1))->isSame(['a', 'b', 'c']);
+     * that(array_range('c', 'a', -1))->isSame(['c', 'b', 'a']);
+     *
+     * // 日時
+     * that(array_range('2014/12/24 12:34:56', '2014/12/26 12:34:56', 'P1D', ['format' => 'Y/m/d H:i:s']))->isSame([
+     *     '2014/12/24 12:34:56',
+     *     '2014/12/25 12:34:56',
+     *     '2014/12/26 12:34:56',
+     * ]);
+     * that(array_range('2014/12/26 12:34:56', '2014/12/24 12:34:56', 'P-1D', ['format' => 'Y/m/d H:i:s']))->isSame([
+     *     '2014/12/26 12:34:56',
+     *     '2014/12/25 12:34:56',
+     *     '2014/12/24 12:34:56',
+     * ]);
+     *
+     * // step は省略可能（+/-1 になる）
+     * that(array_range(1, 3))->isSame([1, 2, 3]);
+     * that(array_range(3, 1))->isSame([3, 2, 1]);
+     * that(array_range('a', 'c'))->isSame(['a', 'b', 'c']);
+     * that(array_range('c', 'a'))->isSame(['c', 'b', 'a']);
+     *
+     * // 範囲外は空配列を返す
+     * that(array_range(1, 3, -1))->isSame([]);
+     * that(array_range(3, 1, +1))->isSame([]);
+     * that(array_range('a', 'c', -1))->isSame([]);
+     * that(array_range('c', 'a', +1))->isSame([]);
+     * that(array_range('2014/12/24', '2014/12/27', 'P-1D'))->isSame([]);
+     * that(array_range('2014/12/27', '2014/12/24', 'P1D'))->isSame([]);
+     * ```
+     *
+     * @package ryunosuke\Functions\Package\array
+     *
+     * @param int|float|string|\DateTimeInterface $start 最初の値
+     * @param int|float|string|\DateTimeInterface $end 最後の値
+     * @param int|float|string|null|\DateInterval $step 増分
+     * @return array $start ~ $end の配列
+     */
+    function array_range($start, $end, $step = null, $options = [])
+    {
+        $options += [
+            'format' => null,
+        ];
+
+        // 数値モード
+        if (true
+            && is_decimal($start)
+            && is_decimal($end)
+            && ($step === null || is_decimal($step))
+        ) {
+            if ($step === null) {
+                if ($start < $end) {
+                    $step = (is_float($start) || is_float($end)) ? +1.0 : +1;
+                }
+                if ($start >= $end) {
+                    $step = (is_float($start) || is_float($end)) ? -1.0 : -1;
+                }
+            }
+            if (empty($step)) {
+                throw new \InvalidArgumentException("\$step is empty($step)");
+            }
+
+            if (is_float($step)) {
+                $start = (float) $start;
+                $end = (float) $end;
+                $step = (float) $step;
+            }
+            else {
+                $start = (int) $start;
+                $end = (int) $end;
+                $step = (int) $step;
+            }
+
+            $result = [];
+            if ($step > 0) {
+                for ($i = $start; $i <= $end; $i += $step) {
+                    $result[] = $i;
+                }
+            }
+            if ($step < 0) {
+                for ($i = $start; $i >= $end; $i += $step) {
+                    $result[] = $i;
+                }
+            }
+            return $result;
+        }
+
+        // 文字列モード
+        if (true
+            && (is_string($start) && strlen($start))
+            && (is_string($end) && strlen($end))
+            && ($step === null || is_decimal($step, false))
+        ) {
+            if ($step === null) {
+                $step = ($start <=> $end) < 0 ? +1 : -1;
+            }
+            if (empty($step)) {
+                throw new \InvalidArgumentException("\$step is empty($step)");
+            }
+
+            // 単純な比較ではない（Z <=> aa < 1 のように中身によらず字数が大きい方が常に大きい）
+            $compare = function ($a, $b) {
+                if (($d = strlen($a) - strlen($b)) !== 0) {
+                    return $d;
+                }
+                for ($i = 0; $i < strlen($a); $i++) {
+                    if (($d = ($a[$i] <=> $b[$i])) !== 0) {
+                        return $d;
+                    }
+                }
+                return 0;
+            };
+
+            // 1以上のインクリメントは対応していない
+            $increment = function ($string, $step) {
+                for ($i = 0; $i < $step; $i++) {
+                    $string++;
+                }
+                return $string;
+            };
+
+            $invert = $step < 0;
+
+            // 文字列デクリメントは出来ないので reverse で対応する
+            if ($invert) {
+                $step = -$step;
+                [$start, $end] = [$end, $start];
+            }
+
+            $result = [];
+            if ($step > 0) {
+                for ($i = $start; $compare($i, $end) <= 0; $i = $increment($i, $step)) {
+                    $result[] = $i;
+                }
+            }
+
+            // 文字列デクリメントは（略）
+            if ($invert) {
+                if (count($result) === 1) {
+                    $result = [$end];
+                }
+                else {
+                    $result = array_reverse($result);
+                }
+            }
+
+            return $result;
+        }
+
+        // 日時モード
+        if (true
+            && ($start instanceof \DateTimeInterface || (is_string($start) && strlen($start)))
+            && ($end instanceof \DateTimeInterface || (is_string($end) && strlen($end)))
+            && ($step instanceof \DateInterval || is_string($step))
+        ) {
+            try {
+                if (is_string($start)) {
+                    $start = date_convert(\DateTimeImmutable::class, $start);
+                }
+                if (is_string($end)) {
+                    $end = date_convert(\DateTimeImmutable::class, $end);
+                }
+                if (is_string($step)) {
+                    $step = @\DateInterval::createFromDateString($step) ?: date_interval($step);
+                }
+
+                $now = new \DateTimeImmutable();
+                $new = $now->add($step);
+
+                if ($now == $new) {
+                    throw new \InvalidArgumentException("\$step is empty({$step->format('%RP%Y-%M-%DT%H:%I:%S.%F')})");
+                }
+
+                // $result = iterator_to_array(new \DatePeriod($start, $step, $end)); // happen too many bugs
+                $result = [];
+                if ($now > $new) {
+                    for ($i = $start; $i >= $end; $i = $i->add($step)) {
+                        $result[] = $i;
+                    }
+                }
+                if ($now < $new) {
+                    for ($i = $start; $i <= $end; $i = $i->add($step)) {
+                        $result[] = $i;
+                    }
+                }
+                if (isset($options['format'])) {
+                    $result = array_map(fn($dt) => $dt->format($options['format']), $result);
+                }
+                return $result;
+            }
+            catch (\Exception $e) {
+                // through
+            }
+        }
+
+        if (isset($e)) {
+            throw $e;
+        }
+        throw new \InvalidArgumentException("failed to detect mode", 0, $e ?? null);
+    }
+}
+
 assert(!function_exists('ryunosuke\\WebDebugger\\array_rank') || (new \ReflectionFunction('ryunosuke\\WebDebugger\\array_rank'))->isUserDefined());
 if (!function_exists('ryunosuke\\WebDebugger\\array_rank')) {
     /**
@@ -6529,17 +6750,20 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_bind')) {
      *
      * @param string $sql 値を埋め込む SQL
      * @param array|mixed $values 埋め込む値
+     * @param ?callable $quote 値をクォートするクロージャ
      * @return mixed 値が埋め込まれた SQL
      */
-    function sql_bind($sql, $values)
+    function sql_bind($sql, $values, $quote = null)
     {
+        $quote ??= fn($v) => sql_quote($v);
+
         $embed = [];
         foreach (arrayval($values, false) as $k => $v) {
             if (is_int($k)) {
-                $embed['?'][] = sql_quote($v);
+                $embed['?'][] = $quote($v);
             }
             else {
-                $embed[":$k"] = sql_quote($v);
+                $embed[":$k"] = $quote($v);
             }
         }
 
@@ -7930,21 +8154,23 @@ if (!function_exists('ryunosuke\\WebDebugger\\csv_export')) {
      *
      * @package ryunosuke\Functions\Package\dataformat
      *
-     * @param array $csvarrays 連想配列の配列
+     * @param iterable $csvarrays 連想配列の配列
      * @param array $options オプション配列。fputcsv の第3引数以降もここで指定する
      * @return string|int CSV 的文字列。output オプションを渡した場合は書き込みバイト数
      */
     function csv_export($csvarrays, $options = [])
     {
         $options += [
-            'delimiter' => ',',
-            'enclosure' => '"',
-            'escape'    => '\\',
-            'encoding'  => mb_internal_encoding(),
-            'headers'   => null,
-            'structure' => false,
-            'callback'  => null, // map + filter 用コールバック（1行が参照で渡ってくるので書き換えられる&&false を返すと結果から除かれる）
-            'output'    => null,
+            'delimiter'       => ',',
+            'enclosure'       => '"',
+            'escape'          => '\\',
+            'encoding'        => mb_internal_encoding(),
+            'initial'         => '', // "\xEF\xBB\xBF"
+            'headers'         => null,
+            'structure'       => false,
+            'callback'        => null, // map + filter 用コールバック（1行が参照で渡ってくるので書き換えられる&&false を返すと結果から除かれる）
+            'callback_header' => false, // callback に header 行も渡ってくるか？（互換性のためであり将来的に削除される）
+            'output'          => null,
         ];
 
         $output = $options['output'];
@@ -7956,14 +8182,22 @@ if (!function_exists('ryunosuke\\WebDebugger\\csv_export')) {
             $fp = fopen('php://temp', 'rw+');
         }
         try {
-            $size = call_safely(function ($fp, $csvarrays, $delimiter, $enclosure, $escape, $encoding, $headers, $structure, $callback) {
+            $size = call_safely(function ($fp, $csvarrays, $delimiter, $enclosure, $escape, $encoding, $initial, $headers, $structure, $callback, $callback_header) {
                 $size = 0;
                 $mb_internal_encoding = mb_internal_encoding();
+
+                if (!is_array($csvarrays)) {
+                    [$csvarrays, $csvarrays2] = iterator_split($csvarrays, [1], true);
+                }
+
                 if ($structure) {
                     foreach ($csvarrays as $n => $array) {
                         $query = strtr(http_build_query($array, ''), ['%5B' => '[', '%5D' => ']']);
                         $csvarrays[$n] = array_map('rawurldecode', str_array(explode('&', $query), '=', true));
                     }
+                }
+                if (strlen($initial)) {
+                    fwrite($fp, $initial);
                 }
                 if (!$headers) {
                     $tmp = [];
@@ -8003,6 +8237,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\csv_export')) {
                     $headers = array_combine($headers, $headers);
                 }
                 else {
+                    if ($callback_header && $callback) {
+                        if ($callback($headers, null) === false) {
+                            goto BODY;
+                        }
+                    }
+
                     $headerline = $headers;
                     if ($encoding !== $mb_internal_encoding) {
                         mb_convert_variables($encoding, $mb_internal_encoding, $headerline);
@@ -8012,7 +8252,14 @@ if (!function_exists('ryunosuke\\WebDebugger\\csv_export')) {
                     }
                     $size += fputcsv($fp, $headerline, $delimiter, $enclosure, $escape);
                 }
+
+                BODY:
+
                 $default = array_fill_keys(array_keys($headers), '');
+
+                if (isset($csvarrays2)) {
+                    $csvarrays = iterator_join([$csvarrays, $csvarrays2]);
+                }
 
                 foreach ($csvarrays as $n => $array) {
                     if ($callback) {
@@ -8027,7 +8274,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\csv_export')) {
                     $size += fputcsv($fp, $row, $delimiter, $enclosure, $escape);
                 }
                 return $size;
-            }, $fp, $csvarrays, $options['delimiter'], $options['enclosure'], $options['escape'], $options['encoding'], $options['headers'], $options['structure'], $options['callback']);
+            }, $fp, $csvarrays, $options['delimiter'], $options['enclosure'], $options['escape'], $options['encoding'], $options['initial'], $options['headers'], $options['structure'], $options['callback'], $options['callback_header']);
             if ($output) {
                 return $size;
             }
@@ -9523,27 +9770,30 @@ if (!function_exists('ryunosuke\\WebDebugger\\markdown_list')) {
             'separator' => ': ',
             'liststyle' => '-',
             'ordered'   => false,
+            'indexed'   => null,
         ];
 
         $f = function ($array, $nest) use (&$f, $option) {
             $spacer = str_repeat($option['indent'], $nest);
             $result = [];
-            foreach (arrays($array) as $n => [$k, $v]) {
+            $seq = 0;
+            foreach ($array as $k => $v) {
+                $indexed = $option['indexed'] ?? is_int($k) && $k === $seq++;
                 if (is_iterable($v)) {
-                    if (!is_int($k)) {
+                    if (!$indexed) {
                         $result[] = $spacer . $option['liststyle'] . ' ' . $k . $option['separator'];
                     }
                     $result = array_merge($result, $f($v, $nest + 1));
                 }
                 else {
-                    if (!is_int($k)) {
+                    if (!$indexed) {
                         $result[] = $spacer . $option['liststyle'] . ' ' . $k . $option['separator'] . $v;
                     }
                     elseif (!$option['ordered']) {
                         $result[] = $spacer . $option['liststyle'] . ' ' . $v;
                     }
                     else {
-                        $result[] = $spacer . ($n + 1) . '. ' . $v;
+                        $result[] = $spacer . $seq . '. ' . $v;
                     }
                 }
             }
@@ -9926,6 +10176,28 @@ if (!function_exists('ryunosuke\\WebDebugger\\date_convert')) {
      * マイクロ秒にも対応している。
      * かなり適当に和暦にも対応している。
      *
+     * 拡張書式は下記。
+     * - J: 日本元号
+     *   - e.g. 平成
+     *   - e.g. 令和
+     * - b: 日本元号略称
+     *   - e.g. H
+     *   - e.g. R
+     * - k: 日本元号年
+     *   - e.g. 平成7年
+     *   - e.g. 令和1年
+     * - K: 日本元号年（1年が元年）
+     *   - e.g. 平成7年
+     *   - e.g. 令和元年
+     * - x: 日本語曜日
+     *   - e.g. 日
+     *   - e.g. 月
+     * - Q: 月内週番号（商が第N、余が曜日）
+     *   - e.g. 6（7 * 0 + 6 第1土曜日）
+     *   - e.g. 15（7 * 2 + 1 第3月曜日）
+     *
+     * php8.2 から x,X が追加されたため上記はあくまで参考となる。
+     *
      * Example:
      * ```php
      * // 和暦を Y/m/d H:i:s に変換
@@ -9981,6 +10253,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\date_convert')) {
                 'k' => fn() => $era ? $era['year'] : throws(new \InvalidArgumentException("notfound JP_ERA '$datetimedata'")),
                 'K' => fn() => $era ? $era['gann'] : throws(new \InvalidArgumentException("notfound JP_ERA '$datetimedata'")),
                 'x' => fn() => ['日', '月', '火', '水', '木', '金', '土'][idate('w', (int) $timestamp)],
+                'Q' => fn() => idate('w', $timestamp) + intdiv(idate('j', $timestamp) - 1, 7) * 7,
             ], '\\');
         }
 
@@ -10076,6 +10349,10 @@ if (!function_exists('ryunosuke\\WebDebugger\\date_interval')) {
     /**
      * 秒を世紀・年・月・日・時間・分・秒・ミリ秒の各要素に分解する
      *
+     * @memo $sec に P から始まる iso8601継続時間を渡すと DateInterval のパーサーとして働く。
+     * そのとき、各要素には負数を与えることができる。
+     *
+     * P で始まらない場合、秒の分解機能になる。
      * 例えば `60 * 60 * 24 * 900 + 12345.678` （約900日12345秒）は・・・
      *
      * - 2 年（約900日なので）
@@ -10130,13 +10407,48 @@ if (!function_exists('ryunosuke\\WebDebugger\\date_interval')) {
      *
      * @package ryunosuke\Functions\Package\datetime
      *
-     * @param int|float $sec タイムスタンプ
+     * @param int|float|string $sec タイムスタンプ|ISO8601継続時間文字列
      * @param string|array|null $format 時刻フォーマット
      * @param string|int $limit_type どこまで換算するか（[c|y|m|d|h|i|s]）
      * @return string|\DateInterval 時間差文字列 or DateInterval オブジェクト
      */
     function date_interval($sec, $format = null, $limit_type = 'y')
     {
+        // for compatible
+        if (is_string($sec) && preg_match('#^(?P<S>[\-+])?P((?P<Y>-?\d+)Y)?((?P<M>-?\d+)M)?((?P<D>-?\d+)D)?(T((?P<h>-?\d+)H)?((?P<m>-?\d+)M)?((?P<s>-?\d+(\.\d+)?)S)?)?$#', $sec, $matches, PREG_UNMATCHED_AS_NULL)) {
+            $interval = new \DateInterval('P0Y');
+            $interval->y = (int) $matches['Y'];
+            $interval->m = (int) $matches['M'];
+            $interval->d = (int) $matches['D'];
+            $interval->h = (int) $matches['h'];
+            $interval->i = (int) $matches['m'];
+            $interval->s = (int) $matches['s'];
+            $interval->f = (float) $matches['s'] - $interval->s;
+
+            if ($matches['S'] === '-') {
+                $interval->y = -$interval->y;
+                $interval->m = -$interval->m;
+                $interval->d = -$interval->d;
+                $interval->h = -$interval->h;
+                $interval->i = -$interval->i;
+                $interval->s = -$interval->s;
+                $interval->f = -$interval->f;
+            }
+
+            $now = new \DateTimeImmutable();
+            if ($now > $now->add($interval)) {
+                $interval->invert = 1;
+                $interval->y = -$interval->y;
+                $interval->m = -$interval->m;
+                $interval->d = -$interval->d;
+                $interval->h = -$interval->h;
+                $interval->i = -$interval->i;
+                $interval->s = -$interval->s;
+                $interval->f = -$interval->f;
+            }
+            return $interval;
+        }
+
         $ymdhisv = ['c', 'y', 'm', 'd', 'h', 'i', 's', 'v'];
         $map = ['c' => 7, 'y' => 6, 'm' => 5, 'd' => 4, 'h' => 3, 'i' => 2, 's' => 1];
         if (ctype_digit("$limit_type")) {
@@ -10313,29 +10625,225 @@ if (!function_exists('ryunosuke\\WebDebugger\\date_interval_second')) {
         }
 
         if (!$interval instanceof \DateInterval) {
-            $interval = (string) $interval;
-            $invert = 0;
-            if ($interval[0] === '+') {
-                $invert = 0;
-                $interval = substr($interval, 1);
-            }
-            if ($interval[0] === '-') {
-                $invert = 1;
-                $interval = substr($interval, 1);
-            }
-            $interval = preg_splice('#(\.\d+)S#', 'S', $interval, $m);
-
-            $interval = new \DateInterval($interval);
-            $interval->invert = $invert;
-            if (isset($m[1])) {
-                $interval->f = (float) $m[1];
-            }
+            $interval = date_interval($interval);
         }
 
         $datetime = date_convert(\DateTimeImmutable::class, $basetime);
         $difftime = $datetime->add($interval);
 
         return date_timestamp($difftime) - date_timestamp($datetime);
+    }
+}
+
+assert(!function_exists('ryunosuke\\WebDebugger\\date_match') || (new \ReflectionFunction('ryunosuke\\WebDebugger\\date_match'))->isUserDefined());
+if (!function_exists('ryunosuke\\WebDebugger\\date_match')) {
+    /**
+     * 日時と cron ライクな表記のマッチングを行う
+     *
+     * YYYY/MM/DD(W) hh:mm:ss のようなパターンを与える。
+     *
+     * - YYYY: 年を表す（1～9999）
+     * - MM: 月を表す（1～12）
+     * - DD: 日を表す（1～31, 99,L で末日を表す）
+     *   - e.g. 2/99 は 2/28,2/29 を表す（年に依存）
+     *   - e.g. 2/L も同様
+     * - W: 曜日を表す（0～6, #N で第Nを表す、#o,#e で隔週を表す）
+     *   - e.g. 3 は毎水曜日を表す
+     *   - e.g. 3#4 は第4水曜日を表す
+     *   - e.g. 5#L は最終水曜日を表す
+     *   - e.g. 4#o は隔週水曜日を表す（週番号奇数）
+     *   - e.g. 4#e は隔週水曜日を表す（週番号偶数）
+     * - hh: 時を表す（任意で 0～23）
+     * - mm: 分を表す（任意で 0～59）
+     * - ss: 秒を表す（任意で 0～59）
+     *
+     * DD と W は AND 判定される（cron は OR）。
+     * また `/`（毎）にあたる表記はない。
+     *
+     * 9,L は「最後」を意味し、文脈に応じた値に書き換わる。
+     *  「最終」が可変である日付と曜日のみ指定可能。
+     * 例えば `2012/02/99` は「2014/02/29」になるし、`2012/02/**(3#L)` は「2012/02の最終水曜」になる。
+     *
+     * 各区切り内の値は下記が許可される。
+     *
+     * - *: 任意の値を表す（桁合わせのためにいくつあってもよい）
+     * - 値: 特定の一つの数値を表す
+     * - 数字-数字: 範囲を表す
+     * - 数字,数字: いずれかを表す
+     *
+     * `*` 以外は複合できるので Example を参照。
+     *
+     * この関数は実験的なので互換性担保に含まれない。
+     *
+     * Example:
+     * ```php
+     * // 2014年の12月にマッチする
+     * that(date_match('2014/12/24 12:34:56', '2014/12/*'))->isTrue();
+     * that(date_match('2014/11/24 12:34:56', '2014/12/*'))->isFalse();
+     * that(date_match('2015/12/24 12:34:56', '2014/12/*'))->isFalse();
+     * // 2014年の12月20日～25日にマッチする
+     * that(date_match('2014/12/24 12:34:56', '2014/12/20-25'))->isTrue();
+     * that(date_match('2014/12/26 12:34:56', '2014/12/20-25'))->isFalse();
+     * that(date_match('2015/12/24 12:34:56', '2014/12/20-25'))->isFalse();
+     * // 2014年の12月10,20,30日にマッチする
+     * that(date_match('2014/12/20 12:34:56', '2014/12/10,20,30'))->isTrue();
+     * that(date_match('2014/12/24 12:34:56', '2014/12/10,20,30'))->isFalse();
+     * that(date_match('2015/12/30 12:34:56', '2014/12/10,20,30'))->isFalse();
+     * // 2014年の12月10,20~25,30日にマッチする
+     * that(date_match('2014/12/24 12:34:56', '2014/12/10,20-25,30'))->isTrue();
+     * that(date_match('2014/12/26 12:34:56', '2014/12/10,20-25,30'))->isFalse();
+     * that(date_match('2015/12/26 12:34:56', '2014/12/10,20-25,30'))->isFalse();
+     * ```
+     *
+     * @package ryunosuke\Functions\Package\datetime
+     *
+     * @param mixed $datetime 日時を表す引数
+     * @param string $cronlike マッチパターン
+     * @return bool マッチしたら true
+     */
+    function date_match($datetime, $cronlike)
+    {
+        static $dayofweek = [
+            0 => ['日', '日曜', '日曜日', 'sun', 'sunday'],
+            1 => ['月', '月曜', '月曜日', 'mon', 'monday'],
+            2 => ['火', '火曜', '火曜日', 'tue', 'tuesday'],
+            3 => ['水', '水曜', '水曜日', 'wed', 'wednesday'],
+            4 => ['木', '木曜', '木曜日', 'thu', 'thursday'],
+            5 => ['金', '金曜', '金曜日', 'fri', 'friday'],
+            6 => ['土', '土曜', '土曜日', 'sat', 'saturday'],
+        ];
+
+        static $reverse_dayofweek = null;
+        $reverse_dayofweek ??= (function () use ($dayofweek) {
+            $result = [];
+            foreach ($dayofweek as $weekno => $texts) {
+                $result += array_fill_keys($texts, $weekno);
+            }
+            return $result;
+        })();
+
+        static $dayofweek_pattern = null;
+        $dayofweek_pattern ??= (function () use ($dayofweek) {
+            $result = [];
+            foreach ($dayofweek as $texts) {
+                $result = array_merge($result, $texts);
+            }
+            usort($result, fn($a, $b) => strlen($b) <=> strlen($a));
+            return implode('|', $result);
+        })();
+
+        $timestamp = date_timestamp($datetime);
+        if ($timestamp === null) {
+            throw new \InvalidArgumentException("failed to parse '$datetime'");
+        }
+
+        // よく使うので変数化しておく
+        $weekno = idate('W', $timestamp);
+        $firstdate = date('Y-m-1', $timestamp);
+        $lastday = idate('t', $timestamp);
+        $lastweekdays = []; // range($day, $lastday);
+        for ($day = 29; $day <= $lastday; $day++) {
+            $lastweekdays[] = $day;
+        }
+
+        // マッチング
+        $pattern = <<<REGEXP
+               (?<Y> \\*+ | (\\d{1,4}(-\\d{1,4})?)(,(\\d{1,4}(-\\d{1,4})?))* )
+            (/ (?<M> \\*+ | (\\d{1,2}(-\\d{1,2})?)(,(\\d{1,2}(-\\d{1,2})?))* ))?
+            (/ (?<D> \\*+ | ((\\d{1,2}|L)(-(\\d{1,2}|L))?)(,((\\d{1,2}|L)(-(\\d{1,2}|L))?))*))?
+            \\s*
+            (\((?<W> \\*+ | (([0-6]|$dayofweek_pattern)(\\#(\\d|L|E|O))?(-([0-6]|$dayofweek_pattern)(\\#(\\d|L|E|O))?)?)(,(([0-6]|$dayofweek_pattern)(\\#(\\d|L|E|O))?(-([0-6]|$dayofweek_pattern)(\\#(\\d|L|E|O))?)?))* ) \) )?
+            \\s*
+               (?<h> \\*+ | (\\d{1,2}(-\\d{1,2})?)(,(\\d{1,2}(-\\d{1,2})?))* )?
+            (: (?<m> \\*+ | (\\d{1,2}(-\\d{1,2})?)(,(\\d{1,2}(-\\d{1,2})?))* ))?
+            (: (?<s> \\*+ | (\\d{1,2}(-\\d{1,2})?)(,(\\d{1,2}(-\\d{1,2})?))* ))?
+            # dummy-comment
+        REGEXP;
+        if (!preg_match("!^$pattern$!ixu", trim($cronlike), $matches, PREG_UNMATCHED_AS_NULL)) {
+            throw new \InvalidArgumentException("failed to parse '$cronlike'");
+        }
+
+        $matches = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+        // 週の特殊処理
+        $matches['W'] = preg_replace_callback("!$dayofweek_pattern!u", fn($m) => $reverse_dayofweek[$m[0]], $matches['W']);
+
+        foreach ($matches as $key => &$match) {
+            // 9, L 等の特殊処理
+            if ($key === 'D') {
+                $match = preg_replace('!(L+|9{2,})!', $lastday, $match);
+            }
+            else {
+                $match = preg_replace('!(L+|9+)!', 'LAST', $match);
+            }
+
+            // 1-4 などを 1,2,3,4 に展開
+            $match = preg_replace_callback('!(\d+)-(\d+)!u', fn($m) => implode(',', range($m[1], $m[2])), $match);
+        }
+
+        // 週の特殊処理
+        $matches['W'] = preg_replace_callback('!(\d{1,2})(#(\d|LAST|e|o))?!ui', function ($m) use ($weekno, $firstdate, $lastweekdays) {
+            $n = (int) $m[1];
+            $w = $m[3] ?? null;
+            if ($w === null || $w === '*') {
+                return implode(',', range($n, 34, 7));
+            }
+            if ($w === 'e') {
+                if ($weekno % 2 === 0) {
+                    return 'none';
+                }
+                return implode(',', range($n, 34, 7));
+            }
+            if ($w === 'o') {
+                if ($weekno % 2 === 1) {
+                    return 'none';
+                }
+                return implode(',', range($n, 34, 7));
+            }
+            if ($w === 'LAST') {
+                $w = date('w', strtotime($firstdate));
+                $lasts = array_map(fn($v) => ($v - 29 + $w) % 7, $lastweekdays);
+                return $n + (in_array($n, $lasts, true) ? 4 : 3) * 7;
+            }
+            return $n + ($w - 1) * 7;
+        }, $matches['W']);
+
+        // 1,2,3,4,7 などを連想配列に展開する（兼範囲チェック）
+        $parse = function ($pattern, $min, $max) {
+            $values = [];
+            foreach (explode(',', (string) $pattern) as $range) {
+                if (strlen(trim($range, '*'))) {
+                    $range = (int) $range;
+                    if (!($min <= $range && $range <= $max)) {
+                        throw new \InvalidArgumentException("$range($min~$max)");
+                    }
+                    $values[$range] = true;
+                }
+            }
+            return $values;
+        };
+
+        // 各要素ごとの処理
+        $Ymdwhis = [
+            'Y' => $parse($matches['Y'], 1, 9999),
+            'n' => $parse($matches['M'], 1, 12),
+            'j' => $parse($matches['D'], 1, 31),
+            'Q' => $parse($matches['W'], 0, 34),
+            'G' => $parse($matches['h'], 0, 24),
+            'i' => $parse($matches['m'], 0, 59),
+            's' => $parse($matches['s'], 0, 59),
+        ];
+
+        $datestring = date_convert(implode(',', array_keys($Ymdwhis)), $timestamp);
+        $dateparts = array_combine(array_keys($Ymdwhis), explode(',', $datestring));
+
+        foreach ($dateparts as $key => $value) {
+            if ($Ymdwhis[$key] && !isset($Ymdwhis[$key][$value])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
@@ -11908,10 +12416,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_list')) {
     function file_list($dirname, $filter_condition = [])
     {
         $filter_condition += [
-            'unixpath'  => false,
+            'unixpath' => false,
+            '!type'    => 'dir',
+
             'recursive' => true,
             'relative'  => false,
-            '!type'     => 'dir',
+            'nesting'   => false,
         ];
 
         $dirname = path_normalize($dirname);
@@ -11961,7 +12471,23 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_list')) {
             }
 
             $path = $filter_condition['relative'] ? $it->getSubPathName() : $fullpath;
-            $result[] = strtr(is_dir($fullpath) ? $path . $DS : $path, [DIRECTORY_SEPARATOR => $DS]);
+            $path = strtr(is_dir($fullpath) ? $path . $DS : $path, [DIRECTORY_SEPARATOR => $DS]);
+
+            if ($filter_condition['nesting']) {
+                $tmp = &$result;
+                foreach (array_filter(multiexplode(['/', DIRECTORY_SEPARATOR], $it->getSubPath()), 'strlen') as $subdir) {
+                    $tmp = &$tmp[$subdir];
+                }
+                if ($it->isDir()) {
+                    $tmp[$it->getFilename()] = $tmp[$it->getFilename()] ?? [];
+                }
+                else {
+                    $tmp[$it->getFilename()] = $path;
+                }
+            }
+            else {
+                $result[] = $path;
+            }
         }
         return $result;
     }
@@ -12011,6 +12537,9 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_matcher')) {
             // by getFilename (glob or regex)
             'name'       => null,
             '!name'      => null,
+            // by getBasename (glob or regex)
+            'basename'   => null,
+            '!basename'  => null,
             // by getExtension (string or [string])
             'extension'  => null,
             '!extension' => null,
@@ -12058,37 +12587,48 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_matcher')) {
         }
 
         foreach ([
-            'path'     => null,
-            '!path'    => null,
-            'subpath'  => null,
-            '!subpath' => null,
-            'dir'      => null,
-            '!dir'     => null,
-            'name'     => null,
-            '!name'    => null,
+            'path'      => null,
+            '!path'     => null,
+            'subpath'   => null,
+            '!subpath'  => null,
+            'dir'       => null,
+            '!dir'      => null,
+            'name'      => null,
+            '!name'     => null,
+            'basename'  => null,
+            '!basename' => null,
         ] as $key => $convert) {
             if (isset($filter_condition[$key])) {
-                $pattern = $filter_condition[$key];
-                preg_match('##', ''); // clear preg_last_error
-                @preg_match($pattern, '');
-                if (preg_last_error() === PREG_NO_ERROR) {
-                    $filter_condition[$key] = static function ($string) use ($pattern, $filter_condition) {
-                        $string = $filter_condition['unixpath'] && DIRECTORY_SEPARATOR === '\\' ? str_replace('\\', '/', $string) : $string;
-                        return !!preg_match($pattern, $string);
-                    };
+                $callback = fn() => false;
+                foreach (arrayize($filter_condition[$key]) as $pattern) {
+                    preg_match('##', ''); // clear preg_last_error
+                    @preg_match($pattern, '');
+                    if (preg_last_error() === PREG_NO_ERROR) {
+                        $callback = static function ($string) use ($callback, $pattern, $filter_condition) {
+                            if ($callback($string)) {
+                                return true;
+                            }
+                            $string = $filter_condition['unixpath'] && DIRECTORY_SEPARATOR === '\\' ? str_replace('\\', '/', $string) : $string;
+                            return !!preg_match($pattern, $string);
+                        };
+                    }
+                    else {
+                        $callback = static function ($string) use ($callback, $pattern, $filter_condition) {
+                            if ($callback($string)) {
+                                return true;
+                            }
+                            if ($filter_condition['unixpath'] && DIRECTORY_SEPARATOR === '\\') {
+                                $pattern = str_replace('\\', '/', $pattern);
+                                $string = str_replace('\\', '/', $string);
+                            }
+                            $flags = $filter_condition['fnmflag'];
+                            $flags |= $filter_condition['casefold'] ? FNM_CASEFOLD : 0;
+                            $flags &= ~((strpos($pattern, '**') !== false) ? FNM_PATHNAME : 0);
+                            return fnmatch($pattern, $string, $flags);
+                        };
+                    }
                 }
-                else {
-                    $filter_condition[$key] = static function ($string) use ($pattern, $filter_condition) {
-                        if ($filter_condition['unixpath'] && DIRECTORY_SEPARATOR === '\\') {
-                            $pattern = str_replace('\\', '/', $pattern);
-                            $string = str_replace('\\', '/', $string);
-                        }
-                        $flags = $filter_condition['fnmflag'];
-                        $flags |= $filter_condition['casefold'] ? FNM_CASEFOLD : 0;
-                        $flags &= ~((strpos($pattern, '**') !== false) ? FNM_PATHNAME : 0);
-                        return fnmatch($pattern, $string, $flags);
-                    };
-                }
+                $filter_condition[$key] = $callback;
             }
         }
 
@@ -12140,6 +12680,11 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_matcher')) {
             }
             foreach (['name' => false, '!name' => true] as $key => $cond) {
                 if (isset($filter_condition[$key]) && $cond === $filter_condition[$key]($file->getFilename())) {
+                    return false;
+                }
+            }
+            foreach (['basename' => false, '!basename' => true] as $key => $cond) {
+                if (isset($filter_condition[$key]) && $cond === $filter_condition[$key]($file->getBasename(concat('.', $file->getExtension())))) {
                     return false;
                 }
             }
@@ -12663,6 +13208,9 @@ if (!function_exists('ryunosuke\\WebDebugger\\file_tree')) {
      */
     function file_tree($dirname, $filter_condition = [])
     {
+        // for compatible in future scope
+        //return file_list($dirname, ['nesting' => true] + $filter_condition);
+
         $dirname = path_normalize($dirname);
         if (!file_exists($dirname)) {
             return false;
@@ -12813,6 +13361,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      * - parents: 正規化したディレクトリ名の配列
      * - dirnames: ディレクトリ名の配列（余計なことはしない）
      * - localname: 複数拡張子を考慮した本当のファイル名部分
+     * - localpath: ディレクトリ名（余計なことはしない）＋複数拡張子を考慮した本当のファイル名部分（フルパス - 拡張子）
      * - extensions: 複数拡張子の配列（余計なことはしない）
      *
      * 「余計なことはしない」とは空文字をフィルタしたりパスを正規化したりを指す。
@@ -12822,6 +13371,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      *
      * Example:
      * ```php
+     * $DS = DIRECTORY_SEPARATOR;
      * // 色々混ぜたサンプル
      * that(path_info('C:/dir1/.././dir2/file.sjis..min.js'))->is([
      *     "dirname"    => "C:/dir1/.././dir2",
@@ -12830,11 +13380,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      *     "filename"   => "file.sjis..min",
      *     // ここまでオリジナルの pathinfo 結果
      *     "drive"      => "C:",
-     *     "root"       => "/",                         // 環境依存しない元のルートパス
-     *     "parents"    => ["dir2"],                    // 正規化されたディレクトリ配列
-     *     "dirnames"   => ["dir1", "..", ".", "dir2"], // 余計なことをしていないディレクトリ配列
-     *     "localname"  => "file",
-     *     "extensions" => ["sjis", "", "min", "js"],   // 余計なことをしていない拡張子配列
+     *     "root"       => "/",                          // 環境依存しない元のルートパス
+     *     "parents"    => ["dir2"],                     // 正規化されたディレクトリ配列
+     *     "dirnames"   => ["dir1", "..", ".", "dir2"],  // 余計なことをしていないディレクトリ配列
+     *     "localname"  => "file",                       // 複数拡張子を考慮した本当のファイル名部分
+     *     "localpath"  => "C:/dir1/.././dir2{$DS}file", // ↑にディレクトリ名を付与したもの
+     *     "extensions" => ["sjis", "", "min", "js"],    // 余計なことをしていない拡張子配列
      * ]);
      * // linux における絶対パス
      * that(path_info('/dir1/dir2/file.sjis.min.js'))->is([
@@ -12848,6 +13399,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      *     "parents"    => ["dir1", "dir2"],      // ..等がないので dirnames と同じ
      *     "dirnames"   => ["dir1", "dir2"],      // ディレクトリ配列
      *     "localname"  => "file",
+     *     "localpath"  => "/dir1/dir2{$DS}file",
      *     "extensions" => ["sjis", "min", "js"], // 余計なことをしていない拡張子配列
      * ]);
      * // linux における相対パス
@@ -12862,6 +13414,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      *     "parents"    => ["dir1", "dir2"],
      *     "dirnames"   => ["dir1", "dir2"],
      *     "localname"  => "file",
+     *     "localpath"  => "dir1/dir2{$DS}file",
      *     "extensions" => ["sjis", "min", "js"],
      * ]);
      * // ディレクトリ無し
@@ -12876,6 +13429,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
      *     "parents"    => [], // オリジナルの pathinfo のようにドットが紛れ込んだりはしない
      *     "dirnames"   => [], // オリジナルの pathinfo のようにドットが紛れ込んだりはしない
      *     "localname"  => "file",
+     *     "localpath"  => "file",
      *     "extensions" => ["sjis", "min", "js"],
      * ]);
      * ```
@@ -12943,6 +13497,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\path_info')) {
         }, []);
 
         $result['localname'] = array_shift($basenames);
+        $result['localpath'] = implode(DIRECTORY_SEPARATOR, array_filter([$pathinfo['dirname'], $result['localname']], 'strlen'));
         $result['extensions'] = $basenames;
 
         return $result;
@@ -15406,19 +15961,48 @@ if (!function_exists('ryunosuke\\WebDebugger\\iterator_chunk')) {
      * // 大本の Generator は総数を返す
      * $generators->next();
      * that($generators->getReturn())->is(7);
+     *
+     * // ハイフンが来るたびに分割（クロージャ内で next しているため、ハイフン自体は結果に含まれない）
+     * $generator = (function () {
+     *     yield 'a';
+     *     yield 'b';
+     *     yield '-';
+     *     yield 'c';
+     *     yield 'd';
+     *     yield 'e';
+     *     yield 'f';
+     *     yield '-';
+     *     yield 'g';
+     * })();
+     * $generators = iterator_chunk($generator, function ($v, $k, $n, $c, $it) {
+     *     if ($v === '-') {
+     *         $it->next();
+     *         return false;
+     *     }
+     *     return true;
+     * });
+     *
+     * that(iterator_to_array($generators->current()))->is(['a', 'b']);
+     * $generators->next();
+     * that(iterator_to_array($generators->current()))->is(['c', 'd', 'e', 'f']);
+     * $generators->next();
+     * that(iterator_to_array($generators->current()))->is(['g']);
      * ```
      *
      * @package ryunosuke\Functions\Package\iterator
      *
      * @param iterable $iterator イテレータ
-     * @param int $length チャンクサイズ
+     * @param int|\Closure $length チャンクサイズ。クロージャを渡すと毎ループ(値, キー, ステップ, チャンク番号, イテレータ)でコールされて false を返すと1チャンク終了となる
      * @param bool $preserve_keys キーの保存フラグ
      * @return \Generator[]|\Generator チャンク化された Generator
      */
     function iterator_chunk($iterator, $length, $preserve_keys = false)
     {
-        if ($length <= 0) {
-            throw new \InvalidArgumentException("\$length must be > 0 ($length)");
+        if (!$length instanceof \Closure) {
+            if ($length <= 0) {
+                throw new \InvalidArgumentException("\$length must be > 0 ($length)");
+            }
+            $length = fn($v, $k, $n, $chunk, $iterator) => $n < $length;
         }
 
         // Generator は Iterator であるが Iterator は Generator ではないので変換する
@@ -15426,19 +16010,32 @@ if (!function_exists('ryunosuke\\WebDebugger\\iterator_chunk')) {
             $iterator = (function () use ($iterator) { yield from $iterator; })();
         }
 
+        $chunk = 0;
         $total = 0;
         while ($iterator->valid()) {
-            yield $g = (function () use ($iterator, $length, $preserve_keys) {
-                for ($count = 0; $count < $length && $iterator->valid(); $count++, $iterator->next()) {
+            yield $g = (function () use ($iterator, $length, $preserve_keys, $chunk) {
+                $n = 0;
+                while ($iterator->valid()) {
+                    $k = $iterator->key();
+                    $v = $iterator->current();
+
+                    if (!$length($v, $k, $n, $chunk, $iterator)) {
+                        break;
+                    }
+
                     if ($preserve_keys) {
-                        yield $iterator->key() => $iterator->current();
+                        yield $k => $v;
                     }
                     else {
-                        yield $iterator->current();
+                        yield $v;
                     }
+
+                    $n++;
+                    $iterator->next();
                 }
-                return $count;
+                return $n;
             })();
+            $chunk++;
 
             // 回しきらないと無限ループする
             while ($g->valid()) {
