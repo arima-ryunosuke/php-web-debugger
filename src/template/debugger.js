@@ -11,8 +11,6 @@ $(function () {
 
     // 子から見た親フレーム
     var self = $('#webdebugger-iframe', window.parent.document);
-    var width = self.width();
-    var height = self.height();
 
     // 埋め込まれている変数
     var vars = {};
@@ -30,6 +28,11 @@ $(function () {
             options = JSON.parse(decodeURIComponent(keyval[1]));
             break;
         }
+    }
+    options['_global_'] = options['_global_'] || {};
+
+    if (options['_global_']['height']){
+        document.documentElement.style.setProperty('--height', options['_global_']['height']);
     }
     for (var module in options) {
         if (options[module]) {
@@ -59,32 +62,63 @@ $(function () {
     });
     $document.delegate('.debug_plugin_switch', 'mouseover', function () {
         $(this).find('.debug_plugin_title').show();
-        self.width('100%');
-        self.height('100%');
+        self.addClass('fullsize');
     });
     $document.delegate('.debug_plugin_switch', 'mouseout', function () {
         $(this).find('.debug_plugin_title').hide();
         if ($(".debug_plugin_wrap:visible").length === 0) {
-            self.width(width);
-            self.height(height);
+            self.removeClass('fullsize');
         }
     });
     $document.delegate('.debug_plugin_switch', 'click', function () {
         var $this = $(this);
+        var $parts = $this.closest('.debug_plugin_parts');
         var target = $this.next(".debug_plugin_wrap");
-        $('body').find(".debug_plugin_wrap").not(target).hide();
-        $this.next(".debug_plugin_wrap").slideToggle('fast');
+        if ($parts.hasClass('shown')) {
+            target.slideUp('fast', function () {
+                $parts.removeClass('shown');
+            });
+        }
+        else {
+            $parts.addClass('shown');
+            target.slideDown('fast');
+            $(".debug_plugin_parts").not($parts).removeClass('shown');
+            $(".debug_plugin_wrap").not(target).slideUp('fast');
+        }
     });
-    $document.delegate('html,body', 'click', function (e) {
-        if ($(e.target).closest('.debug_plugin').length === 0) {
-            $(".debug_plugin_wrap:visible").slideUp('fast', function () {
-                self.width(width);
-                self.height(height);
+    $document.delegate('.close', 'click', function (e) {
+        if (e.target === this) {
+            var $this = $(this);
+            var target = $this.closest(".debug_plugin_wrap");
+            target.slideUp('fast', function () {
+                self.removeClass('fullsize');
+                $(".debug_plugin_parts").removeClass('shown');
             });
         }
     });
+    $document.delegate('html,body', 'click', function (e) {
+        if (e.target === this) {
+            $(".debug_plugin_wrap:visible").slideUp('fast', function () {
+                self.removeClass('fullsize');
+                $(".debug_plugin_parts").removeClass('shown');
+            });
+        }
+    });
+
+    document.addEventListener('pointermove', function (e) {
+        if (e.buttons) {
+            if (e.target.matches('.debug_plugin')) {
+                options['_global_']['height'] = (window.innerHeight - e.y) + 'px';
+                document.cookie = 'WebDebuggerOptions=' + encodeURIComponent(JSON.stringify(options)) + '; path=/; ';
+                document.documentElement.style.setProperty('--height', options['_global_']['height']);
+                e.target.setPointerCapture(e.pointerId);
+                e.preventDefault();
+            }
+        }
+    });
+
     $document.delegate('a.holding', 'click', function (e) {
-        $(this).toggleClass('opened').next().toggle();
+        $(this).toggleClass('opened').next().slideToggle('fast');
         e.stopPropagation();
     });
     $document.delegate('[data-type="object-index"]', 'click', function () {
@@ -93,7 +127,7 @@ $(function () {
         var pre = $this.closest('pre');
         var objects = pre.find('[data-id=' + id + ']');
         pre.find('.holding.focused').removeClass('focused');
-        objects.eq(0).parents('.holdingdiv').show();
+        objects.eq(0).parents('.holdingdiv').slideDown('fast');
         objects.filter('[data-type="object"]').closest('.holdingdiv').prev().addClass('focused')[0].scrollIntoView({
             behavior: 'smooth',
             block: 'nearest',

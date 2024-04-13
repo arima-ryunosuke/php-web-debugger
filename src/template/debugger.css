@@ -15,10 +15,30 @@
     box-sizing: border-box;
 }
 
+:root {
+    --height: 50%;
+}
+
 .debug_plugin {
     position: absolute;
     left: 0;
     right: 0;
+    bottom: 0;
+}
+
+.debug_plugin:has(.shown) {
+    height: var(--height);
+    min-height: 54px;
+    max-height: 100%;
+}
+
+.debug_plugin:has(.shown):after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 6px;
+    cursor: ns-resize;
 }
 
 .debug_plugin label {
@@ -49,7 +69,7 @@
     border-radius: 8px;
 
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 16px;
     height: 16px;
@@ -70,7 +90,6 @@
     line-height: 1.0;
     display: none;
     padding: 0 8px;
-    margin-left: 20px;
     box-shadow: 1px 1px 3px #000;
     border-radius: 4px;
     background-color: #aaa;
@@ -79,7 +98,7 @@
     font-size: 16px;
     white-space: nowrap;
     position: absolute;
-    top: 0;
+    top: -20px;
     left: 0;
     z-index: 1;
 }
@@ -92,11 +111,27 @@
     display: none;
     position: absolute;
     background-color: #eee;
-    padding: 8px;
-    border: 1px solid #888;
+    bottom: 0;
+    min-width: calc(100vw - (100vw - 100%));
+    height: 100%;
+}
+
+.debug_plugin_wrap_head {
+    position: sticky;
     top: 0;
-    left: 20px;
-    min-width: calc(100vw - (100vw - 100%) - 20px);
+    background: #ccc;
+    padding: 8px;
+    height: 34px;
+}
+
+.debug_plugin_wrap_head a {
+    cursor: pointer;
+}
+
+.debug_plugin_wrap_body {
+    padding: 8px;
+    height: calc(100% - 34px);
+    overflow-y: auto;
 }
 
 .debug_table {

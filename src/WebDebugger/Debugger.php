@@ -233,15 +233,15 @@ class Debugger
                     $buffer = substr_replace($buffer, "{$prepare}</head>", $pos, strlen('</head>'));
                 }
                 if (($pos = strripos($buffer, '</body>')) !== false) {
-                    $width = (20) . 'px';
-                    $height = (count($this->modules) * 20) . 'px';
+                    $width = (count($this->modules) * 20) . 'px';
+                    $height = (20) . 'px';
                     $iframe = "<!-- this is web debugger body injection -->
                         <iframe
                             id='webdebugger-iframe'
                             style='
                                 position: fixed;
                                 left: 0;
-                                top: 0;
+                                bottom: 0;
                                 width: {$width};
                                 height: {$height};
                                 border: none;
@@ -251,6 +251,12 @@ class Debugger
                                 overflow: visible;
                             '
                         ></iframe>
+                        <style>
+                        #webdebugger-iframe.fullsize {
+                            width: 100% !important;
+                            height: 100% !important;
+                        }
+                        </style>
                         <script>
                             (function(){
                                 const iframe = document.getElementById('webdebugger-iframe');

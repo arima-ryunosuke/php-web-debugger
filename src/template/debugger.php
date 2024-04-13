@@ -29,7 +29,7 @@ $h = function ($string) {
 <div class="debug_plugin">
     <?php foreach ($module_data as $n => $module): ?>
         <div class='debug_plugin_parts <?= $h($module['name']) ?> <?= $h($module['disabled'] ? 'disabled' : '') ?>' data-module-class="<?= $h($module['class']) ?>">
-            <div class='debug_plugin_switch' style='background-color:<?= $h($module['color']) ?>;top:<?= $n * 20 ?>px'>
+            <div class='debug_plugin_switch' style='background-color:<?= $h($module['color']) ?>;left:<?= $n * 20 ?>px'>
                 <span class='debug_plugin_count'><?= $h($module['count']) ?></span>
                 <span class='debug_plugin_title'>
                     <?= $h($module['name']) ?>
@@ -37,11 +37,17 @@ $h = function ($string) {
                 </span>
             </div>
             <div class='debug_plugin_wrap'>
-                <label>
-                    <input type='checkbox' name="enable" class='debug_plugin_setting' <?= $h($module['disabled'] ? '' : 'checked') ?> />
-                    有効
-                </label>
-                <?= $module['html'] ?>
+                <h1 class='debug_plugin_wrap_head'>
+                    <?= $h($module['name']) ?>
+                    <label>
+                        <input type='checkbox' name="enable" class='debug_plugin_setting' <?= $h($module['disabled'] ? '' : 'checked') ?> />
+                        有効
+                    </label>
+                    <div style="float: right">
+                        <a class="close">×</a>
+                    </div>
+                </h1>
+                <div class='debug_plugin_wrap_body'><?= $module['html'] ?></div>
             </div>
         </div>
     <?php endforeach; ?>
