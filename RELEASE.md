@@ -20,6 +20,11 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.2.10
+
+- [feature] アイコン群を左上から左下に変更
+- [composer] update
+
 ## 1.2.9
 
 - [change] 編集系に spellcheck=false を付与
