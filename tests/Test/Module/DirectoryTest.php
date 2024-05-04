@@ -22,23 +22,27 @@ class DirectoryTest extends AbstractTestCase
         rm_rf($this->dir2);
         mkdir_p($this->dir1);
         mkdir_p($this->dir2);
-        file_set_tree($this->dir1, [
-            'sub1' => [
-                'file1.txt' => 'file1',
-                'file2.txt' => 'file2',
-                'sub2'      => [
-                    'file3.txt' => 'file3',
-                    'file4.txt' => 'file4',
+        file_set_tree([
+            $this->dir1 => [
+                'sub1' => [
+                    'file1.txt' => 'file1',
+                    'file2.txt' => 'file2',
+                    'sub2'      => [
+                        'file3.txt' => 'file3',
+                        'file4.txt' => 'file4',
+                    ],
                 ],
             ],
         ]);
-        file_set_tree($this->dir2, [
-            'sub3' => [
-                'file1.txt' => 'file1',
-                'file2.txt' => 'file2',
-                'sub4'      => [
-                    'file3.txt' => 'file3',
-                    'file4.txt' => 'file4',
+        file_set_tree([
+            $this->dir2 => [
+                'sub3' => [
+                    'file1.txt' => 'file1',
+                    'file2.txt' => 'file2',
+                    'sub4'      => [
+                        'file3.txt' => 'file3',
+                        'file4.txt' => 'file4',
+                    ],
                 ],
             ],
         ]);
