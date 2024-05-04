@@ -56,6 +56,26 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertEmpty($module->getHtml([]));
     }
 
+    function test_gather()
+    {
+        $this->assertSame([], $this->invoke('gather', []));
+    }
+
+    function test_getCount()
+    {
+        $this->assertSame(null, $this->invoke('_getCount', []));
+    }
+
+    function test_getError()
+    {
+        $this->assertSame([], $this->invoke('_getError', []));
+    }
+
+    function test_getHtml()
+    {
+        $this->assertSame('', $this->invoke('_getHtml', []));
+    }
+
     function test_toOpenable()
     {
         $this->assertEquals('scalr', $this->invoke('toOpenable', 'scalr'));
