@@ -94,18 +94,18 @@ class DoctrineTest extends AbstractTestCase
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES ORDER BY information_schema.TABLES.TABLE_NAME')->executeQuery();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertStringContainsString('has slow query', $error);
 
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT 1')->executeQuery();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertEquals('has 1 quries', $error);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
@@ -118,7 +118,7 @@ class DoctrineTest extends AbstractTestCase
         }
         catch (\Exception $ex) {
         }
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>Query', $htmls);
     }
 

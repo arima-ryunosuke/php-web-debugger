@@ -166,12 +166,12 @@ class Performance extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Timeline']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if (count($stored['Timeline'])) {
@@ -180,7 +180,7 @@ class Performance extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');
 
@@ -247,11 +247,11 @@ class Performance extends AbstractModule
             $profile['caller'] = new Popup($popuptitle, new ArrayTable('', array_map([$this, 'toOpenable'], $profile['caller'])));
         }
 
-        return [
-            'Performance' => new HashTable('Performance', $stored['Performance']),
-            'Timeline'    => new Raw($timelinehtml),
-            'OPcache'     => new HashTable('OPcache', $stored['OPcache']),
-            'Profile'     => new ArrayTable($caption, $stored['Profile']),
-        ];
+        return implode('', [
+            new HashTable('Performance', $stored['Performance']),
+            new Raw($timelinehtml),
+            new HashTable('OPcache', $stored['OPcache']),
+            new ArrayTable($caption, $stored['Profile']),
+        ]);
     }
 }

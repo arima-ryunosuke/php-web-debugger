@@ -51,9 +51,9 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertIsObject($module->finalize());
         $this->assertEmpty($module->gather([]));
         $this->assertNull($module->hook([]));
-        $this->assertNull($module->getCount([]));
-        $this->assertNull($module->getError([]));
-        $this->assertNull($module->render([]));
+        $this->assertEmpty($module->getCount([]));
+        $this->assertEmpty($module->getError([]));
+        $this->assertEmpty($module->getHtml([]));
     }
 
     function test_toOpenable()

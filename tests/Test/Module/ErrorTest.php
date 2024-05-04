@@ -67,7 +67,7 @@ class ErrorTest extends AbstractTestCase
      * @depends test_gather
      * @param $stored
      */
-    function test_gather_getCount($stored)
+    function test_getCount($stored)
     {
         $module = new Error();
         $count = $module->getCount($stored);
@@ -78,10 +78,10 @@ class ErrorTest extends AbstractTestCase
      * @depends test_gather
      * @param $stored
      */
-    function test_gather_getError($stored)
+    function test_getError($stored)
     {
         $module = new Error();
-        $error = $module->getError($stored);
+        $error = implode(',', $module->getError($stored));
         $this->assertStringContainsString('has 1 error', $error);
         $this->assertStringContainsString('has exception', $error);
     }
@@ -90,10 +90,10 @@ class ErrorTest extends AbstractTestCase
      * @depends test_gather
      * @param $stored
      */
-    function test_gather_render($stored)
+    function test_getHtml($stored)
     {
         $module = new Error();
-        $htmls = $module->render($stored);
+        $htmls = $module->getHtml($stored);
         $this->assertStringContainsString('<caption><pre>Error', $htmls);
         $this->assertStringContainsString('<caption><pre>Exception', $htmls);
         $this->assertStringContainsString('console.error', $htmls);

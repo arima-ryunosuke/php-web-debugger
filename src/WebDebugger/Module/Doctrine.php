@@ -269,12 +269,12 @@ class Doctrine extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Query']['logs']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $error = [];
         if (count($stored['Query']['logs'])) {
@@ -293,7 +293,7 @@ class Doctrine extends AbstractModule
         return array_keys($error);
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $styles = [];
         foreach ($stored['Query']['logs'] as $n => &$log) {
@@ -332,9 +332,9 @@ class Doctrine extends AbstractModule
         }
         $caption = new Raw('Query' . $stored['Query']['summary'] . ' <label><input name="explain" class="debug_plugin_setting" type="checkbox">explain</label>');
 
-        return [
-            'Connection' => new HashTable('connection', $stored['Connection']),
-            'Query'      => new ArrayTable($caption, $stored['Query']['logs'], $styles),
-        ];
+        return implode('', [
+            new HashTable('connection', $stored['Connection']),
+            new ArrayTable($caption, $stored['Query']['logs'], $styles),
+        ]);
     }
 }

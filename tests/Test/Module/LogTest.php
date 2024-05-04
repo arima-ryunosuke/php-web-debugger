@@ -70,10 +70,10 @@ class LogTest extends AbstractTestCase
         $module->initialize();
         $module->setting([]);
 
-        $this->assertEquals('', $module->getError($module->gather([])));
+        $this->assertEquals('', implode(',', $module->getError($module->gather([]))));
 
         $module->log('hoge');
-        $this->assertEquals('has 1 log', $module->getError($module->gather([])));
+        $this->assertEquals('has 1 log', implode(',', $module->getError($module->gather([]))));
     }
 
     function test_preserve()
@@ -91,18 +91,18 @@ class LogTest extends AbstractTestCase
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
         $this->assertCount(0, glob($logdir . '/*'));
-        $module->render($module->gather([]));
+        $module->getHtml($module->gather([]));
         $this->assertCount(1, glob($logdir . '/*'));
 
         $module = new Log();
         $module->initialize(['logdir' => $logdir]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
-        $module->render($module->gather([]));
+        $module->getHtml($module->gather([]));
         $this->assertCount(2, glob($logdir . '/*'));
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Log();
         $module->initialize();
@@ -111,7 +111,7 @@ class LogTest extends AbstractTestCase
         $module->log('xxx');
         $module->log('<b>bold</b>');
 
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>Log', $htmls);
         $this->assertStringContainsString('&lt;b&gt;bold&lt;/b&gt;', $htmls);
     }

@@ -182,12 +182,12 @@ class Error extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Error']['data']) + ($stored['Exception']['data'] ? 1 : 0);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if ($c = count($stored['Error']['data'])) {
@@ -199,7 +199,7 @@ class Error extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $result = [];
 
@@ -227,6 +227,6 @@ class Error extends AbstractModule
             $caption = new Raw('<pre>' . htmlspecialchars($category . $data['summary'], ENT_QUOTES) . '</pre>');
             $result[$category] = new ArrayTable($caption, array_map([$this, 'toOpenable'], $data['data']));
         }
-        return $result;
+        return implode('', $result);
     }
 }

@@ -106,7 +106,7 @@ class Server extends AbstractModule
         ];
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if (array_intersect_key($stored['GET'], $stored['POST'])) {
@@ -120,7 +120,7 @@ class Server extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $errors = array_intersect_key($stored['GET'], $stored['POST']);
         foreach ($errors as $key => $val) {
@@ -154,6 +154,6 @@ class Server extends AbstractModule
                 $result[$category] = new HashTable($category, $data, isset($errors[$category]) ? $errors[$category] : []);
             }
         }
-        return $result;
+        return implode('', $result);
     }
 }

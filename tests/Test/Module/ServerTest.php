@@ -96,12 +96,12 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertStringContainsString('has same key', $error);
         $this->assertStringContainsString('has vulnerability', $error);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $_GET['same'] = 'hoge';
         $_POST['same'] = 'fuga';
@@ -109,7 +109,7 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>GET', $htmls);
         $this->assertStringContainsString('<caption>POST', $htmls);
         $this->assertStringContainsString('<caption>FILES', $htmls);

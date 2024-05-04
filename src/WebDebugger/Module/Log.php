@@ -207,12 +207,12 @@ class Log extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Log']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if (count($stored['Log'])) {
@@ -221,7 +221,7 @@ class Log extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $logs = [];
         if (!empty($this->setting['preserve'])) {
@@ -244,8 +244,6 @@ class Log extends AbstractModule
 
         $caption = new Raw('Log <label><input name="preserve" class="debug_plugin_setting" type="checkbox">preserve</label>');
 
-        return [
-            'Log' => new ArrayTable($caption, array_merge($logs, $stored['Log'])),
-        ];
+        return new ArrayTable($caption, array_merge($logs, $stored['Log']));
     }
 }

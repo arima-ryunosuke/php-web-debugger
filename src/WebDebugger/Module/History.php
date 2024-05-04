@@ -64,12 +64,12 @@ class History extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['History']);
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $histories = [];
         foreach (array_reverse($stored['History']) as $history) {

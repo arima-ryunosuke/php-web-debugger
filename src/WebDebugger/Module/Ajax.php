@@ -122,7 +122,7 @@ class Ajax extends AbstractModule
         ];
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $caption = new Raw('AjaxRequest <label><input name="autoswitch" class="debug_plugin_setting" type="checkbox">autoswitch</label>');
         $stored = ['' => new Raw('<label><input type="radio" name="ajaxrow" value="0" checked></label>')] + $stored;

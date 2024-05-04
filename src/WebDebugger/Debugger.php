@@ -14,9 +14,6 @@ class Debugger
     /** @var AbstractModule[] */
     private $modules = [];
 
-    /** @var array */
-    private $stores;
-
     public static function formatApplicationJson($contents)
     {
         $json = json_decode($contents, true);
@@ -173,16 +170,15 @@ class Debugger
 
         // 終了時に情報を集めたりフックしたりする
         GlobalFunction::register_shutdown_function(function () {
-            $this->stores = $this->stores ?? array_maps($this->modules, ['gather' => [$this->request]]);
+            $stores = array_maps($this->modules, ['gather' => [$this->request]]);
 
-            // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             file_set_contents($this->request['workfile'], serialize([
                 'request' => $this->request,
-                'stores'  => array_maps($this->stores, function ($v, $k) {
+                'stores'  => array_maps($stores, function ($v, $k) {
                     return [
                         'count' => $this->modules[$k]->getCount($v),
                         'error' => $this->modules[$k]->getError($v),
-                        'html'  => $this->modules[$k]->render($v),
+                        'html'  => $this->modules[$k]->getHtml($v),
                     ];
                 }),
             ]));
@@ -193,8 +189,6 @@ class Debugger
 
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
         ob_start(function ($buffer) {
-            $this->stores = $this->stores ?? array_maps($this->modules, ['gather' => [$this->request]]);
-
             $headers = implode("\n", GlobalFunction::headers_list());
 
             // PRG パターンの抑止

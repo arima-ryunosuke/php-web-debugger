@@ -2,7 +2,6 @@
 namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\Raw;
-use function ryunosuke\WebDebugger\arrayize;
 use function ryunosuke\WebDebugger\class_shorten;
 
 abstract class AbstractModule
@@ -182,7 +181,7 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return ?int
      */
-    public final function getCount($stored)
+    public final function getCount($stored): ?int
     {
         if ($this->isDisabled()) {
             return null;
@@ -190,7 +189,7 @@ abstract class AbstractModule
         return $this->_getCount($stored);
     }
 
-    protected function _getCount($stored) { return null; }
+    protected function _getCount($stored): ?int { return null; }
 
     /**
      * エラーを返す
@@ -198,15 +197,15 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return string
      */
-    public final function getError($stored)
+    public final function getError($stored): array
     {
         if ($this->isDisabled()) {
-            return;
+            return [];
         }
-        return implode(",", arrayize($this->_getError($stored)));
+        return $this->_getError($stored);
     }
 
-    protected function _getError($stored) { }
+    protected function _getError($stored): array { return []; }
 
     /**
      * html を返す
@@ -214,15 +213,15 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return string
      */
-    public final function render($stored)
+    public final function getHtml($stored): string
     {
         if ($this->isDisabled()) {
-            return;
+            return '';
         }
-        return implode("", arrayize($this->_render($stored)));
+        return $this->_getHtml($stored);
     }
 
-    protected function _render($stored) { }
+    protected function _getHtml($stored): string { return ''; }
 
     /**
      * パスを開く列を追加する

@@ -75,14 +75,14 @@ class HistoryTest extends AbstractTestCase
         $this->assertEquals(5, $module->getCount($module->gather($request)));
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $history = sys_get_temp_dir() . '/hoge/log.txt';
         $module = new History();
         $module->initialize(['historyfile' => $history]);
         $module->setting([]);
 
-        $htmls = $module->render($module->gather([
+        $htmls = $module->getHtml($module->gather([
             'time'     => 1234567890,
             'method'   => 'GET',
             'url'      => 'url',

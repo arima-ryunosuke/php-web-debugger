@@ -60,7 +60,7 @@ class VariableTest extends AbstractTestCase
         ], $stored);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Variable();
         $module->initialize([
@@ -83,7 +83,7 @@ class VariableTest extends AbstractTestCase
             'list'    => ['a', 'b'],
             "string"  => "this is string",
         ]);
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>hash', $htmls);
         $this->assertStringContainsString('<caption>array', $htmls);
         $this->assertStringContainsString('<caption>objects', $htmls);

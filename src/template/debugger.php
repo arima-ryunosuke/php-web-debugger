@@ -33,7 +33,7 @@ $h = function ($string) {
                 <span class='debug_plugin_count'><?= $h($module['count']) ?></span>
                 <span class='debug_plugin_title'>
                     <?= $h($module['name']) ?>
-                    <span><?= $h($module['error'] . ' ') ?></span>
+                    <span><?= $h(implode(',', $module['error'])) ?> </span>
                 </span>
             </div>
             <div class='debug_plugin_wrap'>

@@ -48,7 +48,7 @@ class PerformanceTest extends AbstractTestCase
         $module->time('b');
 
         $stored = $module->gather([]);
-        $this->assertEquals('has 1 timeline', $module->getError($stored));
+        $this->assertEquals('has 1 timeline', implode(',', $module->getError($stored)));
     }
 
     function test_gather()
@@ -75,7 +75,7 @@ class PerformanceTest extends AbstractTestCase
         $this->assertCount(1, $stored['Profile'][2]['caller']);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Performance();
         $module->initialize();
@@ -84,7 +84,7 @@ class PerformanceTest extends AbstractTestCase
         $module->time('b');
         require __DIR__ . '/Performance/profiler.php';
 
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>Performance', $htmls);
         $this->assertStringContainsString('<caption>OPcache', $htmls);
         $this->assertStringContainsString('<caption>Timeline', $htmls);

@@ -28,12 +28,12 @@ class Variable extends AbstractModule
         return $data;
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return array_sum(array_map('count', $stored));
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $result = [];
         $others = [];
@@ -55,7 +55,7 @@ class Variable extends AbstractModule
         if ($others) {
             $result[] = new HashTable('', $others);
         }
-        return $result;
+        return implode('', $result);
     }
 
     private function detectType($value)
