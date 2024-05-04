@@ -48,7 +48,7 @@ class DirectoryTest extends AbstractTestCase
         ]);
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Directory();
         $module->initialize([
@@ -57,14 +57,14 @@ class DirectoryTest extends AbstractTestCase
 
         $_POST['fullpath'] = "{$this->dir1}/sub1/file1.txt";
         $this->assertFileExists("{$this->dir1}/sub1/file1.txt");
-        $response = $module->fook(['is_ajax' => true, 'path' => 'deletedirfile']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'deletedirfile']);
         $this->assertEquals('ok', $response);
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/file1.txt");
 
         $_POST['dirname'] = realpath($this->dir1);
         $this->assertFileExists("{$this->dir1}/sub1/sub2/file3.txt");
         $this->assertFileExists("{$this->dir1}/sub1/sub2/file4.txt");
-        $response = $module->fook(['is_ajax' => true, 'path' => 'cleardirfile']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'cleardirfile']);
         $this->assertEquals('ok', $response);
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/sub2/file3.txt");
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/sub2/file4.txt");

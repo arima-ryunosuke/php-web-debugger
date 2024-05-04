@@ -32,21 +32,21 @@ class ServerTest extends AbstractTestCase
         $_FILES = $this->files;
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Server();
         $module->initialize();
 
-        $response = $module->fook(['is_ajax' => true, 'path' => 'phpinfo']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'phpinfo']);
         $this->assertTrue($response instanceof Raw);
         $this->assertStringContainsString("phpinfo", (string) $response);
 
         $_POST['session'] = '{"a": 1, "b": 2}';
-        $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'savesession']);
         $this->assertTrue($response);
 
         $_POST['session'] = 'hoge';
-        $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'savesession']);
         $this->assertStringContainsString('json format is invalid', $response);
     }
 

@@ -57,7 +57,7 @@ class Server extends AbstractModule
         ';
     }
 
-    protected function _fook(array $request)
+    protected function _hook(array $request)
     {
         if ($request['is_ajax'] && strpos($request['path'], 'phpinfo') !== false) {
             ob_start();

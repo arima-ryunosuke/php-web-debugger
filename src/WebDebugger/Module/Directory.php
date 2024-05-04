@@ -69,7 +69,7 @@ class Directory extends AbstractModule
         $this->directries = [];
     }
 
-    protected function _fook(array $request)
+    protected function _hook(array $request)
     {
         if ($request['is_ajax'] && strpos($request['path'], 'deletedirfile') !== false) {
             unlink($_POST['fullpath']);

@@ -43,13 +43,13 @@ class DoctrineTest extends AbstractTestCase
         });
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
 
         $_POST['sql'] = 'select "hoge"';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
@@ -57,7 +57,7 @@ class DoctrineTest extends AbstractTestCase
         $this->assertStringContainsString("<div class='prewrap scalar'>hoge</div>", (string) $response);
 
         $_POST['sql'] = 'select "hoge" from dual where 0';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
@@ -65,14 +65,14 @@ class DoctrineTest extends AbstractTestCase
         $this->assertStringContainsString("<div class='prewrap scalar'>empty</div>", (string) $response);
 
         $_POST['sql'] = 'selec "hoge"';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
         $this->assertStringContainsString('<a href="javascript:void(0)" class="popup">error</a>', (string) $response);
 
-        $response = $module->fook(['is_ajax' => false]);
+        $response = $module->hook(['is_ajax' => false]);
         $this->assertNull($response);
     }
 

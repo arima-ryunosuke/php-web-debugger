@@ -50,7 +50,7 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertIsObject($module->initialize());
         $this->assertIsObject($module->finalize());
         $this->assertEmpty($module->gather([]));
-        $this->assertNull($module->fook([]));
+        $this->assertNull($module->hook([]));
         $this->assertNull($module->getCount([]));
         $this->assertNull($module->getError([]));
         $this->assertNull($module->render([]));

@@ -193,7 +193,7 @@ class Doctrine extends AbstractModule
         }
     }
 
-    protected function _fook(array $request)
+    protected function _hook(array $request)
     {
         // クエリ実行リクエストだったら実行して exit
         if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'doctrine-exec') !== false) {

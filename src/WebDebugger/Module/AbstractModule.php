@@ -153,15 +153,15 @@ abstract class AbstractModule
      *
      * @param array $request
      */
-    public final function fook(array $request)
+    public final function hook(array $request)
     {
         if ($this->isDisabled()) {
             return;
         }
-        return $this->_fook($request);
+        return $this->_hook($request);
     }
 
-    protected function _fook(array $request) { }
+    protected function _hook(array $request) { }
 
     /**
      * モジュールの情報を返す

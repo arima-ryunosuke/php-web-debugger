@@ -54,7 +54,7 @@ class Debugger
             /** bool PRG パターンの抑止フラグ */
             'stopprg'      => true,
             /** string ひっかけるパス */
-            'fookpath'     => 'webdebugger-action',
+            'hookpath'     => 'webdebugger-action',
             /** string 無視するパス */
             'ignore'       => '#\.(ico|map)$#',
             /** string リクエストファイル置き場 */
@@ -74,11 +74,11 @@ class Debugger
         $this->request['path'] = preg_replace('#\\?.+#', '', $this->request['url']);
         $this->request['method'] = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $this->request['is_ajax'] = isset($_SERVER['HTTP_X_DEBUG_AJAX']);
-        $this->request['is_internal'] = strpos($this->request['path'], $this->options['fookpath']) !== false;
+        $this->request['is_internal'] = strpos($this->request['path'], $this->options['hookpath']) !== false;
         $this->request['if_modified_since'] = (int) strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '');
         $this->request['is_ignore'] = !!preg_match($this->options['ignore'], $this->request['path']);
         $this->request['workfile'] = $this->options['workdir'] . DIRECTORY_SEPARATOR . $this->request['id'];
-        $this->request['workpath'] = $this->options['fookpath'] . "/request-{$this->request['id']}";
+        $this->request['workpath'] = $this->options['hookpath'] . "/request-{$this->request['id']}";
     }
 
     public function initialize(array $options = [])
@@ -123,12 +123,12 @@ class Debugger
             return;
         }
 
-        // モジュール群の fook イベント
+        // モジュール群の hook イベント
         if ($this->request['is_internal']) {
             foreach ($this->modules as $module) {
-                $fook_response = $module->fook($this->request);
-                if ($fook_response) {
-                    return $fook_response;
+                $hook_response = $module->hook($this->request);
+                if ($hook_response) {
+                    return $hook_response;
                 }
             }
         }
