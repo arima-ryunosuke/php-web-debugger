@@ -93,7 +93,7 @@ class Server extends AbstractModule
         }
     }
 
-    protected function _gather(array $request)
+    protected function _gather(array $request): array
     {
         return [
             'GET'            => $_GET,

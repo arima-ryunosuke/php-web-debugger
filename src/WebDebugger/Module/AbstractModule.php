@@ -6,17 +6,13 @@ use function ryunosuke\WebDebugger\class_shorten;
 
 abstract class AbstractModule
 {
-    /** @var string */
-    protected $name;
+    protected string $name;
 
-    /** @var string */
-    protected $color;
+    protected string $color;
 
-    /** @var bool */
-    protected $disabled = false;
+    protected bool $disabled = false;
 
-    /** @var array */
-    protected $setting = [];
+    protected array $setting = [];
 
     /**
      * メソッドチェーンしたいのでビルダを定義
@@ -165,7 +161,7 @@ abstract class AbstractModule
     /**
      * モジュールの情報を返す
      */
-    public final function gather(array $request)
+    public final function gather(array $request): array
     {
         if ($this->isDisabled()) {
             return [];
@@ -173,7 +169,7 @@ abstract class AbstractModule
         return $this->_gather($request);
     }
 
-    protected function _gather(array $request) { }
+    protected function _gather(array $request): array { return []; }
 
     /**
      * info 数を返す

@@ -151,7 +151,7 @@ class Error extends AbstractModule
         }, $stacktraces);
     }
 
-    protected function _gather(array $request)
+    protected function _gather(array $request): array
     {
         // set_exception_handler を使ってないならここで取得
         if ($this->exceptionHolder->getter) {

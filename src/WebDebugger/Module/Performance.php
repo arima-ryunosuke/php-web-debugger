@@ -96,7 +96,7 @@ class Performance extends AbstractModule
         }
     }
 
-    protected function _gather(array $request)
+    protected function _gather(array $request): array
     {
         $last = null;
         $timelines = [];

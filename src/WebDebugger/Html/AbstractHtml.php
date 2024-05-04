@@ -5,20 +5,14 @@ use function ryunosuke\WebDebugger\var_pretty;
 
 abstract class AbstractHtml
 {
-    protected $string;
+    protected string $string;
 
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->string;
+        return $this->string;
     }
 
-    /**
-     * 末端値の表示用変換
-     *
-     * @param mixed $var
-     * @return Holding|string
-     */
-    protected function export($var)
+    protected function export($var): string
     {
         // AbstractHtml 系はそのまま
         if ($var instanceof AbstractHtml) {
@@ -71,7 +65,7 @@ abstract class AbstractHtml
         ]);
     }
 
-    protected function escapeHtml($string)
+    protected function escapeHtml($string): string
     {
         if ($string instanceof AbstractHtml) {
             return (string) $string;

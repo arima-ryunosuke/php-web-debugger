@@ -194,7 +194,7 @@ class Log extends AbstractModule
         return $value;
     }
 
-    protected function _gather(array $request)
+    protected function _gather(array $request): array
     {
         $timezone = new \DateTimeZone(date_default_timezone_get());
         array_walk($this->logs, function (&$log) use ($timezone) {

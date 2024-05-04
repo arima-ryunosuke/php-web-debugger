@@ -5,16 +5,14 @@ use ryunosuke\WebDebugger\Module\AbstractModule;
 
 class Debugger
 {
-    /** @var array */
-    private $options;
+    private array $options;
 
-    /** @var array */
-    private $request = [];
+    private array $request = [];
 
     /** @var AbstractModule[] */
-    private $modules = [];
+    private array $modules = [];
 
-    public static function formatApplicationJson($contents)
+    public static function formatApplicationJson(string $contents): ?string
     {
         $json = json_decode($contents, true);
         if (json_last_error() === JSON_ERROR_NONE) {
@@ -23,7 +21,7 @@ class Debugger
         return null;
     }
 
-    public static function formatApplicationXml($contents, $matches)
+    public static function formatApplicationXml(string $contents, string $matches): ?string
     {
         try {
             preg_match('#charset=(.*)#i', $matches, $misc);
@@ -33,7 +31,7 @@ class Debugger
             $dom->formatOutput = true;
             return $dom->saveXML();
         }
-        catch (\Throwable $t) {
+        catch (\Throwable) {
             return null;
         }
     }
