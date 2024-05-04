@@ -100,16 +100,13 @@ abstract class AbstractModule
     /**
      * モジュールの初期化
      *
-     * @param array|\Closure $options
+     * @param array $options
      * @return $this
      */
-    public final function initialize($options = [])
+    public final function initialize(array $options = [])
     {
         if ($this->isDisabled()) {
             return $this;
-        }
-        if ($options instanceof \Closure) {
-            $options = $options();
         }
         $this->_initialize($options);
         return $this;

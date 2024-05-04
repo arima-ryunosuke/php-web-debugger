@@ -36,9 +36,7 @@ class AbstractModuleTest extends AbstractTestCase
     function test_initialize()
     {
         $module = Performance::getInstance('RRR');
-        $module->initialize(function () {
-            return ['function' => 'dummy_global_function'];
-        });
+        $module->initialize(['function' => 'dummy_global_function']);
         $this->assertTrue(function_exists('dummy_global_function'));
         $module->finalize();
     }
