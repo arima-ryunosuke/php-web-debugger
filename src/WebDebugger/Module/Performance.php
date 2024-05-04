@@ -6,6 +6,8 @@ use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\backtrace;
+use function ryunosuke\WebDebugger\multiexplode;
 use function ryunosuke\WebDebugger\profiler;
 
 class Performance extends AbstractModule
@@ -71,7 +73,7 @@ class Performance extends AbstractModule
 
     protected function _time($name = null)
     {
-        $traces = \ryunosuke\WebDebugger\backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
+        $traces = backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
             // 自身の time でもグローバルな dtime でもないものを探す
             'file'  => function ($file) {
                 return strpos($file, __FILE__) === false;
@@ -127,7 +129,7 @@ class Performance extends AbstractModule
         foreach ($this->profiler as $callee => $callers) {
             $callerlist = [];
             foreach ($callers as $caller => $times) {
-                $elem = array_combine(['file', 'line'], \ryunosuke\WebDebugger\multiexplode('#', $caller, -2));
+                $elem = array_combine(['file', 'line'], multiexplode('#', $caller, -2));
                 $elem['times'] = array_sum($times);
                 $callerlist[] = $elem;
             }

@@ -4,6 +4,7 @@ namespace ryunosuke\WebDebugger\Module;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\get_uploaded_files;
 
 class Server extends AbstractModule
 {
@@ -97,7 +98,7 @@ class Server extends AbstractModule
         return [
             'GET'            => $_GET,
             'POST'           => $_POST,
-            'FILES'          => \ryunosuke\WebDebugger\get_uploaded_files($_FILES),
+            'FILES'          => get_uploaded_files($_FILES),
             'COOKIE'         => $_COOKIE,
             'SESSION(param)' => session_get_cookie_params(),
             'SESSION(data)'  => $_SESSION ?? [],

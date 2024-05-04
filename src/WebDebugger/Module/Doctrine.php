@@ -9,6 +9,8 @@ use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\sql_bind;
+use function ryunosuke\WebDebugger\sql_format;
 
 class Doctrine extends AbstractModule
 {
@@ -133,19 +135,19 @@ class Doctrine extends AbstractModule
             $formatter = $options['formatter'];
             $options['formatter'] = function ($sql) use ($formatter) {
                 if ($formatter === 'compress') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => false,
                         'wrapsize'  => PHP_INT_MAX,
                     ]);
                 }
                 elseif ($formatter === 'pretty') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => false,
                         'wrapsize'  => false,
                     ]);
                 }
                 elseif ($formatter === 'highlight') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => true,
                         'wrapsize'  => false,
                     ]);
@@ -240,7 +242,7 @@ class Doctrine extends AbstractModule
             $sql = $log['sql'];
             $params = $log['params'];
 
-            $log['sql'] = \ryunosuke\WebDebugger\sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
+            $log['sql'] = sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
 
             $t = $log['time'] ?? null;
             $time += $t;

@@ -4,6 +4,7 @@ namespace ryunosuke\WebDebugger\Module;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\backtrace;
 
 class Error extends AbstractModule
 {
@@ -117,7 +118,7 @@ class Error extends AbstractModule
         ];
         $level = $namemap[$level];
 
-        $trace = \ryunosuke\WebDebugger\backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
+        $trace = backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
             'offset' => 2,
             'file'   => true,
         ]);

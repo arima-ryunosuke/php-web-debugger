@@ -12,6 +12,7 @@ use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
 use function ryunosuke\WebDebugger\arrayize;
+use function ryunosuke\WebDebugger\rm_rf;
 
 class Log extends AbstractModule
 {
@@ -162,7 +163,7 @@ class Log extends AbstractModule
     protected function _setting()
     {
         if (empty($this->setting['preserve'])) {
-            \ryunosuke\WebDebugger\rm_rf($this->logdir, false);
+            rm_rf($this->logdir, false);
         }
     }
 

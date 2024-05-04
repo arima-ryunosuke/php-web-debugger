@@ -3,6 +3,7 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\file_set_contents;
 
 class History extends AbstractModule
 {
@@ -58,7 +59,7 @@ class History extends AbstractModule
             'file'   => $request['workpath'],
         ]);
         $files = array_slice($files, -$this->maxlength);
-        \ryunosuke\WebDebugger\file_set_contents($this->historyfile, implode("\n", $files) . "\n");
+        file_set_contents($this->historyfile, implode("\n", $files) . "\n");
 
         return [
             'History' => array_map(function ($json) { return json_decode($json, true); }, $files),

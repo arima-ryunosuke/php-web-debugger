@@ -1,6 +1,9 @@
 <?php
 namespace ryunosuke\WebDebugger\Html;
 
+use function ryunosuke\WebDebugger\array_each;
+use function ryunosuke\WebDebugger\arrayval;
+
 class ArrayTable extends AbstractHtml
 {
     /**
@@ -11,8 +14,8 @@ class ArrayTable extends AbstractHtml
     public function __construct($caption, iterable $values, array $styles = [])
     {
         // キーの和集合をヘッダとする
-        $headers = array_keys(\ryunosuke\WebDebugger\array_each($values, function (&$carry, $v) {
-            $carry += \ryunosuke\WebDebugger\arrayval($v, false);
+        $headers = array_keys(array_each($values, function (&$carry, $v) {
+            $carry += arrayval($v, false);
         }, []));
 
         ob_start();

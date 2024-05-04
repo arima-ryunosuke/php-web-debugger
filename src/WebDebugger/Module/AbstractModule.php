@@ -2,6 +2,8 @@
 namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\arrayize;
+use function ryunosuke\WebDebugger\class_shorten;
 
 abstract class AbstractModule
 {
@@ -44,7 +46,7 @@ abstract class AbstractModule
         $class = get_class($this);
 
         if (!isset($this->name)) {
-            $this->name = \ryunosuke\WebDebugger\class_shorten($class);
+            $this->name = class_shorten($class);
         }
         if (!isset($this->color)) {
             $this->color = '#' . substr(md5($class), 0, 6);
@@ -205,7 +207,7 @@ abstract class AbstractModule
         if ($this->isDisabled()) {
             return;
         }
-        return implode(",", \ryunosuke\WebDebugger\arrayize($this->_getError($stored)));
+        return implode(",", arrayize($this->_getError($stored)));
     }
 
     protected function _getError($stored) { }
@@ -221,7 +223,7 @@ abstract class AbstractModule
         if ($this->isDisabled()) {
             return;
         }
-        return implode("", \ryunosuke\WebDebugger\arrayize($this->_render($stored)));
+        return implode("", arrayize($this->_render($stored)));
     }
 
     protected function _render($stored) { }

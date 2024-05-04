@@ -1,6 +1,8 @@
 <?php
 namespace ryunosuke\WebDebugger\Html;
 
+use function ryunosuke\WebDebugger\var_pretty;
+
 abstract class AbstractHtml
 {
     protected $string;
@@ -44,7 +46,7 @@ abstract class AbstractHtml
         // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるのである程度制限する（注入できるようにしたい）
         /** @noinspection PhpUndefinedClassInspection */
         /** @noinspection PhpUndefinedNamespaceInspection */
-        return \ryunosuke\WebDebugger\var_pretty($var, [
+        return var_pretty($var, [
             'return'       => true,
             'context'      => 'html',
             'maxdepth'     => 10,

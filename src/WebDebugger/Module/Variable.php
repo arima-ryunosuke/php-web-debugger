@@ -3,6 +3,8 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
+use function ryunosuke\WebDebugger\arrayval;
+use function ryunosuke\WebDebugger\is_hasharray;
 
 class Variable extends AbstractModule
 {
@@ -65,7 +67,7 @@ class Variable extends AbstractModule
                 return null;
             }
             // 連想配列は hash 確定
-            if (is_array($value) && \ryunosuke\WebDebugger\is_hasharray($value)) {
+            if (is_array($value) && is_hasharray($value)) {
                 return 'hash';
             }
             // ここまで来たら配列の配列の可能性があるのでキーの共通項をチェックする
@@ -74,7 +76,7 @@ class Variable extends AbstractModule
                 if (!is_iterable($v)) {
                     return null;
                 }
-                $v = \ryunosuke\WebDebugger\arrayval($v, false);
+                $v = arrayval($v, false);
                 $keys = $keys ?? $v;
                 // 共通項が異なるならきっと何らかのごちゃまぜ配列なんだろう
                 if (count(array_intersect_key($keys, $v)) !== count($keys)) {
