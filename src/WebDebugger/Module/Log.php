@@ -50,7 +50,7 @@ class Log extends AbstractModule
              */
             'function' => 'dlog',
             /** string preserve 時の保存ディレクトリ */
-            'logfile'  => sys_get_temp_dir() . '/wd-module/Log/logfile.txt',
+            'logdir'   => sys_get_temp_dir() . '/wd-module/Log',
             /**
              * psr3/monolog インスタンスを渡すとこのモジュールにもログられるようになる
              *
@@ -67,7 +67,7 @@ class Log extends AbstractModule
             eval(/** @lang */ "function $funcname(){return call_user_func_array('$class::log', func_get_args());}");
         }
 
-        $this->logdir = dirname($options['logfile']); // for compatible
+        $this->logdir = $options['logdir'];
         @mkdir($this->logdir, 0777, true);
 
         foreach (arrayize($options['logger']) as $logger) {
@@ -162,7 +162,7 @@ class Log extends AbstractModule
 
     protected function _setting()
     {
-        if (empty($this->setting['preserve'])) {
+        if (empty($this->setting['preserve']) && $this->logdir) {
             rm_rf($this->logdir, false);
         }
     }
@@ -194,7 +194,7 @@ class Log extends AbstractModule
         return $value;
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
         $timezone = new \DateTimeZone(date_default_timezone_get());
         array_walk($this->logs, function (&$log) use ($timezone) {

@@ -15,7 +15,7 @@ class Variable extends AbstractModule
         $this->provider = $options;
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
         $data = [];
         foreach ($this->provider as $name => $provider) {

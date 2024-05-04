@@ -111,7 +111,7 @@ class Ajax extends AbstractModule
         ';
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
         return [
             'datetime' => date('Y/m/d H:i:s'),

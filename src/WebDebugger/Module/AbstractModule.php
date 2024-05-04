@@ -177,8 +177,7 @@ abstract class AbstractModule
         return $this->_gather($request);
     }
 
-    // for compatible
-    protected function _gather(/*array $request*/) { }
+    protected function _gather(array $request) { }
 
     /**
      * info 数を返す

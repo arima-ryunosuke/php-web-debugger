@@ -47,10 +47,8 @@ class History extends AbstractModule
         ';
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
-        $request = func_get_arg(0); // for compatible
-
         $files = file_exists($this->historyfile) ? file($this->historyfile, FILE_IGNORE_NEW_LINES) : [];
         $files[] = json_encode([
             'time'   => $request['time'],

@@ -87,7 +87,7 @@ class Directory extends AbstractModule
         }
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
         $data = [];
         foreach ($this->directries as $dirname => $callback) {

@@ -233,7 +233,7 @@ class Doctrine extends AbstractModule
         return $explains;
     }
 
-    protected function _gather()
+    protected function _gather(array $request)
     {
         $logs = [];
         $time = 0;

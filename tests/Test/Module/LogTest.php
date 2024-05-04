@@ -78,28 +78,28 @@ class LogTest extends AbstractTestCase
 
     function test_preserve()
     {
-        $logfile = sys_get_temp_dir() . '/hoge/log.txt';
+        $logdir = sys_get_temp_dir() . '/hoge';
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting([]);
         $module->log('xxx');
-        $this->assertCount(0, glob(dirname($logfile) . '/*'));
+        $this->assertCount(0, glob($logdir . '/*'));
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
-        $this->assertCount(0, glob(dirname($logfile) . '/*'));
+        $this->assertCount(0, glob($logdir . '/*'));
         $module->render($module->gather([]));
-        $this->assertCount(1, glob(dirname($logfile) . '/*'));
+        $this->assertCount(1, glob($logdir . '/*'));
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
         $module->render($module->gather([]));
-        $this->assertCount(2, glob(dirname($logfile) . '/*'));
+        $this->assertCount(2, glob($logdir . '/*'));
     }
 
     function test_render()
