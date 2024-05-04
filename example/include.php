@@ -16,18 +16,18 @@ $monolog = new Logger('app');
 $psr3log = new class() extends AbstractLogger implements LoggerAwareInterface {
     private LoggerInterface $internalLogger;
 
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->internalLogger->log($level, $message, $context);
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->internalLogger = $logger;
     }
 };
 $psr3log->setLogger(new class() extends AbstractLogger {
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         // noop
     }

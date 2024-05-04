@@ -126,7 +126,7 @@ class Log extends AbstractModule
                         $this->loggers = $loggers;
                     }
 
-                    public function log($level, $message, array $context = [])
+                    public function log($level, $message, array $context = []): void
                     {
                         foreach ($this->loggers as $logger) {
                             $logger->log($level, $message, $context);

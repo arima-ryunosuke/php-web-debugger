@@ -173,12 +173,12 @@ class Debugger
 
         // 終了時に情報を集めたりフックしたりする
         GlobalFunction::register_shutdown_function(function () {
-            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
+            $this->stores = $this->stores ?? array_maps($this->modules, ['gather' => [$this->request]]);
 
             // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             file_set_contents($this->request['workfile'], serialize([
                 'request' => $this->request,
-                'stores'  => array_kmap($this->stores, function ($v, $k) {
+                'stores'  => array_maps($this->stores, function ($v, $k) {
                     return [
                         'count' => $this->modules[$k]->getCount($v),
                         'error' => $this->modules[$k]->getError($v),
@@ -193,7 +193,7 @@ class Debugger
 
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
         ob_start(function ($buffer) {
-            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
+            $this->stores = $this->stores ?? array_maps($this->modules, ['gather' => [$this->request]]);
 
             $headers = implode("\n", GlobalFunction::headers_list());
 
@@ -229,7 +229,7 @@ class Debugger
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
             elseif (!preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
                 if (($pos = stripos($buffer, '</head>')) !== false) {
-                    $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_map_method($this->modules, 'prepareOuter'));
+                    $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_maps($this->modules, '@prepareOuter'));
                     $buffer = substr_replace($buffer, "{$prepare}</head>", $pos, strlen('</head>'));
                 }
                 if (($pos = strripos($buffer, '</body>')) !== false) {
