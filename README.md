@@ -44,9 +44,6 @@ WebDebugger
 オプションは省略してもそれなりに動きますが、細かな設定を行いたい場合は引数で指定してください。
 詳細はソースを参考にしてください。
 
-ただ、1つ注意点としてモジュールオプションはクロージャを受け付けます。
-「include 時点では PDO インスタンスが用意できない」とか「データベースは遅延接続するのであとから設定したい」などの場合はクロージャ指定のほうが良いです。
-
 ```php
 $debugger = new \ryunosuke\WebDebugger\Debugger([
     /** ひっかけるレスポンスヘッダー */
@@ -56,7 +53,7 @@ $debugger = new \ryunosuke\WebDebugger\Debugger([
     /** bool PRG パターンの抑止フラグ */
     'stopprg'      => true,
     /** string ひっかけるパス */
-    'fookpath'     => 'webdebugger-action',
+    'hookpath'     => 'webdebugger-action',
     /** string 無視するパス */
     'ignore'       => '#\.(ico|map)$#',
     /** string リクエストファイル置き場 */
