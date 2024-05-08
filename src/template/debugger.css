@@ -129,6 +129,7 @@
 }
 
 .debug_plugin_wrap_body {
+    position: relative;
     padding: 8px;
     height: calc(100% - 34px);
     overflow-y: auto;
