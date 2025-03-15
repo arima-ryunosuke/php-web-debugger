@@ -13,7 +13,7 @@ try {
     // POST リクエストなら PRG する
     if (strpos($_SERVER['REQUEST_URI'], 'webdebugger-action') === false && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ?prg');
-        echo "POST が一時停止します。そのリクエストの情報が左のアイコンで確認可能です";
+        echo "POST が一時停止します。そのリクエストの情報が左下のアイコンで確認可能です";
         exit;
     }
 
@@ -22,7 +22,7 @@ try {
         ?>
         <fieldset>
             <legend>Response</legend>
-            <p>左上のアイコンのようにリクエスト中の各種情報が蒐集されます。アイコンをクリックするとそのモジュールの詳細が表示されます。</p>
+            <p>左下のアイコンのようにリクエスト中の各種情報が蒐集されます。アイコンをクリックするとそのモジュールの詳細が表示されます。</p>
             <p>原則として text/html なレスポンスが対象ですが、一部の利便性のため、Web アプリでよくある Content-Type も html とみなして書き換えられます</p>
             <p>例えば下記を開くと、本来はそれぞれの Content-Type が返されるはずですが、text/html に書き換えられ、アイコン群が有効になっています</p>
             <ul>
@@ -76,7 +76,7 @@ try {
             <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}})">
             <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}))">
             <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}), {headers: {'x-custom2': 'custom2'}})">
-            <p>ajax/fetch すると左の Ajax アイコンが増えます。切り替えるとその ajax リクエストの内容が確認できます（fetch ボタンがいくつかあるのは実装の確認用です）</p>
+            <p>ajax/fetch すると左下の Ajax アイコンが増えます。切り替えるとその ajax リクエストの内容が確認できます（fetch ボタンがいくつかあるのは実装の確認用です）</p>
         </fieldset>
         <?php
     })();
@@ -102,6 +102,12 @@ try {
 
     // Performance モジュール用
     (function () {
+        // 特に意味はなく CPU 時間のために浪費する（この 999 の値を弄って CPU キーを見てみるとよい）
+        for ($i = 0; $i < 999; $i++) {
+            // file で syscall, sort で utime が増えるはず
+            $file = file(__FILE__);
+            sort($file);
+        }
         // Timeline 用の区間
         dtime('start');
         usleep(10000);

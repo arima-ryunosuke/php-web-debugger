@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\DBAL\Tools\DsnParser;
 use Monolog\Logger;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerAwareInterface;
@@ -8,9 +9,7 @@ use Psr\Log\LoggerInterface;
 require __DIR__ . '/../vendor/autoload.php';
 
 // example 実行用に Connection を用意
-$connection = \Doctrine\DBAL\DriverManager::getConnection([
-    'url' => 'mysqli://root:Password1234@127.0.0.1/information_schema',
-]);
+$connection = \Doctrine\DBAL\DriverManager::getConnection((new DsnParser())->parse('mysqli://root:Password1234@127.0.0.1/information_schema'));
 
 $monolog = new Logger('app');
 $psr3log = new class() extends AbstractLogger implements LoggerAwareInterface {
