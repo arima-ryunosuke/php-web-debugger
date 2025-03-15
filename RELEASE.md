@@ -20,6 +20,12 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 2.0.2
+
+- [feature] Performance に CPU 時間を追加
+- [feature] doctrine4 対応
+- Merge tag 'v1.2.12'
+
 ## 2.0.1
 
 - [fixbug] popup のスクロールが追従しない不具合を修正
