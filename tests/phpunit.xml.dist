@@ -15,5 +15,8 @@
         <include>
             <directory suffix=".php">../src/WebDebugger</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">../src/WebDebugger/Module/Doctrine</directory>
+        </exclude>
     </coverage>
 </phpunit>

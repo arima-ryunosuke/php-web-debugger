@@ -117,8 +117,12 @@ class DoctrineTest extends AbstractTestCase
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES')->executeQuery();
-        $this->connection->prepare('SELECT ?')->executeQuery([1]);
-        $this->connection->prepare('SELECT :hoge')->executeQuery(['hoge' => 1]);
+        $stmt = $this->connection->prepare('SELECT ?');
+        $stmt->bindValue(1, 1);
+        $stmt->executeQuery();
+        $stmt = $this->connection->prepare('SELECT :hoge');
+        $stmt->bindValue('hoge', 1);
+        $stmt->executeQuery();
         try {
             $this->connection->executeQuery('ERROR!');
         }

@@ -4,6 +4,7 @@ namespace ryunosuke\WebDebugger\Module;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Psr\Log\AbstractLogger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
@@ -99,40 +100,81 @@ class Doctrine extends AbstractModule
             throw new \InvalidArgumentException('"connection" is not Doctrine\DBAL\Connection.');
         }
 
-        // logger が来ていない場合はデフォルトロガー（SQLLogger は非推奨だが 3 系である限りは大丈夫）
+        // logger が来ていない場合はデフォルトロガー
         if (!isset($options['logger'])) {
-            $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
-                private $current = [];
-                private $queries = [];
-
-                public function startQuery($sql, ?array $params = null, ?array $types = null)
-                {
-                    $this->current[] = [
-                        'sql'    => $sql,
-                        'params' => $params,
-                        'time'   => microtime(true),
-                        'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
-                    ];
-                }
-
-                public function stopQuery()
-                {
-                    $current = array_pop($this->current);
-                    if (in_array($current['sql'], ['"SAVEPOINT"', '"ROLLBACK TO SAVEPOINT"'], true)) {
-                        return;
-                    }
-                    $current['time'] = microtime(true) - $current['time'];
-                    $this->queries[] = $current;
-                }
-
-                public function getIterator(): \Generator
-                {
-                    yield from $this->queries;
-                }
-            };
             $configration = $this->connection->getConfiguration();
-            $currentLogger = $configration->getSQLLogger();
-            $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
+            // @codeCoverageIgnoreStart
+            if (interface_exists(SQLLogger::class)) {
+                $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
+                    private $current = [];
+                    private $queries = [];
+
+                    public function startQuery($sql, ?array $params = null, ?array $types = null)
+                    {
+                        $this->current[] = [
+                            'sql'    => $sql,
+                            'params' => $params,
+                            'time'   => microtime(true),
+                            'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                        ];
+                    }
+
+                    public function stopQuery()
+                    {
+                        $current = array_pop($this->current);
+                        if (in_array($current['sql'], ['"SAVEPOINT"', '"ROLLBACK TO SAVEPOINT"'], true)) {
+                            return;
+                        }
+                        $current['time'] = microtime(true) - $current['time'];
+                        $this->queries[] = $current;
+                    }
+
+                    public function getIterator(): \Generator
+                    {
+                        yield from $this->queries;
+                    }
+                };
+                $currentLogger = $configration->getSQLLogger();
+                $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
+            }
+            // @codeCoverageIgnoreEnd
+            else {
+                $options['logger'] = new class extends AbstractLogger implements \IteratorAggregate {
+                    private array $queries = [];
+
+                    public function log($level, $message, array $context = []): void
+                    {
+                        if ($level === 'debug') {
+                            return;
+                        }
+                        $this->queries[] = [
+                            'sql'    => $context['sql'] ?? $message,
+                            'params' => array_merge($context['params'] ?? []),
+                            'time'   => isset($context['time']) ? (microtime(true) - $context['time']) : null,
+                            'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                        ];
+                    }
+
+                    public function getIterator(): \Generator
+                    {
+                        yield from $this->queries;
+                    }
+                };
+                $middleware = new Doctrine\Logging\Middleware($options['logger']);
+                $configration->setMiddlewares(array_merge($configration->getMiddlewares(), [$middleware]));
+
+                (function () use ($middleware) {
+                    /** @var \ryunosuke\WebDebugger\Module\Doctrine\Logging\Driver $driver */
+                    $driver = $middleware->wrap($this->driver);
+
+                    // DriverManager::getConnection の時点で middleware は解決されているので強制的に代入しなければならない
+                    $this->driver = $driver;
+                    // さらに接続済みだったら wrap を模倣しなければならない
+                    if ($this->_conn !== null) {
+                        $this->_conn = $driver->wrap($this->_conn);
+                    }
+                })->bindTo($this->connection, Connection::class)();
+            }
         }
 
         // formatter に非callableが来た場合はクロージャ化
