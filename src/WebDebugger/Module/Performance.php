@@ -19,6 +19,8 @@ class Performance extends AbstractModule
 
     private $timelines;
 
+    private $cputimes;
+
     private $profiler_options;
 
     private $profiler = [];
@@ -50,6 +52,7 @@ class Performance extends AbstractModule
 
         $this->start_time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
         $this->timelines = [];
+        $this->cputimes = function_exists('posix_times') ? posix_times() : null;
 
         if (!function_exists($options['function'])) {
             $funcname = $options['function'];
@@ -154,12 +157,26 @@ class Performance extends AbstractModule
             ];
         }
 
+        $processTime = microtime(true) - $this->start_time;
+        $performance = [
+            'ProcessTime'  => $processTime,
+            'CPU(user)'    => null,
+            'CPU(system)'  => null,
+            'MemoryUsage'  => memory_get_peak_usage(true),
+            'IncludedFile' => get_included_files(),
+        ];
+        // @codeCoverageIgnoreStart
+        if ($this->cputimes !== null) {
+            $CLK_TCK = 100; // sysconf(_SC_CLK_TCK);
+            $cputimes = posix_times();
+            $gen = fn($time) => sprintf("%.3f %%(%d times)", $time / $CLK_TCK / $processTime * 100, $time);
+            $performance['CPU(user)'] = $gen($cputimes['utime'] - $this->cputimes['utime']);
+            $performance['CPU(system)'] = $gen($cputimes['stime'] - $this->cputimes['stime']);
+        }
+        // @codeCoverageIgnoreEnd
+
         return [
-            'Performance' => [
-                'ProcessTime'  => microtime(true) - $this->start_time,
-                'MemoryUsage'  => memory_get_peak_usage(true),
-                'IncludedFile' => get_included_files(),
-            ],
+            'Performance' => array_filter($performance, fn($p) => $p !== null),
             'Timeline'    => $timelines,
             'OPcache'     => $opcache,
             'Profile'     => $profiles,
