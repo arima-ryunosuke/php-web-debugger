@@ -121,8 +121,11 @@ try {
     // Doctrine モジュール用
     (function (\Doctrine\DBAL\Connection $connection) {
         // query/prepare ではないメソッド群
+        $connection->setNestTransactionsWithSavepoints(true);
+        $connection->beginTransaction();
         $connection->beginTransaction();
         $connection->executeStatement('set @hoge=0');
+        $connection->rollBack();
         $connection->rollBack();
 
         // query/prepare など

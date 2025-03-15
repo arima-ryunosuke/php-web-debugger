@@ -102,11 +102,12 @@ class Doctrine extends AbstractModule
         // logger が来ていない場合はデフォルトロガー（SQLLogger は非推奨だが 3 系である限りは大丈夫）
         if (!isset($options['logger'])) {
             $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
+                private $current = [];
                 private $queries = [];
 
                 public function startQuery($sql, ?array $params = null, ?array $types = null)
                 {
-                    $this->queries[] = [
+                    $this->current[] = [
                         'sql'    => $sql,
                         'params' => $params,
                         'time'   => microtime(true),
@@ -116,8 +117,12 @@ class Doctrine extends AbstractModule
 
                 public function stopQuery()
                 {
-                    $current = count($this->queries) - 1;
-                    $this->queries[$current]['time'] = microtime(true) - $this->queries[$current]['time'];
+                    $current = array_pop($this->current);
+                    if (in_array($current['sql'], ['"SAVEPOINT"', '"ROLLBACK TO SAVEPOINT"'], true)) {
+                        return;
+                    }
+                    $current['time'] = microtime(true) - $current['time'];
+                    $this->queries[] = $current;
                 }
 
                 public function getIterator(): \Generator

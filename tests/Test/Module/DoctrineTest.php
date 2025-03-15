@@ -18,6 +18,7 @@ class DoctrineTest extends AbstractTestCase
         parent::setUp();
 
         $this->connection = $this->getConnection();
+        $this->connection->setNestTransactionsWithSavepoints(true);
     }
 
     function test_initialize()
@@ -81,11 +82,16 @@ class DoctrineTest extends AbstractTestCase
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection, 'formatter' => false]);
         $module->setting(['explain' => 1]);
+        $this->connection->beginTransaction();
+        $this->connection->beginTransaction();
         $this->connection->prepare('select 1')->executeQuery();
+        $this->connection->rollBack();
+        $this->connection->commit();
         $stored = $module->gather([]);
         $this->assertArrayHasKey('Query', $stored);
         $this->assertArrayHasKey('summary', $stored['Query']);
         $this->assertArrayHasKey('logs', $stored['Query']);
+        $this->assertNotContains('"SAVEPOINT"', array_column($stored['Query']['logs'], 'sql'));
     }
 
     function test_getError()
