@@ -205,12 +205,12 @@ class Error extends AbstractModule
         if ($this->console) {
             $result['Console'] = '<script>';
             if (count($stored['Error']['data'])) {
-                $result['Console'] .= 'console.error(' . json_encode($stored['Error']['summary']) . ');';
-                $result['Console'] .= 'console.table(' . json_encode($stored['Error']['data']) . ', ' . json_encode(['file', 'line', 'level', 'message']) . ');';
+                $result['Console'] .= '(window.parent ?? window).console.error(' . json_encode($stored['Error']['summary']) . ');';
+                $result['Console'] .= '(window.parent ?? window).console.table(' . json_encode($stored['Error']['data']) . ', ' . json_encode(['file', 'line', 'level', 'message']) . ');';
             }
             if (count($stored['Exception']['data'])) {
-                $result['Console'] .= 'console.error(' . json_encode($stored['Exception']['summary']) . ');';
-                $result['Console'] .= 'console.table(' . json_encode($stored['Exception']['data']) . ');';
+                $result['Console'] .= '(window.parent ?? window).console.error(' . json_encode($stored['Exception']['summary']) . ');';
+                $result['Console'] .= '(window.parent ?? window).console.table(' . json_encode($stored['Exception']['data']) . ');';
             }
             $result['Console'] .= '</script>';
         }
