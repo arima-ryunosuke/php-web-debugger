@@ -33,7 +33,7 @@ class Directory extends AbstractModule
                         }).done(function(response, text, jqXHR) {
                             $this.closest("table").find("tbody tr").remove();
                         }).fail(function() {
-                            console.log(arguments);
+                            (window.parent ?? window).console.log(arguments);
                             alert("failed. see console");
                         });
                     });
