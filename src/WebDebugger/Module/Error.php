@@ -30,8 +30,7 @@ class Error extends AbstractModule
         // 例外ホルダ
         $this->exceptionHolder = new \stdClass();
         $this->exceptionHolder->getter = null;
-        $this->exceptionHolder->exception = null;
-        $this->exceptionHolder->stacktrace = [];
+        $this->exceptionHolder->exceptions = [];
     }
 
     protected function _initialize(array $options = [])
@@ -139,15 +138,22 @@ class Error extends AbstractModule
         }
         // @codeCoverageIgnoreEnd
 
-        // getTrace に自分自身は含まれないので追加しとく
-        $stacktraces = $ex->getTrace();
-        array_unshift($stacktraces, ['file' => $ex->getFile(), 'line' => $ex->getLine()]);
-
-        $this->exceptionHolder->exception = $ex;
-        $this->exceptionHolder->stacktrace = array_map(function ($trace) {
-            $keys = array_fill_keys(['file', 'line', 'class', 'function', 'type'], '');
-            return array_intersect_key($trace, $keys);
-        }, $stacktraces);
+        $exceptions = [];
+        do {
+            $exceptions[] = [
+                'file'    => $ex->getFile(),
+                'line'    => $ex->getLine(),
+                'class'   => get_class($ex),
+                'message' => $ex->getMessage(),
+                'code'    => $ex->getCode(),
+                'trace'   => array_map(function ($trace) {
+                    // 大きくなりがちなので明示的に伏せる
+                    unset($trace['args']);
+                    return $trace;
+                }, $ex->getTrace()),
+            ];
+        } while ($ex = $ex->getPrevious());
+        $this->exceptionHolder->exceptions = array_reverse($exceptions);
     }
 
     protected function _gather()
@@ -165,8 +171,8 @@ class Error extends AbstractModule
             $error_summary = " (" . count($this->errorHolder->errors) . " errors)";
         }
         $ex_summary = '';
-        if ($this->exceptionHolder->exception) {
-            $ex_summary = " (" . get_class($this->exceptionHolder->exception) . '): ' . $this->exceptionHolder->exception->getMessage();
+        if ($this->exceptionHolder->exceptions) {
+            $ex_summary = " (" . count($this->exceptionHolder->exceptions) . " exceptions)";
         }
 
         return [
@@ -176,7 +182,7 @@ class Error extends AbstractModule
             ],
             'Exception' => [
                 'summary' => $ex_summary,
-                'data'    => $this->exceptionHolder->stacktrace,
+                'data'    => $this->exceptionHolder->exceptions,
             ],
         ];
     }
@@ -192,8 +198,8 @@ class Error extends AbstractModule
         if ($c = count($stored['Error']['data'])) {
             $result[] = "has $c error";
         }
-        if (count($stored['Exception']['data'])) {
-            $result[] = 'has exception';
+        if ($c = count($stored['Exception']['data'])) {
+            $result[] = "has $c exception";
         }
         return $result;
     }
@@ -216,12 +222,10 @@ class Error extends AbstractModule
         }
 
         foreach ($stored as $category => $data) {
-            if ($category === 'Error') {
-                foreach ($data['data'] as &$row) {
-                    $row['trace'] = array_map([$this, 'toOpenable'], $row['trace']);
-                    $table = new ArrayTable('', $row['trace']);
-                    $row['trace'] = new Popup('trace', $table);
-                }
+            foreach ($data['data'] as &$row) {
+                $row['trace'] = array_map([$this, 'toOpenable'], $row['trace']);
+                $table = new ArrayTable('', $row['trace']);
+                $row['trace'] = new Popup('trace', $table);
             }
             $caption = new Raw('<pre>' . htmlspecialchars($category . $data['summary'], ENT_QUOTES) . '</pre>');
             $result[$category] = new ArrayTable($caption, array_map([$this, 'toOpenable'], $data['data']));
