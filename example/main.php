@@ -184,7 +184,9 @@ try {
         </fieldset>
         <?php
 
-        throw new \Exception('dummy exception');
+        $ex1 = new \DomainException('critical exception');
+        $ex2 = new \RuntimeException('internal exception', 1, $ex1);
+        throw new \Exception('dummy exception', 2, $ex2);
     })();
 }
 catch (\Throwable $t) {
