@@ -41,7 +41,7 @@ class ErrorTest extends AbstractTestCase
         set_error_handler(function () { });
         $module = new Error();
         $module->initialize([
-            'exception_getter' => function () { return new \Exception('test'); },
+            'exception_getter' => function () { return new \Exception('test2', 123, new \RuntimeException('test1')); },
         ]);
         $a = [];
         $a['t'] = $a['undefined'];
@@ -58,7 +58,7 @@ class ErrorTest extends AbstractTestCase
         $this->assertArrayHasKey('data', $stored['Exception']);
 
         $this->assertEquals(' (1 errors)', $stored['Error']['summary']);
-        $this->assertEquals(' (Exception): test', $stored['Exception']['summary']);
+        $this->assertEquals(' (2 exceptions)', $stored['Exception']['summary']);
 
         return $stored;
     }
@@ -83,7 +83,7 @@ class ErrorTest extends AbstractTestCase
         $module = new Error();
         $error = implode(',', $module->getError($stored));
         $this->assertStringContainsString('has 1 error', $error);
-        $this->assertStringContainsString('has exception', $error);
+        $this->assertStringContainsString('has 2 exception', $error);
     }
 
     /**
