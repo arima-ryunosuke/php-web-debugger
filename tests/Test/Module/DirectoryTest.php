@@ -22,29 +22,33 @@ class DirectoryTest extends AbstractTestCase
         rm_rf($this->dir2);
         mkdir_p($this->dir1);
         mkdir_p($this->dir2);
-        file_set_tree($this->dir1, [
-            'sub1' => [
-                'file1.txt' => 'file1',
-                'file2.txt' => 'file2',
-                'sub2'      => [
-                    'file3.txt' => 'file3',
-                    'file4.txt' => 'file4',
+        file_set_tree([
+            $this->dir1 => [
+                'sub1' => [
+                    'file1.txt' => 'file1',
+                    'file2.txt' => 'file2',
+                    'sub2'      => [
+                        'file3.txt' => 'file3',
+                        'file4.txt' => 'file4',
+                    ],
                 ],
             ],
         ]);
-        file_set_tree($this->dir2, [
-            'sub3' => [
-                'file1.txt' => 'file1',
-                'file2.txt' => 'file2',
-                'sub4'      => [
-                    'file3.txt' => 'file3',
-                    'file4.txt' => 'file4',
+        file_set_tree([
+            $this->dir2 => [
+                'sub3' => [
+                    'file1.txt' => 'file1',
+                    'file2.txt' => 'file2',
+                    'sub4'      => [
+                        'file3.txt' => 'file3',
+                        'file4.txt' => 'file4',
+                    ],
                 ],
             ],
         ]);
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Directory();
         $module->initialize([
@@ -53,14 +57,14 @@ class DirectoryTest extends AbstractTestCase
 
         $_POST['fullpath'] = "{$this->dir1}/sub1/file1.txt";
         $this->assertFileExists("{$this->dir1}/sub1/file1.txt");
-        $response = $module->fook(['is_ajax' => true, 'path' => 'deletedirfile']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'deletedirfile']);
         $this->assertEquals('ok', $response);
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/file1.txt");
 
         $_POST['dirname'] = realpath($this->dir1);
         $this->assertFileExists("{$this->dir1}/sub1/sub2/file3.txt");
         $this->assertFileExists("{$this->dir1}/sub1/sub2/file4.txt");
-        $response = $module->fook(['is_ajax' => true, 'path' => 'cleardirfile']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'cleardirfile']);
         $this->assertEquals('ok', $response);
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/sub2/file3.txt");
         $this->assertFileDoesNotExist("{$this->dir1}/sub1/sub2/file4.txt");
@@ -88,7 +92,7 @@ class DirectoryTest extends AbstractTestCase
         $count = $module->getCount($stored);
         $this->assertEquals(6, $count);
 
-        $html = $module->render($stored);
+        $html = $module->getHtml($stored);
         $this->assertStringContainsString('span class="dirname"', $html);
         $this->assertStringContainsString('class="cleardirfile"', $html);
         $this->assertStringContainsString('class="deletedirfile"', $html);

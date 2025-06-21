@@ -2,20 +2,17 @@
 namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\class_shorten;
 
 abstract class AbstractModule
 {
-    /** @var string */
-    protected $name;
+    protected string $name;
 
-    /** @var string */
-    protected $color;
+    protected string $color;
 
-    /** @var bool */
-    protected $disabled = false;
+    protected bool $disabled = false;
 
-    /** @var array */
-    protected $setting = [];
+    protected array $setting = [];
 
     /**
      * メソッドチェーンしたいのでビルダを定義
@@ -44,7 +41,7 @@ abstract class AbstractModule
         $class = get_class($this);
 
         if (!isset($this->name)) {
-            $this->name = \ryunosuke\WebDebugger\class_shorten($class);
+            $this->name = class_shorten($class);
         }
         if (!isset($this->color)) {
             $this->color = '#' . substr(md5($class), 0, 6);
@@ -98,16 +95,13 @@ abstract class AbstractModule
     /**
      * モジュールの初期化
      *
-     * @param array|\Closure $options
+     * @param array $options
      * @return $this
      */
-    public final function initialize($options = [])
+    public final function initialize(array $options = [])
     {
         if ($this->isDisabled()) {
             return $this;
-        }
-        if ($options instanceof \Closure) {
-            $options = $options();
         }
         $this->_initialize($options);
         return $this;
@@ -154,20 +148,20 @@ abstract class AbstractModule
      *
      * @param array $request
      */
-    public final function fook(array $request)
+    public final function hook(array $request)
     {
         if ($this->isDisabled()) {
             return;
         }
-        return $this->_fook($request);
+        return $this->_hook($request);
     }
 
-    protected function _fook(array $request) { }
+    protected function _hook(array $request) { }
 
     /**
      * モジュールの情報を返す
      */
-    public final function gather(array $request)
+    public final function gather(array $request): array
     {
         if ($this->isDisabled()) {
             return [];
@@ -175,8 +169,7 @@ abstract class AbstractModule
         return $this->_gather($request);
     }
 
-    // for compatible
-    protected function _gather(/*array $request*/) { }
+    protected function _gather(array $request): array { return []; }
 
     /**
      * info 数を返す
@@ -184,7 +177,7 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return ?int
      */
-    public final function getCount($stored)
+    public final function getCount($stored): ?int
     {
         if ($this->isDisabled()) {
             return null;
@@ -192,7 +185,7 @@ abstract class AbstractModule
         return $this->_getCount($stored);
     }
 
-    protected function _getCount($stored) { return null; }
+    protected function _getCount($stored): ?int { return null; }
 
     /**
      * エラーを返す
@@ -200,15 +193,15 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return string
      */
-    public final function getError($stored)
+    public final function getError($stored): array
     {
         if ($this->isDisabled()) {
-            return;
+            return [];
         }
-        return implode(",", \ryunosuke\WebDebugger\arrayize($this->_getError($stored)));
+        return $this->_getError($stored);
     }
 
-    protected function _getError($stored) { }
+    protected function _getError($stored): array { return []; }
 
     /**
      * html を返す
@@ -216,15 +209,15 @@ abstract class AbstractModule
      * @param array $stored gather の返り値
      * @return string
      */
-    public final function render($stored)
+    public final function getHtml($stored): string
     {
         if ($this->isDisabled()) {
-            return;
+            return '';
         }
-        return implode("", \ryunosuke\WebDebugger\arrayize($this->_render($stored)));
+        return $this->_getHtml($stored);
     }
 
-    protected function _render($stored) { }
+    protected function _getHtml($stored): string { return ''; }
 
     /**
      * パスを開く列を追加する

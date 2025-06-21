@@ -32,21 +32,21 @@ class ServerTest extends AbstractTestCase
         $_FILES = $this->files;
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Server();
         $module->initialize();
 
-        $response = $module->fook(['is_ajax' => true, 'path' => 'phpinfo']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'phpinfo']);
         $this->assertTrue($response instanceof Raw);
         $this->assertStringContainsString("phpinfo", (string) $response);
 
         $_POST['session'] = '{"a": 1, "b": 2}';
-        $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'savesession']);
         $this->assertTrue($response);
 
         $_POST['session'] = 'hoge';
-        $response = $module->fook(['is_ajax' => true, 'path' => 'savesession']);
+        $response = $module->hook(['is_ajax' => true, 'path' => 'savesession']);
         $this->assertStringContainsString('json format is invalid', $response);
     }
 
@@ -96,12 +96,12 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertStringContainsString('has same key', $error);
         $this->assertStringContainsString('has vulnerability', $error);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $_GET['same'] = 'hoge';
         $_POST['same'] = 'fuga';
@@ -109,7 +109,7 @@ class ServerTest extends AbstractTestCase
 
         $module = new Server();
         $module->initialize();
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>GET', $htmls);
         $this->assertStringContainsString('<caption>POST', $htmls);
         $this->assertStringContainsString('<caption>FILES', $htmls);

@@ -70,39 +70,39 @@ class LogTest extends AbstractTestCase
         $module->initialize();
         $module->setting([]);
 
-        $this->assertEquals('', $module->getError($module->gather([])));
+        $this->assertEquals('', implode(',', $module->getError($module->gather([]))));
 
         $module->log('hoge');
-        $this->assertEquals('has 1 log', $module->getError($module->gather([])));
+        $this->assertEquals('has 1 log', implode(',', $module->getError($module->gather([]))));
     }
 
     function test_preserve()
     {
-        $logfile = sys_get_temp_dir() . '/hoge/log.txt';
+        $logdir = sys_get_temp_dir() . '/hoge';
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting([]);
         $module->log('xxx');
-        $this->assertCount(0, glob(dirname($logfile) . '/*'));
+        $this->assertCount(0, glob($logdir . '/*'));
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
-        $this->assertCount(0, glob(dirname($logfile) . '/*'));
-        $module->render($module->gather([]));
-        $this->assertCount(1, glob(dirname($logfile) . '/*'));
+        $this->assertCount(0, glob($logdir . '/*'));
+        $module->getHtml($module->gather([]));
+        $this->assertCount(1, glob($logdir . '/*'));
 
         $module = new Log();
-        $module->initialize(['logfile' => $logfile]);
+        $module->initialize(['logdir' => $logdir]);
         $module->setting(['preserve' => 1]);
         $module->log('xxx');
-        $module->render($module->gather([]));
-        $this->assertCount(2, glob(dirname($logfile) . '/*'));
+        $module->getHtml($module->gather([]));
+        $this->assertCount(2, glob($logdir . '/*'));
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Log();
         $module->initialize();
@@ -111,7 +111,7 @@ class LogTest extends AbstractTestCase
         $module->log('xxx');
         $module->log('<b>bold</b>');
 
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>Log', $htmls);
         $this->assertStringContainsString('&lt;b&gt;bold&lt;/b&gt;', $htmls);
     }
@@ -123,18 +123,18 @@ class LogTest extends AbstractTestCase
             private LoggerInterface $internalLogger;
 
 
-            public function log($level, $message, array $context = [])
+            public function log($level, $message, array $context = []): void
             {
                 $this->internalLogger->log($level, $message, $context);
             }
 
-            public function setLogger(LoggerInterface $logger)
+            public function setLogger(LoggerInterface $logger): void
             {
                 $this->internalLogger = $logger;
             }
         };
         $psr3log->setLogger(new class() extends AbstractLogger {
-            public function log($level, $message, array $context = [])
+            public function log($level, $message, array $context = []): void
             {
                 // noop
             }
@@ -176,12 +176,12 @@ class LogTest extends AbstractTestCase
             private LoggerInterface $internalLogger;
 
 
-            public function log($level, $message, array $context = [])
+            public function log($level, $message, array $context = []): void
             {
                 $this->internalLogger->log($level, $message, $context);
             }
 
-            public function setLogger(LoggerInterface $logger)
+            public function setLogger(LoggerInterface $logger): void
             {
                 $this->internalLogger = $logger;
             }

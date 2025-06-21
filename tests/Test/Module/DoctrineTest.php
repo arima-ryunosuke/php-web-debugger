@@ -44,13 +44,13 @@ class DoctrineTest extends AbstractTestCase
         });
     }
 
-    function test_fook()
+    function test_hook()
     {
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
 
         $_POST['sql'] = 'select "hoge"';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
@@ -58,7 +58,7 @@ class DoctrineTest extends AbstractTestCase
         $this->assertStringContainsString("<div class='prewrap scalar'>hoge</div>", (string) $response);
 
         $_POST['sql'] = 'select "hoge" from dual where 0';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
@@ -66,14 +66,14 @@ class DoctrineTest extends AbstractTestCase
         $this->assertStringContainsString("<div class='prewrap scalar'>empty</div>", (string) $response);
 
         $_POST['sql'] = 'selec "hoge"';
-        $response = $module->fook([
+        $response = $module->hook([
             'is_ajax' => true,
             'path'    => 'doctrine-exec',
         ]);
         $this->assertTrue($response instanceof Popup);
         $this->assertStringContainsString('<a href="javascript:void(0)" class="popup">error</a>', (string) $response);
 
-        $response = $module->fook(['is_ajax' => false]);
+        $response = $module->hook(['is_ajax' => false]);
         $this->assertNull($response);
     }
 
@@ -100,31 +100,35 @@ class DoctrineTest extends AbstractTestCase
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES ORDER BY information_schema.TABLES.TABLE_NAME')->executeQuery();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertStringContainsString('has slow query', $error);
 
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT 1')->executeQuery();
-        $error = $module->getError($module->gather([]));
+        $error = implode(',', $module->getError($module->gather([])));
         $this->assertEquals('has 1 quries', $error);
     }
 
-    function test_render()
+    function test_getHtml()
     {
         $module = new Doctrine();
         $module->initialize(['connection' => $this->connection]);
         $module->setting(['explain' => 1]);
         $this->connection->prepare('SELECT * FROM information_schema.TABLES')->executeQuery();
-        $this->connection->prepare('SELECT ?')->executeQuery([1]);
-        $this->connection->prepare('SELECT :hoge')->executeQuery(['hoge' => 1]);
+        $stmt = $this->connection->prepare('SELECT ?');
+        $stmt->bindValue(1, 1);
+        $stmt->executeQuery();
+        $stmt = $this->connection->prepare('SELECT :hoge');
+        $stmt->bindValue('hoge', 1);
+        $stmt->executeQuery();
         try {
             $this->connection->executeQuery('ERROR!');
         }
         catch (\Exception $ex) {
         }
-        $htmls = $module->render($module->gather([]));
+        $htmls = $module->getHtml($module->gather([]));
         $this->assertStringContainsString('<caption>Query', $htmls);
     }
 

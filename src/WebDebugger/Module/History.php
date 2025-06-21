@@ -3,6 +3,7 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\file_set_contents;
 
 class History extends AbstractModule
 {
@@ -46,10 +47,8 @@ class History extends AbstractModule
         ';
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
-        $request = func_get_arg(0); // for compatible
-
         $files = file_exists($this->historyfile) ? file($this->historyfile, FILE_IGNORE_NEW_LINES) : [];
         $files[] = json_encode([
             'time'   => $request['time'],
@@ -58,19 +57,19 @@ class History extends AbstractModule
             'file'   => $request['workpath'],
         ]);
         $files = array_slice($files, -$this->maxlength);
-        \ryunosuke\WebDebugger\file_set_contents($this->historyfile, implode("\n", $files) . "\n");
+        file_set_contents($this->historyfile, implode("\n", $files) . "\n");
 
         return [
             'History' => array_map(function ($json) { return json_decode($json, true); }, $files),
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['History']);
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $histories = [];
         foreach (array_reverse($stored['History']) as $history) {

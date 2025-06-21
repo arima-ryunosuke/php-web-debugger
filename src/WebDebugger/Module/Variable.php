@@ -3,6 +3,8 @@ namespace ryunosuke\WebDebugger\Module;
 
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
+use function ryunosuke\WebDebugger\arrayval;
+use function ryunosuke\WebDebugger\is_hasharray;
 
 class Variable extends AbstractModule
 {
@@ -13,7 +15,7 @@ class Variable extends AbstractModule
         $this->provider = $options;
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
         $data = [];
         foreach ($this->provider as $name => $provider) {
@@ -26,12 +28,12 @@ class Variable extends AbstractModule
         return $data;
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return array_sum(array_map('count', $stored));
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $result = [];
         $others = [];
@@ -53,7 +55,7 @@ class Variable extends AbstractModule
         if ($others) {
             $result[] = new HashTable('', $others);
         }
-        return $result;
+        return implode('', $result);
     }
 
     private function detectType($value)
@@ -65,7 +67,7 @@ class Variable extends AbstractModule
                 return null;
             }
             // 連想配列は hash 確定
-            if (is_array($value) && \ryunosuke\WebDebugger\is_hasharray($value)) {
+            if (is_array($value) && is_hasharray($value)) {
                 return 'hash';
             }
             // ここまで来たら配列の配列の可能性があるのでキーの共通項をチェックする
@@ -74,7 +76,7 @@ class Variable extends AbstractModule
                 if (!is_iterable($v)) {
                     return null;
                 }
-                $v = \ryunosuke\WebDebugger\arrayval($v, false);
+                $v = arrayval($v, false);
                 $keys = $keys ?? $v;
                 // 共通項が異なるならきっと何らかのごちゃまぜ配列なんだろう
                 if (count(array_intersect_key($keys, $v)) !== count($keys)) {

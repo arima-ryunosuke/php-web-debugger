@@ -36,9 +36,7 @@ class AbstractModuleTest extends AbstractTestCase
     function test_initialize()
     {
         $module = Performance::getInstance('RRR');
-        $module->initialize(function () {
-            return ['function' => 'dummy_global_function'];
-        });
+        $module->initialize(['function' => 'dummy_global_function']);
         $this->assertTrue(function_exists('dummy_global_function'));
         $module->finalize();
     }
@@ -52,10 +50,30 @@ class AbstractModuleTest extends AbstractTestCase
         $this->assertIsObject($module->initialize());
         $this->assertIsObject($module->finalize());
         $this->assertEmpty($module->gather([]));
-        $this->assertNull($module->fook([]));
-        $this->assertNull($module->getCount([]));
-        $this->assertNull($module->getError([]));
-        $this->assertNull($module->render([]));
+        $this->assertNull($module->hook([]));
+        $this->assertEmpty($module->getCount([]));
+        $this->assertEmpty($module->getError([]));
+        $this->assertEmpty($module->getHtml([]));
+    }
+
+    function test_gather()
+    {
+        $this->assertSame([], $this->invoke('gather', []));
+    }
+
+    function test_getCount()
+    {
+        $this->assertSame(null, $this->invoke('_getCount', []));
+    }
+
+    function test_getError()
+    {
+        $this->assertSame([], $this->invoke('_getError', []));
+    }
+
+    function test_getHtml()
+    {
+        $this->assertSame('', $this->invoke('_getHtml', []));
     }
 
     function test_toOpenable()

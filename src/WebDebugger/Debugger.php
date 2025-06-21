@@ -5,19 +5,14 @@ use ryunosuke\WebDebugger\Module\AbstractModule;
 
 class Debugger
 {
-    /** @var array */
-    private $options;
+    private array $options;
 
-    /** @var array */
-    private $request = [];
+    private array $request = [];
 
     /** @var AbstractModule[] */
-    private $modules = [];
+    private array $modules = [];
 
-    /** @var array */
-    private $stores;
-
-    public static function formatApplicationJson($contents)
+    public static function formatApplicationJson(string $contents): ?string
     {
         $json = json_decode($contents, true);
         if (json_last_error() === JSON_ERROR_NONE) {
@@ -26,7 +21,7 @@ class Debugger
         return null;
     }
 
-    public static function formatApplicationXml($contents, $matches)
+    public static function formatApplicationXml(string $contents, string $matches): ?string
     {
         try {
             preg_match('#charset=(.*)#i', $matches, $misc);
@@ -36,7 +31,7 @@ class Debugger
             $dom->formatOutput = true;
             return $dom->saveXML();
         }
-        catch (\Throwable $t) {
+        catch (\Throwable) {
             return null;
         }
     }
@@ -54,7 +49,7 @@ class Debugger
             /** bool PRG パターンの抑止フラグ */
             'stopprg'      => true,
             /** string ひっかけるパス */
-            'fookpath'     => 'webdebugger-action',
+            'hookpath'     => 'webdebugger-action',
             /** string 無視するパス */
             'ignore'       => '#\.(ico|map)$#',
             /** string リクエストファイル置き場 */
@@ -74,11 +69,11 @@ class Debugger
         $this->request['path'] = preg_replace('#\\?.+#', '', $this->request['url']);
         $this->request['method'] = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $this->request['is_ajax'] = isset($_SERVER['HTTP_X_DEBUG_AJAX']);
-        $this->request['is_internal'] = strpos($this->request['path'], $this->options['fookpath']) !== false;
+        $this->request['is_internal'] = strpos($this->request['path'], $this->options['hookpath']) !== false;
         $this->request['if_modified_since'] = (int) strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '');
         $this->request['is_ignore'] = !!preg_match($this->options['ignore'], $this->request['path']);
         $this->request['workfile'] = $this->options['workdir'] . DIRECTORY_SEPARATOR . $this->request['id'];
-        $this->request['workpath'] = $this->options['fookpath'] . "/request-{$this->request['id']}";
+        $this->request['workpath'] = $this->options['hookpath'] . "/request-{$this->request['id']}";
     }
 
     public function initialize(array $options = [])
@@ -123,12 +118,12 @@ class Debugger
             return;
         }
 
-        // モジュール群の fook イベント
+        // モジュール群の hook イベント
         if ($this->request['is_internal']) {
             foreach ($this->modules as $module) {
-                $fook_response = $module->fook($this->request);
-                if ($fook_response) {
-                    return $fook_response;
+                $hook_response = $module->hook($this->request);
+                if ($hook_response) {
+                    return $hook_response;
                 }
             }
         }
@@ -173,16 +168,15 @@ class Debugger
 
         // 終了時に情報を集めたりフックしたりする
         GlobalFunction::register_shutdown_function(function () {
-            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
+            $stores = array_maps($this->modules, ['gather' => [$this->request]]);
 
-            // 画面への出力の保存（ob_start のコールバック内では ob_ 系が使えないので終了時にレンダリングする）
             file_set_contents($this->request['workfile'], serialize([
                 'request' => $this->request,
-                'stores'  => array_kmap($this->stores, function ($v, $k) {
+                'stores'  => array_maps($stores, function ($v, $k) {
                     return [
                         'count' => $this->modules[$k]->getCount($v),
                         'error' => $this->modules[$k]->getError($v),
-                        'html'  => $this->modules[$k]->render($v),
+                        'html'  => $this->modules[$k]->getHtml($v),
                     ];
                 }),
             ]));
@@ -193,8 +187,6 @@ class Debugger
 
         // ob_start にコールバックを渡すと ob_end～ の時に呼ばれるので、レスポンスをフックできる
         ob_start(function ($buffer) {
-            $this->stores = $this->stores ?? array_map_method($this->modules, 'gather', [$this->request]);
-
             $headers = implode("\n", GlobalFunction::headers_list());
 
             // PRG パターンの抑止
@@ -229,7 +221,7 @@ class Debugger
             // 通常リクエストでかつ Content-type がないあるいは text/html のとき</body>に iframe を埋め込み
             elseif (!preg_match('#^Content-Type:#mi', $headers) || preg_match('#^Content-Type: text/html#mi', $headers)) {
                 if (($pos = stripos($buffer, '</head>')) !== false) {
-                    $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_map_method($this->modules, 'prepareOuter'));
+                    $prepare = "<!-- this is web debugger head injection -->\n" . implode('', array_maps($this->modules, '@prepareOuter'));
                     $buffer = substr_replace($buffer, "{$prepare}</head>", $pos, strlen('</head>'));
                 }
                 if (($pos = strripos($buffer, '</body>')) !== false) {

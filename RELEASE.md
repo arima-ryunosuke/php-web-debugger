@@ -20,6 +20,22 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 2.0.4
+
+- Merge tag 'v1.2.14'
+
+## 2.0.3
+
+- Merge tag 'v1.2.13'
+
+## 2.0.2
+
+- [feature] Performance に CPU 時間を追加
+- [feature] doctrine4 対応
+- Merge tag 'v1.2.12'
+
+## 2.0.1
+
 ## 1.2.14
 
 - [fixbug] Error で例外チェーンが表示されていない
@@ -35,6 +51,20 @@
 ## 1.2.11
 
 - [fixbug] popup のスクロールが追従しない不具合を修正
+
+## 2.0.0
+
+- [change] php>=8.0
+- [*change] gather 周りの見直し
+  - render -> getHtml にリネーム
+- [*change] 恥ずかしいスペルミスを修正
+  - fook -> hook
+- [*change] モジュールのクロージャ初期化を廃止
+- [*change] 後方互換用のコードを削除
+
+## 1.2.12
+
+- [fixbug] Doctrine で SAVEPOINT でログや合計時間が乱れる不具合を修正
 
 ## 1.2.10
 

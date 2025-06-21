@@ -1,22 +1,18 @@
 <?php
 namespace ryunosuke\WebDebugger\Html;
 
+use function ryunosuke\WebDebugger\var_pretty;
+
 abstract class AbstractHtml
 {
-    protected $string;
+    protected string $string;
 
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->string;
+        return $this->string;
     }
 
-    /**
-     * 末端値の表示用変換
-     *
-     * @param mixed $var
-     * @return Holding|string
-     */
-    protected function export($var)
+    protected function export($var): string
     {
         // AbstractHtml 系はそのまま
         if ($var instanceof AbstractHtml) {
@@ -44,7 +40,7 @@ abstract class AbstractHtml
         // 中身。配列やオブジェクトは循環参照などでとてつもなく巨大になることがあるのである程度制限する（注入できるようにしたい）
         /** @noinspection PhpUndefinedClassInspection */
         /** @noinspection PhpUndefinedNamespaceInspection */
-        return \ryunosuke\WebDebugger\var_pretty($var, [
+        return var_pretty($var, [
             'return'       => true,
             'context'      => 'html',
             'maxdepth'     => 10,
@@ -69,7 +65,7 @@ abstract class AbstractHtml
         ]);
     }
 
-    protected function escapeHtml($string)
+    protected function escapeHtml($string): string
     {
         if ($string instanceof AbstractHtml) {
             return (string) $string;

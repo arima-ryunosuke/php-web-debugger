@@ -56,7 +56,7 @@ class DebuggerTest extends AbstractTestCase
     function test_initialize()
     {
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $request = new \ReflectionProperty($debugger, 'request');
         $request->setAccessible(true);
@@ -86,13 +86,13 @@ class DebuggerTest extends AbstractTestCase
         $this->assertNull($debugger->start());
     }
 
-    function test_start_fook()
+    function test_start_hook()
     {
         $_SERVER['REQUEST_URI'] = '/document-root/hogefugapiyo/phpinfo';
         $_SERVER['HTTP_X_DEBUG_AJAX'] = true;
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Server::class => [],
@@ -106,7 +106,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Performance::class => [],
@@ -125,7 +125,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/document-root/no-match';
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Server::class => [],
@@ -142,7 +142,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/document-root/no-match';
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Performance::class => [],
@@ -161,7 +161,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['HTTP_X_DEBUG_AJAX'] = true;
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Ajax::class        => [],
@@ -187,7 +187,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/document-root/' . $request_id;
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Ajax::class        => [],
@@ -211,7 +211,7 @@ class DebuggerTest extends AbstractTestCase
         $_SERVER['REQUEST_URI'] = '/document-root/' . preg_replace('/request-\d/', 'request-9', $request_id);
 
         $debugger = new Debugger([
-            'fookpath' => 'hogefugapiyo',
+            'hookpath' => 'hogefugapiyo',
         ]);
         $debugger->initialize([
             Ajax::class    => [],

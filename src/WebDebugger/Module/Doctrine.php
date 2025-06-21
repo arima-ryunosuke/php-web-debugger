@@ -4,11 +4,14 @@ namespace ryunosuke\WebDebugger\Module;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\DBAL\Logging\SQLLogger;
+use Psr\Log\AbstractLogger;
 use ryunosuke\WebDebugger\GlobalFunction;
 use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\sql_bind;
+use function ryunosuke\WebDebugger\sql_format;
 
 class Doctrine extends AbstractModule
 {
@@ -97,40 +100,81 @@ class Doctrine extends AbstractModule
             throw new \InvalidArgumentException('"connection" is not Doctrine\DBAL\Connection.');
         }
 
-        // logger が来ていない場合はデフォルトロガー（SQLLogger は非推奨だが 3 系である限りは大丈夫）
+        // logger が来ていない場合はデフォルトロガー
         if (!isset($options['logger'])) {
-            $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
-                private $current = [];
-                private $queries = [];
-
-                public function startQuery($sql, ?array $params = null, ?array $types = null)
-                {
-                    $this->current[] = [
-                        'sql'    => $sql,
-                        'params' => $params,
-                        'time'   => microtime(true),
-                        'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
-                    ];
-                }
-
-                public function stopQuery()
-                {
-                    $current = array_pop($this->current);
-                    if (in_array($current['sql'], ['"SAVEPOINT"', '"ROLLBACK TO SAVEPOINT"'], true)) {
-                        return;
-                    }
-                    $current['time'] = microtime(true) - $current['time'];
-                    $this->queries[] = $current;
-                }
-
-                public function getIterator(): \Generator
-                {
-                    yield from $this->queries;
-                }
-            };
             $configration = $this->connection->getConfiguration();
-            $currentLogger = $configration->getSQLLogger();
-            $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
+            if (interface_exists(SQLLogger::class)) {
+                $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
+                    private $current = [];
+                    private $queries = [];
+
+                    public function startQuery($sql, ?array $params = null, ?array $types = null)
+                    {
+                        $this->current[] = [
+                            'sql'    => $sql,
+                            'params' => $params,
+                            'time'   => microtime(true),
+                            'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                        ];
+                    }
+
+                    public function stopQuery()
+                    {
+                        $current = array_pop($this->current);
+                        if (in_array($current['sql'], ['"SAVEPOINT"', '"ROLLBACK TO SAVEPOINT"'], true)) {
+                            return;
+                        }
+                        $current['time'] = microtime(true) - $current['time'];
+                        $this->queries[] = $current;
+                    }
+
+                    public function getIterator(): \Generator
+                    {
+                        yield from $this->queries;
+                    }
+                };
+                $currentLogger = $configration->getSQLLogger();
+                $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
+            }
+            // @codeCoverageIgnoreStart
+            else {
+                $options['logger'] = new class extends AbstractLogger implements \IteratorAggregate {
+                    private array $queries = [];
+
+                    public function log($level, $message, array $context = []): void
+                    {
+                        if ($level === 'debug') {
+                            return;
+                        }
+                        $this->queries[] = [
+                            'sql'    => $context['sql'] ?? $message,
+                            'params' => array_merge($context['params'] ?? []),
+                            'time'   => isset($context['time']) ? (microtime(true) - $context['time']) : null,
+                            'trace'  => array_slice(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), 2),
+                        ];
+                    }
+
+                    public function getIterator(): \Generator
+                    {
+                        yield from $this->queries;
+                    }
+                };
+                $middleware = new Doctrine\Logging\Middleware($options['logger']);
+                $configration->setMiddlewares(array_merge($configration->getMiddlewares(), [$middleware]));
+
+                (function () use ($middleware) {
+                    /** @var \ryunosuke\WebDebugger\Module\Doctrine\Logging\Driver $driver */
+                    $driver = $middleware->wrap($this->driver);
+
+                    // DriverManager::getConnection の時点で middleware は解決されているので強制的に代入しなければならない
+                    $this->driver = $driver;
+                    // さらに接続済みだったら wrap を模倣しなければならない
+                    if ($this->_conn !== null) {
+                        $this->_conn = $driver->wrap($this->_conn);
+                    }
+                })->bindTo($this->connection, Connection::class)();
+            }
+            // @codeCoverageIgnoreEnd
         }
 
         // formatter に非callableが来た場合はクロージャ化
@@ -138,19 +182,19 @@ class Doctrine extends AbstractModule
             $formatter = $options['formatter'];
             $options['formatter'] = function ($sql) use ($formatter) {
                 if ($formatter === 'compress') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => false,
                         'wrapsize'  => PHP_INT_MAX,
                     ]);
                 }
                 elseif ($formatter === 'pretty') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => false,
                         'wrapsize'  => false,
                     ]);
                 }
                 elseif ($formatter === 'highlight') {
-                    return \ryunosuke\WebDebugger\sql_format($sql, [
+                    return sql_format($sql, [
                         'highlight' => true,
                         'wrapsize'  => false,
                     ]);
@@ -196,7 +240,7 @@ class Doctrine extends AbstractModule
         }
     }
 
-    protected function _fook(array $request)
+    protected function _hook(array $request)
     {
         // クエリ実行リクエストだったら実行して exit
         if ($request['is_ajax'] && isset($_POST['sql']) && strpos($request['path'], 'doctrine-exec') !== false) {
@@ -236,7 +280,7 @@ class Doctrine extends AbstractModule
         return $explains;
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
         $logs = [];
         $time = 0;
@@ -245,7 +289,7 @@ class Doctrine extends AbstractModule
             $sql = $log['sql'];
             $params = $log['params'];
 
-            $log['sql'] = \ryunosuke\WebDebugger\sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
+            $log['sql'] = sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
 
             $t = $log['time'] ?? null;
             $time += $t;
@@ -272,12 +316,12 @@ class Doctrine extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Query']['logs']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $error = [];
         if (count($stored['Query']['logs'])) {
@@ -296,7 +340,7 @@ class Doctrine extends AbstractModule
         return array_keys($error);
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $styles = [];
         foreach ($stored['Query']['logs'] as $n => &$log) {
@@ -335,9 +379,9 @@ class Doctrine extends AbstractModule
         }
         $caption = new Raw('Query' . $stored['Query']['summary'] . ' <label><input name="explain" class="debug_plugin_setting" type="checkbox">explain</label>');
 
-        return [
-            'Connection' => new HashTable('connection', $stored['Connection']),
-            'Query'      => new ArrayTable($caption, $stored['Query']['logs'], $styles),
-        ];
+        return implode('', [
+            new HashTable('connection', $stored['Connection']),
+            new ArrayTable($caption, $stored['Query']['logs'], $styles),
+        ]);
     }
 }

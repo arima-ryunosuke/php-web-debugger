@@ -69,7 +69,7 @@ class Directory extends AbstractModule
         $this->directries = [];
     }
 
-    protected function _fook(array $request)
+    protected function _hook(array $request)
     {
         if ($request['is_ajax'] && strpos($request['path'], 'deletedirfile') !== false) {
             unlink($_POST['fullpath']);
@@ -87,7 +87,7 @@ class Directory extends AbstractModule
         }
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
         $data = [];
         foreach ($this->directries as $dirname => $callback) {
@@ -107,12 +107,12 @@ class Directory extends AbstractModule
         return $data;
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return array_sum(array_map('count', $stored) ?: [0]);
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $result = [];
         foreach ($stored as $dirname => $files) {
@@ -124,6 +124,6 @@ class Directory extends AbstractModule
             $caption = new Raw('<span class="dirname">' . htmlspecialchars($dirname, ENT_QUOTES) . '</span>' . '<button type="button" class="cleardirfile" style="float:right">clear</button>');
             $result[] = new ArrayTable($caption, $data);
         }
-        return $result;
+        return implode('', $result);
     }
 }

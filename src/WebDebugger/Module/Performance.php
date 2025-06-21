@@ -6,6 +6,8 @@ use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\HashTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
+use function ryunosuke\WebDebugger\backtrace;
+use function ryunosuke\WebDebugger\multiexplode;
 use function ryunosuke\WebDebugger\profiler;
 
 class Performance extends AbstractModule
@@ -16,6 +18,8 @@ class Performance extends AbstractModule
     private $start_time;
 
     private $timelines;
+
+    private $cputimes;
 
     private $profiler_options;
 
@@ -48,6 +52,7 @@ class Performance extends AbstractModule
 
         $this->start_time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
         $this->timelines = [];
+        $this->cputimes = function_exists('posix_times') ? posix_times() : null;
 
         if (!function_exists($options['function'])) {
             $funcname = $options['function'];
@@ -71,7 +76,7 @@ class Performance extends AbstractModule
 
     protected function _time($name = null)
     {
-        $traces = \ryunosuke\WebDebugger\backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
+        $traces = backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, [
             // 自身の time でもグローバルな dtime でもないものを探す
             'file'  => function ($file) {
                 return strpos($file, __FILE__) === false;
@@ -94,7 +99,7 @@ class Performance extends AbstractModule
         }
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
         $last = null;
         $timelines = [];
@@ -127,7 +132,7 @@ class Performance extends AbstractModule
         foreach ($this->profiler as $callee => $callers) {
             $callerlist = [];
             foreach ($callers as $caller => $times) {
-                $elem = array_combine(['file', 'line'], \ryunosuke\WebDebugger\multiexplode('#', $caller, -2));
+                $elem = array_combine(['file', 'line'], multiexplode('#', $caller, -2));
                 $elem['times'] = array_sum($times);
                 $callerlist[] = $elem;
             }
@@ -152,24 +157,38 @@ class Performance extends AbstractModule
             ];
         }
 
+        $processTime = microtime(true) - $this->start_time;
+        $performance = [
+            'ProcessTime'  => $processTime,
+            'CPU(user)'    => null,
+            'CPU(system)'  => null,
+            'MemoryUsage'  => memory_get_peak_usage(true),
+            'IncludedFile' => get_included_files(),
+        ];
+        // @codeCoverageIgnoreStart
+        if ($this->cputimes !== null) {
+            $CLK_TCK = 100; // sysconf(_SC_CLK_TCK);
+            $cputimes = posix_times();
+            $gen = fn($time) => sprintf("%.3f %%(%d times)", $time / $CLK_TCK / $processTime * 100, $time);
+            $performance['CPU(user)'] = $gen($cputimes['utime'] - $this->cputimes['utime']);
+            $performance['CPU(system)'] = $gen($cputimes['stime'] - $this->cputimes['stime']);
+        }
+        // @codeCoverageIgnoreEnd
+
         return [
-            'Performance' => [
-                'ProcessTime'  => microtime(true) - $this->start_time,
-                'MemoryUsage'  => memory_get_peak_usage(true),
-                'IncludedFile' => get_included_files(),
-            ],
+            'Performance' => array_filter($performance, fn($p) => $p !== null),
             'Timeline'    => $timelines,
             'OPcache'     => $opcache,
             'Profile'     => $profiles,
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Timeline']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if (count($stored['Timeline'])) {
@@ -178,7 +197,7 @@ class Performance extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $caption = new Raw('Profile <label><input name="profile" class="debug_plugin_setting" type="checkbox">profile</label>');
 
@@ -245,11 +264,11 @@ class Performance extends AbstractModule
             $profile['caller'] = new Popup($popuptitle, new ArrayTable('', array_map([$this, 'toOpenable'], $profile['caller'])));
         }
 
-        return [
-            'Performance' => new HashTable('Performance', $stored['Performance']),
-            'Timeline'    => new Raw($timelinehtml),
-            'OPcache'     => new HashTable('OPcache', $stored['OPcache']),
-            'Profile'     => new ArrayTable($caption, $stored['Profile']),
-        ];
+        return implode('', [
+            new HashTable('Performance', $stored['Performance']),
+            new Raw($timelinehtml),
+            new HashTable('OPcache', $stored['OPcache']),
+            new ArrayTable($caption, $stored['Profile']),
+        ]);
     }
 }

@@ -12,6 +12,7 @@ use ryunosuke\WebDebugger\Html\ArrayTable;
 use ryunosuke\WebDebugger\Html\Popup;
 use ryunosuke\WebDebugger\Html\Raw;
 use function ryunosuke\WebDebugger\arrayize;
+use function ryunosuke\WebDebugger\rm_rf;
 
 class Log extends AbstractModule
 {
@@ -49,7 +50,7 @@ class Log extends AbstractModule
              */
             'function' => 'dlog',
             /** string preserve 時の保存ディレクトリ */
-            'logfile'  => sys_get_temp_dir() . '/wd-module/Log/logfile.txt',
+            'logdir'   => sys_get_temp_dir() . '/wd-module/Log',
             /**
              * psr3/monolog インスタンスを渡すとこのモジュールにもログられるようになる
              *
@@ -66,7 +67,7 @@ class Log extends AbstractModule
             eval(/** @lang */ "function $funcname(){return call_user_func_array('$class::log', func_get_args());}");
         }
 
-        $this->logdir = dirname($options['logfile']); // for compatible
+        $this->logdir = $options['logdir'];
         @mkdir($this->logdir, 0777, true);
 
         foreach (arrayize($options['logger']) as $logger) {
@@ -126,7 +127,7 @@ class Log extends AbstractModule
                         $this->loggers = $loggers;
                     }
 
-                    public function log($level, $message, array $context = [])
+                    public function log($level, $message, array $context = []): void
                     {
                         foreach ($this->loggers as $logger) {
                             $logger->log($level, $message, $context);
@@ -161,8 +162,8 @@ class Log extends AbstractModule
 
     protected function _setting()
     {
-        if (empty($this->setting['preserve'])) {
-            \ryunosuke\WebDebugger\rm_rf($this->logdir, false);
+        if (empty($this->setting['preserve']) && $this->logdir) {
+            rm_rf($this->logdir, false);
         }
     }
 
@@ -193,7 +194,7 @@ class Log extends AbstractModule
         return $value;
     }
 
-    protected function _gather()
+    protected function _gather(array $request): array
     {
         $timezone = new \DateTimeZone(date_default_timezone_get());
         array_walk($this->logs, function (&$log) use ($timezone) {
@@ -206,12 +207,12 @@ class Log extends AbstractModule
         ];
     }
 
-    protected function _getCount($stored)
+    protected function _getCount($stored): ?int
     {
         return count($stored['Log']);
     }
 
-    protected function _getError($stored)
+    protected function _getError($stored): array
     {
         $result = [];
         if (count($stored['Log'])) {
@@ -220,7 +221,7 @@ class Log extends AbstractModule
         return $result;
     }
 
-    protected function _render($stored)
+    protected function _getHtml($stored): string
     {
         $logs = [];
         if (!empty($this->setting['preserve'])) {
@@ -243,8 +244,6 @@ class Log extends AbstractModule
 
         $caption = new Raw('Log <label><input name="preserve" class="debug_plugin_setting" type="checkbox">preserve</label>');
 
-        return [
-            'Log' => new ArrayTable($caption, array_merge($logs, $stored['Log'])),
-        ];
+        return new ArrayTable($caption, array_merge($logs, $stored['Log']));
     }
 }
