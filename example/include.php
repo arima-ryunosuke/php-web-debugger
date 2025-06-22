@@ -46,6 +46,6 @@ $debugger->initialize([
     \ryunosuke\WebDebugger\Module\Performance::class => [],
     \ryunosuke\WebDebugger\Module\Log::class         => ['logger' => [$monolog, $psr3log]],
     \ryunosuke\WebDebugger\Module\Directory::class   => [sys_get_temp_dir() => []],
-    \ryunosuke\WebDebugger\Module\Variable::class    => ['markdown' => fn() => ['rows' => $connection->fetchAllAssociative('SELECT * FROM TABLES')]],
+    \ryunosuke\WebDebugger\Module\Variable::class    => ['markdown' => fn() => ['rows' => $connection->fetchAllAssociative('SELECT * FROM TABLES')], 'object' => (object) ['o' => (object) ['x' => 'y']]],
     \ryunosuke\WebDebugger\Module\History::class     => [],
 ])->start();
