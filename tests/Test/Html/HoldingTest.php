@@ -12,5 +12,10 @@ class HoldingTest extends AbstractTestCase
 
         $this->assertStringContainsString('<a href="javascript:void(0)" class="holding">foobar</a>', $holding);
         $this->assertStringContainsString('<span class="extends holdingdiv"> <b>bold</b></span>', $holding);
+
+        $holding = (string) new Holding('foobar', '<b>bold</b>', true);
+
+        $this->assertStringContainsString('<a href="javascript:void(0)" class="holding opened">foobar</a>', $holding);
+        $this->assertStringContainsString('<span class="extends holdingdiv" style="display:inline"> <b>bold</b></span>', $holding);
     }
 }

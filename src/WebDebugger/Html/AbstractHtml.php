@@ -59,7 +59,7 @@ abstract class AbstractHtml
                     $string = new Holding('array(' . count($var) . ')', $string);
                 }
                 elseif (is_object($var)) {
-                    $string = new Holding(get_class($var) . '#' . spl_object_id($var), $string);
+                    $string = new Holding(get_class($var) . '#' . spl_object_id($var), $string, get_class($var) === \stdClass::class && !$nest);
                 }
             },
         ]);
