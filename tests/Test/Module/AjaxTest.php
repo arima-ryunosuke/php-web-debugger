@@ -25,6 +25,15 @@ class AjaxTest extends AbstractTestCase
         $this->assertArrayHasKey('COOKIE', $stored);
     }
 
+    function test_getCount()
+    {
+        $_SERVER['REQUEST_URI'] = '/';
+        $module = new Ajax();
+
+        $stored = $module->gather([]);
+        $this->assertEquals(0, $module->getCount($stored));
+    }
+
     function test_getHtml()
     {
         $_SERVER['REQUEST_URI'] = '/';

@@ -30,7 +30,7 @@ class Variable extends AbstractModule
 
     protected function _getCount($stored): ?int
     {
-        return array_sum(array_map('count', $stored));
+        return count($stored);
     }
 
     protected function _getHtml($stored): string
