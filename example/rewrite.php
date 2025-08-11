@@ -7,6 +7,18 @@ switch ($_GET['type'] ?? '') {
         header('Content-type: text/plain');
         echo "response";
         break;
+    case 'event-stream':
+        header('Content-type: text/html');
+        echo "<body>
+        <script type='module'>
+            const es = new EventSource('sse.php');
+            es.addEventListener('message', function(e) {
+                document.querySelector('#result').textContent += e.data + '\\n';
+            });
+        </script>
+        SSE<pre id='result'></pre>
+        </body>";
+        break;
     case 'json':
         header('Content-type: application/json');
         echo json_encode(['title' => '日本語です', 'elm1', 'elm2', 'elm3']);

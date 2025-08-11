@@ -27,6 +27,7 @@ try {
             <p>例えば下記を開くと、本来はそれぞれの Content-Type が返されるはずですが、text/html に書き換えられ、アイコン群が有効になっています</p>
             <ul>
                 <li><a href="./rewrite.php?type=plain">text/plain</a></li>
+                <li><a href="./rewrite.php?type=event-stream">text/event-stream</a></li>
                 <li><a href="./rewrite.php?type=json">application/json</a></li>
                 <li><a href="./rewrite.php?type=xml">application/xml</a></li>
             </ul>
