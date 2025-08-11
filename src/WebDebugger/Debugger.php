@@ -42,9 +42,9 @@ class Debugger
         $default = [
             /** ひっかけるレスポンスヘッダー */
             'rewrite'      => [
-                'text/.*'          => fn($contents) => $contents,
-                'application/json' => [static::class, 'formatApplicationJson'],
-                'application/xml'  => [static::class, 'formatApplicationXml'],
+                'text/(?!event-stream).*' => fn($contents) => $contents,
+                'application/json'        => [static::class, 'formatApplicationJson'],
+                'application/xml'         => [static::class, 'formatApplicationXml'],
             ],
             /** bool PRG パターンの抑止フラグ */
             'stopprg'      => true,
