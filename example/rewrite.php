@@ -27,4 +27,11 @@ switch ($_GET['type'] ?? '') {
         header('Content-type: application/xml;charset=utf8');
         echo '<?xml version="1.0"?><root><title>日本語です</title><p>node1</p><p>node2</p><p>node3</p></root>';
         break;
+    case 'attachment':
+        header('Content-type: text/csv');
+        header('Content-Disposition: attachment; filename="download.csv"');
+        echo "A,B,C\n";
+        echo "a1,b1,c1\n";
+        echo "a2,b2,c2\n";
+        break;
 }

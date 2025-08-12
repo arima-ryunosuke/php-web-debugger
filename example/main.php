@@ -30,6 +30,7 @@ try {
                 <li><a href="./rewrite.php?type=event-stream">text/event-stream</a></li>
                 <li><a href="./rewrite.php?type=json">application/json</a></li>
                 <li><a href="./rewrite.php?type=xml">application/xml</a></li>
+                <li><a href="./rewrite.php?type=attachment">attachment</a></li>
             </ul>
             <p>この挙動は rewrite オプションで変更可能です。また、元の Content-Type は X-Original-Content-Type として格納されます</p>
         </fieldset>
