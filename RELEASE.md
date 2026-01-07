@@ -20,6 +20,11 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 1.3.3
+
+- [feature] Link モジュールを追加
+- [feature] Ajax に method と FILES を追加
+
 ## 1.3.2
 
 - Merge tag 'v1.2.15'
