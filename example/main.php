@@ -75,6 +75,11 @@ try {
             <legend>Ajax</legend>
             <input type="button" value="ajax" onclick="$.post('ajax.php', {hoge:'fuga'})">
             <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'PUT', body:'this is body'})">
+            <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'POST', body: (function () {
+                const fd = new FormData();
+                fd.append('hoge', new File(['hoge'], 'textfile', {type: 'text/plain'}));
+                return fd;
+            })()})">
             <input type="button" value="fetch" onclick="fetch('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}})">
             <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}))">
             <input type="button" value="fetch" onclick="fetch(new Request('ajax.php', {method:'PUT', headers: {'x-custom': 'custom'}}), {headers: {'x-custom2': 'custom2'}})">
@@ -165,6 +170,28 @@ try {
         <fieldset>
             <legend>Variable</legend>
             <p>汎用モジュールです。変数を表示したいだけならモジュールを作るまでもなくこれだけ十分です</p>
+        </fieldset>
+        <?php
+    })();
+
+    // Link モジュール用
+    (function () {
+        // シンプルにリンクのみ
+        dlink('http://example.com');
+        // 名前や説明を与える
+        dlink('http://example.com', '実行時リンク', '説明書き');
+        // 説明は文字列ではなく補足情報的なデータでもよい
+        dlink('http://example.com', '実行時リンク2', ['id' => 123, 'name' => 'hoge']);
+        ?>
+        <fieldset>
+            <legend>Link</legend>
+            <p>リンク集モジュールです</p>
+            <p>例えば下記のようなものを吐き出して画面内にリンクを張ることができます</p>
+            <ul>
+                <li>MINIO, MailHog, phpMyAdmin 等の開発系ツールを使用している場合、それへのリンク</li>
+                <li>発行した S3 の署名付き URL をリスト化</li>
+                <li>外部 API への URL</li>
+            </ul>
         </fieldset>
         <?php
     })();
