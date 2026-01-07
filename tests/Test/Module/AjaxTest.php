@@ -14,11 +14,13 @@ class AjaxTest extends AbstractTestCase
 
     function test_gather()
     {
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
         $module->initialize();
         $stored = $module->gather([]);
         $this->assertArrayHasKey('datetime', $stored);
+        $this->assertArrayHasKey('method', $stored);
         $this->assertArrayHasKey('url', $stored);
         $this->assertArrayHasKey('GET', $stored);
         $this->assertArrayHasKey('POST', $stored);
@@ -27,6 +29,7 @@ class AjaxTest extends AbstractTestCase
 
     function test_getCount()
     {
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
 
@@ -36,6 +39,7 @@ class AjaxTest extends AbstractTestCase
 
     function test_getHtml()
     {
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['REQUEST_URI'] = '/';
         $module = new Ajax();
         $htmls = $module->getHtml($module->gather([]));
