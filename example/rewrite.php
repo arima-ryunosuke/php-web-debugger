@@ -7,6 +7,18 @@ switch ($_GET['type'] ?? '') {
         header('Content-type: text/plain');
         echo "response";
         break;
+    case 'event-stream':
+        header('Content-type: text/html');
+        echo "<body>
+        <script type='module'>
+            const es = new EventSource('sse.php');
+            es.addEventListener('message', function(e) {
+                document.querySelector('#result').textContent += e.data + '\\n';
+            });
+        </script>
+        SSE<pre id='result'></pre>
+        </body>";
+        break;
     case 'json':
         header('Content-type: application/json');
         echo json_encode(['title' => '日本語です', 'elm1', 'elm2', 'elm3']);
@@ -14,5 +26,12 @@ switch ($_GET['type'] ?? '') {
     case 'xml':
         header('Content-type: application/xml;charset=utf8');
         echo '<?xml version="1.0"?><root><title>日本語です</title><p>node1</p><p>node2</p><p>node3</p></root>';
+        break;
+    case 'attachment':
+        header('Content-type: text/csv');
+        header('Content-Disposition: attachment; filename="download.csv"');
+        echo "A,B,C\n";
+        echo "a1,b1,c1\n";
+        echo "a2,b2,c2\n";
         break;
 }

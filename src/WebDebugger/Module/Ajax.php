@@ -115,11 +115,18 @@ class Ajax extends AbstractModule
     {
         return [
             'datetime' => date('Y/m/d H:i:s'),
+            'method'   => $_SERVER['REQUEST_METHOD'],
             'url'      => $_SERVER['REQUEST_URI'],
             'GET'      => $_GET,
             'POST'     => $_POST,
+            'FILES'    => $_FILES,
             'COOKIE'   => $_COOKIE,
         ];
+    }
+
+    protected function _getCount($stored): ?int
+    {
+        return 0;
     }
 
     protected function _getHtml($stored): string

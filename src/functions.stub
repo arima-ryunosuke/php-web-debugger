@@ -279,6 +279,10 @@ if (!defined('ryunosuke\\WebDebugger\\JSON_OBJECT_HANDLER')) {
     define('ryunosuke\\WebDebugger\\JSON_OBJECT_HANDLER', -107);
 }
 
+if (!defined('ryunosuke\\WebDebugger\\JSON_ESCAPE_SINGLE_QUOTE')) {
+    define('ryunosuke\\WebDebugger\\JSON_ESCAPE_SINGLE_QUOTE', -108);
+}
+
 if (!defined('ryunosuke\\WebDebugger\\SI_UNITS')) {
     define('ryunosuke\\WebDebugger\\SI_UNITS', [
         -8 => ["y"],
@@ -631,7 +635,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\array_maps')) {
      *
      * @param iterable $array 対象配列
      * @param callable ...$callbacks 評価クロージャ配列
-     * @return iterable 評価クロージャを通した新しい配列
+     * @return iterable|array 評価クロージャを通した新しい配列
      */
     function array_maps($array, ...$callbacks)
     {
@@ -1064,7 +1068,6 @@ if (!function_exists('ryunosuke\\WebDebugger\\last_keyvalue')) {
             $k = array_key_last($array);
             return [$k, $array[$k]];
         }
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
         foreach ($array as $k => $v) {
             // dummy
         }
@@ -1499,6 +1502,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
             'KEYS'                       => true,
             'KILL'                       => true,
             'LAST_INSERT_ID'             => true,
+            'LATERAL'                    => true,
             'LEADING'                    => true,
             'LEFT'                       => true,
             'LEVEL'                      => true,
@@ -1574,6 +1578,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
             'READ_WRITE'                 => true,
             'REFERENCES'                 => true,
             'REGEXP'                     => true,
+            'RELEASE'                    => true,
             'RELOAD'                     => true,
             'RENAME'                     => true,
             'REPAIR'                     => true,
@@ -1593,6 +1598,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
             'ROW'                        => true,
             'ROWS'                       => true,
             'ROW_FORMAT'                 => true,
+            'SAVEPOINT'                  => true,
             'SECOND'                     => true,
             'SECURITY'                   => true,
             'SELECT'                     => true,
@@ -2127,10 +2133,11 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
                 switch ($uppertoken) {
                     default:
                         _DEFAULT:
+                        // （コメントを含めた）先頭行にスペースがついてしまう
                         // "tablename. columnname" になってしまう
                         // "@ var" になってしまう
                         // ": holder" になってしまう
-                        if (!in_array($prev[1], ['.', '@', ':', ';'])) {
+                        if (!in_array($prev[1], ['', '.', '@', ':', ';'], true)) {
                             $result[] = $MARK_SP;
                         }
 
@@ -2219,6 +2226,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
                     case "BY":
                     case "ALL":
                     case "RECURSIVE":
+                    case "LATERAL":
                         $result[] = $MARK_SP . $virttoken . $MARK_SP . array_pop($result);
                         break;
                     case "SELECT":
@@ -2348,6 +2356,8 @@ if (!function_exists('ryunosuke\\WebDebugger\\sql_format')) {
                         break;
                     case "COMMIT":
                     case "ROLLBACK":
+                    case "SAVEPOINT":
+                    case "RELEASE":
                         // begin は begin～end の一部の可能性があるが commit,rollback は俺の知る限りそのような構文はない
                         $result[] = $virttoken;
                         break;
@@ -4703,6 +4713,15 @@ if (!function_exists('ryunosuke\\WebDebugger\\callable_code')) {
     function callable_code($callable, bool $return_token = false)
     {
         $ref = $callable instanceof \ReflectionFunctionAbstract ? $callable : reflect_callable($callable);
+        if ($ref->getFileName() === false) {
+            $reference = $ref->returnsReference() ? '&' : '';
+            $return = reflect_type_resolve($ref->getReturnType()) ?? 'void';
+            $params = function_parameter($ref);
+            $keys = implode(', ', array_map(fn($v) => ltrim($v, '&'), array_keys($params)));
+            $vals = implode(', ', $params);
+            return ["fn$reference($vals): $return", "\\$ref->name($keys)"];
+        }
+
         $contents = file($ref->getFileName());
         $start = $ref->getStartLine();
         $end = $ref->getEndLine();
@@ -4711,18 +4730,21 @@ if (!function_exists('ryunosuke\\WebDebugger\\callable_code')) {
         $tokens = php_tokens("<?php $codeblock");
 
         $begin = $tokens[0]->next([T_FUNCTION, T_FN]);
-        $close = $begin->next(['{', T_DOUBLE_ARROW]);
+        $close = $begin->next(['{', T_DOUBLE_ARROW, '[']);
+        if ($close->is('[')) {
+            $close = $close->end()->next(['{', T_DOUBLE_ARROW]);
+        }
 
         if ($begin->is(T_FN)) {
             $meta = array_slice($tokens, $begin->index, $close->prev()->index - $begin->index + 1);
-            $temp = $close->find([';', ',']);
+            $temp = $close->find([';', ',', T_CLOSE_TAG]);
             // アロー関数は終了トークンが明確ではない
             // - $x = fn() => 123;         // セミコロン
             // - $x = fn() => [123];       // セミコロンであって ] ではない
             // - $x = [fn() => 123, null]; // こうだとカンマになるし
             // - $x = [fn() => 123];       // こうだと ] になる
             // しっかり実装できなくもないが、（多分）戻り読みが必要なのでここでは構文チェックをパスするまでループする実装とした
-            while (true) {
+            while ($temp) {
                 $test = array_slice($tokens, $close->next()->index, $temp->index - $close->next()->index);
                 $text = implode('', array_column($test, 'text'));
                 try {
@@ -4734,7 +4756,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\callable_code')) {
                     $temp = $temp->prev();
                 }
             }
-            $body = array_slice($tokens, $close->next()->index, $temp->index - $close->next()->index);
+            $body = array_slice($tokens, $close->next()->index, $temp ? $temp->index - $close->next()->index : null);
         }
         else {
             $meta = array_slice($tokens, $begin->index, $close->index - $begin->index);
@@ -4747,6 +4769,81 @@ if (!function_exists('ryunosuke\\WebDebugger\\callable_code')) {
         }
 
         return [trim(implode('', array_column($meta, 'text'))), trim(implode('', array_column($body, 'text')))];
+    }
+}
+
+assert(!function_exists('ryunosuke\\WebDebugger\\function_parameter') || (new \ReflectionFunction('ryunosuke\\WebDebugger\\function_parameter'))->isUserDefined());
+if (!function_exists('ryunosuke\\WebDebugger\\function_parameter')) {
+    /**
+     * 関数/メソッドの引数定義を取得する
+     *
+     * ほぼ内部向けで外から呼ぶことはあまり想定していない。
+     *
+     * @package ryunosuke\Functions\Package\reflection
+     *
+     * @param \ReflectionFunctionAbstract|callable $eitherReffuncOrCallable 関数/メソッドリフレクション or callable
+     * @return array [引数名 => 引数宣言] の配列
+     */
+    function function_parameter($eitherReffuncOrCallable)
+    {
+        $reffunc = $eitherReffuncOrCallable instanceof \ReflectionFunctionAbstract
+            ? $eitherReffuncOrCallable
+            : reflect_callable($eitherReffuncOrCallable);
+
+        $result = [];
+        foreach ($reffunc->getParameters() as $parameter) {
+            $declare = '';
+
+            if ($parameter->hasType()) {
+                $declare .= reflect_type_resolve($parameter->getType()) . ' ';
+            }
+
+            if ($parameter->isPassedByReference()) {
+                $declare .= '&';
+            }
+
+            if ($parameter->isVariadic()) {
+                $declare .= '...';
+            }
+
+            $declare .= '$' . $parameter->getName();
+
+            if ($parameter->isOptional()) {
+                $defval = null;
+
+                if ($parameter->isDefaultValueAvailable()) {
+                    // 修飾なしでデフォルト定数が使われているとその名前空間で解決してしまうので場合分けが必要
+                    if ($parameter->isDefaultValueConstant() && strpos($parameter->getDefaultValueConstantName(), '\\') === false) {
+                        // 存在チェック＋$dummy でグローバル定数を回避しているが、いっそのこと一律 \\ を付与してしまっても良いような気がする
+                        if (const_exists(...(explode('::', $parameter->getDefaultValueConstantName()) + [1 => '$dummy']))) {
+                            $defval = '\\' . $parameter->getDefaultValueConstantName();
+                        }
+                        else {
+                            $defval = $parameter->getDefaultValueConstantName();
+                        }
+                    }
+                    else {
+                        $default = $parameter->getDefaultValue();
+                        $defval = var_export2($default, true);
+                    }
+                }
+                // isOptional だが isDefaultValueAvailable でないし isVariadic でもない（稀にある（stream_filter_append で確認））
+                elseif (!$parameter->isVariadic()) {
+                    // Type に応じたデフォルト値が得られればベストだがそこまでする必要もない
+                    // 少なくとも 8.0 時点では = null してしまえば型エラーも起きない（8.4 で非推奨になってるけど）
+                    $defval = "null";
+                }
+
+                if (isset($defval)) {
+                    $declare .= ' = ' . $defval;
+                }
+            }
+
+            $name = ($parameter->isPassedByReference() ? '&' : '') . '$' . $parameter->getName();
+            $result[$name] = $declare;
+        }
+
+        return $result;
     }
 }
 
@@ -4798,6 +4895,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\reflect_callable')) {
      * - getDeclaration: 宣言部のコードを返す
      * - getCode: 定義部のコードを返す
      * - isAnonymous: 無名関数なら true を返す（8.2 の isAnonymous 互換）
+     * - isArrow: アロー演算子で定義されたかを返す（クロージャのみ）
      * - isStatic: $this バインド可能かを返す（クロージャのみ）
      * - getUsedVariables: use している変数配列を返す（クロージャのみ）
      * - getClosure: 元となったオブジェクトを $object としたクロージャを返す（メソッドのみ）
@@ -4902,6 +5000,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\reflect_callable')) {
                     }
 
                     return strpos($this->name, '{closure}') !== false;
+                }
+
+                public function isArrow(): bool
+                {
+                    // しっかりやるなら PHPToken を使った方がいいけど今の php 構文ならこれで大丈夫のはず
+                    return str_starts_with($this->getDeclaration(), 'fn') !== false;
                 }
 
                 public function isStatic(): bool
@@ -6204,6 +6308,13 @@ if (!function_exists('ryunosuke\\WebDebugger\\function_configure')) {
         $config['chain.nullsafe'] ??= false;
         $config['process.autoload'] ??= [];
         $config['datetime.class'] ??= \DateTimeImmutable::class;
+        $config['unique_id.config'] ??= [
+            'timestamp_base'      => 1704034800, // 2024-01-01 00:00:00
+            'timestamp_precision' => 1,
+            'timestamp_bit'       => 41,
+            'sequence_bit'        => 7,
+            'ipaddress_bit'       => 16,
+        ];
 
         // setting
         if (is_array($option)) {
@@ -6266,13 +6377,15 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
     /**
      * キーが json 化されてファイルシステムに永続化される ArrayAccess を返す
      *
-     * 非常にシンプルで PSR-16 も実装せず、TTL もクリア手段も（基本的には）存在しない。
+     * 非常にシンプルで PSR-16 も実装せず、クリア手段も（基本的には）存在しない。
      * ArrayAccess なので `$storage['hoge'] ??= something()` として使うのがほぼ唯一の利用法。
      * その仕様・利用上、値として null を使用することはできない（使用した場合の動作は未定義とする）。
      *
      * キーに指定できるのは json_encode 可能なもののみ。
      * 値に指定できるのは var_export 可能なもののみ。
      * 上記以外を与えたときの動作は未定義。
+     * TTL を指定すると次回読み込み時に期限切れをチェックし、切れていた場合 null を返す。
+     * 一度読み込まれればそのリクエスト中は期限切れになることはない。
      *
      * 得てして簡単な関数・メソッドのメモ化や内部的なキャッシュに使用する。
      *
@@ -6290,9 +6403,10 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
      * @package ryunosuke\Functions\Package\utility
      *
      * @param string $directory 永続化ディレクトリ
+     * @param int $ttl TTL
      * @return \ArrayObject
      */
-    function json_storage(string $prefix = 'global')
+    function json_storage(string $prefix = 'global', int $ttl = PHP_INT_MAX)
     {
         $cachedir = function_configure('cachedir') . '/' . strtr(__FUNCTION__, ['\\' => '%']);
         if (!file_exists($cachedir)) {
@@ -6300,7 +6414,9 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
         }
 
         static $objects = [];
-        return $objects[$prefix] ??= new class("$cachedir/" . strtr($prefix, ['\\' => '%', '/' => '-'])) extends \ArrayObject {
+        $objects[$prefix] ??= new class("$cachedir/" . strtr($prefix, ['\\' => '%', '/' => '-'])) extends \ArrayObject {
+            public int $defaultTtl = PHP_INT_MAX;
+
             public function __construct(private string $directory)
             {
                 parent::__construct();
@@ -6324,10 +6440,10 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
                 $filename = $this->filename($json);
                 clearstatcache(true, $filename);
                 if (file_exists($filename)) {
-                    [$k, $v] = include $filename;
-                    // hash 化してるので万が一競合すると異なるデータを返してしまう
-                    if ($k !== $key) {
-                        return null; // @codeCoverageIgnore
+                    [$k, $v, $t] = include $filename;
+                    // TTL 兼 hash 化してるので万が一競合すると異なるデータを返してしまう
+                    if (($k !== $key) || ((time() - $t) >= $this->defaultTtl)) {
+                        return null;
                     }
                     // ストレージに有ったら内部キャッシュしてそれを使う
                     parent::offsetSet($json, $v);
@@ -6350,7 +6466,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
                         @unlink($filename);
                     }
                     else {
-                        file_put_contents($filename, '<?php return ' . var_export([$key, $value], true) . ';', LOCK_EX);
+                        file_put_contents($filename, '<?php return ' . var_export([$key, $value, time()], true) . ';', LOCK_EX);
                     }
                 }
 
@@ -6387,7 +6503,15 @@ if (!function_exists('ryunosuke\\WebDebugger\\json_storage')) {
                 ]));
                 return "{$this->directory}-$filename.php-cache";
             }
+
+            /** @noinspection PhpUnusedPrivateMethodInspection */
+            private function debug($closure)
+            {
+                return $closure->call($this);
+            }
         };
+        $objects[$prefix]->defaultTtl = $ttl;
+        return $objects[$prefix];
     }
 }
 
@@ -7422,12 +7546,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\var_pretty')) {
                 if (is_object($value)) {
                     if ($this->options['debuginfo'] && method_exists($value, '__debugInfo')) {
                         $properties = [];
-                        foreach (array_reverse($value->__debugInfo(), true) as $k => $v) {
+                        foreach ($value->__debugInfo() as $k => $v) {
                             $p = strrpos($k, "\0");
                             if ($p !== false) {
                                 $k = substr($k, $p + 1);
                             }
-                            $properties[$k] = $v;
+                            $properties[$k] ??= $v;
                         }
                     }
                     else {
@@ -7573,7 +7697,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\var_pretty')) {
                             }
                             $this->plain($spacer1);
                             if ($is_hasharray) {
-                                $this->index($k)->plain(': ');
+                                $this->index($k === '' ? '""' : $k)->plain(': ');
                             }
                             $this->export($v, $nest + 1, $parents, array_merge($keys, [$k]), true);
                             $this->plain(",\n");
@@ -7600,7 +7724,7 @@ if (!function_exists('ryunosuke\\WebDebugger\\var_pretty')) {
                                 $this->plain('...(too length)...')->plain(', ');
                             }
                             if ($is_hasharray && $n !== $k) {
-                                $this->index($k)->plain(':');
+                                $this->index($k === '' ? '""' : $k)->plain(':');
                             }
                             $this->export($v, $nest, $parents, array_merge($keys, [$k]), true);
                             if ($k !== $lastkey) {
@@ -7636,13 +7760,24 @@ if (!function_exists('ryunosuke\\WebDebugger\\var_pretty')) {
                 elseif ($value instanceof \Closure) {
                     $this->value($value);
 
+                    $ref = reflect_callable($value);
+
+                    if (!str_contains($ref->getFileName(), "eval()'d code") && $ref->isArrow()) {
+                        $this->plain("(");
+                        if ($ref->isStatic()) {
+                            $this->plain("static ");
+                        }
+                        $this->plain("{$ref->getDeclaration()} => {$ref->getCode()}");
+                        $this->plain(')');
+                        goto FINALLY_;
+                    }
+
                     if ($this->options['minify']) {
                         goto FINALLY_;
                     }
 
-                    $ref = reflect_callable($value);
                     $that = $ref->getClosureThis();
-                    $properties = $ref->getStaticVariables();
+                    $properties = $ref->getUsedVariables();
 
                     $this->plain("(");
                     if ($that) {
@@ -7674,7 +7809,12 @@ if (!function_exists('ryunosuke\\WebDebugger\\var_pretty')) {
 
                     $this->plain(" ");
                     if ($properties) {
-                        $this->export($properties, $nest, $parents, $keys, false);
+                        if (count($properties) === 1 && array_keys($properties) === [''] && is_string($properties[''])) {
+                            $this->plain($properties['']);
+                        }
+                        else {
+                            $this->export($properties, $nest, $parents, $keys, false);
+                        }
                     }
                     else {
                         $this->plain('{}');

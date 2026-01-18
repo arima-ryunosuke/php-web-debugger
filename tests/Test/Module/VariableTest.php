@@ -17,7 +17,7 @@ class VariableTest extends AbstractTestCase
             ],
         ]);
         $stored = $module->gather([]);
-        $this->assertEquals(3, $module->getCount($stored));
+        $this->assertEquals(1, $module->getCount($stored));
     }
 
     function test_gather()

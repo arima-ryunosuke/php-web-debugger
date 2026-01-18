@@ -120,6 +120,11 @@ class Server extends AbstractModule
         return $result;
     }
 
+    protected function _getCount($stored): ?int
+    {
+        return count($this->_getError($stored));
+    }
+
     protected function _getHtml($stored): string
     {
         $errors = array_intersect_key($stored['GET'], $stored['POST']);

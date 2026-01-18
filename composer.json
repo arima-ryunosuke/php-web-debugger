@@ -1,7 +1,7 @@
 {
   "config": {
     "platform": {
-      "php": "8.1"
+      "php": "8.0.2"
     }
   },
   "name": "ryunosuke/php-web-debugger",
@@ -31,11 +31,12 @@
     ]
   },
   "require": {
-    "php": ">=8.0"
+    "php": ">=8.0.2"
   },
   "require-dev": {
+    "ext-pdo": "*",
     "phpunit/phpunit": "9.*",
-    "doctrine/dbal": "4.*",
+    "doctrine/dbal": "3.*",
     "monolog/monolog": "2.*",
     "ryunosuke/functions": "2.0.*"
   },

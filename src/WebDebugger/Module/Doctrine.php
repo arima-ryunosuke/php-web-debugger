@@ -103,7 +103,6 @@ class Doctrine extends AbstractModule
         // logger が来ていない場合はデフォルトロガー
         if (!isset($options['logger'])) {
             $configration = $this->connection->getConfiguration();
-            // @codeCoverageIgnoreStart
             if (interface_exists(SQLLogger::class)) {
                 $options['logger'] = new class() implements SQLLogger, \IteratorAggregate {
                     private $current = [];
@@ -137,7 +136,7 @@ class Doctrine extends AbstractModule
                 $currentLogger = $configration->getSQLLogger();
                 $configration->setSQLLogger($currentLogger ? new LoggerChain([$currentLogger, $options['logger']]) : $options['logger']);
             }
-            // @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreStart
             else {
                 $options['logger'] = new class extends AbstractLogger implements \IteratorAggregate {
                     private array $queries = [];
@@ -175,6 +174,7 @@ class Doctrine extends AbstractModule
                     }
                 })->bindTo($this->connection, Connection::class)();
             }
+            // @codeCoverageIgnoreEnd
         }
 
         // formatter に非callableが来た場合はクロージャ化

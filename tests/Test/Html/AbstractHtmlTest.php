@@ -64,6 +64,12 @@ class AbstractHtmlTest extends AbstractTestCase
         $this->assertStringContainsString('stdClass#', $export);
     }
 
+    function test_export_object_firstopen()
+    {
+        $export = (string) $this->export((object) ['o' => new \stdClass()]);
+        $this->assertStringContainsString('opened', $export);
+    }
+
     function test_export_toolong()
     {
         $export = (string) $this->export(range(0, 2000));

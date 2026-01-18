@@ -20,21 +20,33 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
-## 2.0.4
+## 1.3.3
 
-- Merge tag 'v1.2.14'
+- [feature] Link モジュールを追加
+- [feature] Ajax に method と FILES を追加
 
-## 2.0.3
+## 1.3.2
 
-- Merge tag 'v1.2.13'
+- Merge tag 'v1.2.15'
 
-## 2.0.2
+## 1.3.1
 
-- [feature] Performance に CPU 時間を追加
-- [feature] doctrine4 対応
-- Merge tag 'v1.2.12'
+- [feature] count の統一
+- [feature] stdClass を与えると初期展開される機能
 
-## 2.0.1
+## 1.3.0
+
+- php8.0 の対応と2系のバックポート
+  - doctrine のために 8.1 に対応したけど、8.0 環境も多く、7.4 のままだと非常につらい
+  - むしろ 8.1 の存在が皆無なのでこっちを master として 8.1 の方を future とする
+
+## 1.2.16
+
+- [fixbug] SSE と同種の不具合（ダウンロードファイルまで書き換えられてしまう）
+
+## 1.2.15
+
+- [fixbug] event-stream が書き換えられて SSE が動作しない
 
 ## 1.2.14
 

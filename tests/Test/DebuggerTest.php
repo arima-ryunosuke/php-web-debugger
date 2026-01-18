@@ -155,6 +155,25 @@ class DebuggerTest extends AbstractTestCase
         $this->expectOutputRegex('#plaintext</pre>#');
     }
 
+    function test_start_response_norewrite()
+    {
+        $_SERVER['REQUEST_URI'] = '/document-root/no-match';
+
+        $debugger = new Debugger([
+            'fookpath' => 'hogefugapiyo',
+        ]);
+        $debugger->initialize([
+            Performance::class => [],
+        ]);
+
+        $debugger->start();
+        GlobalFunction::header('Content-type: text/plain');
+        GlobalFunction::header('Content-Disposition: attachment; filename="download.csv"');
+        echo 'plaintext';
+        ob_end_flush();
+        $this->expectOutputString('plaintext');
+    }
+
     function test_start_response_ajax()
     {
         $_SERVER['REQUEST_URI'] = '/document-root/no-match';

@@ -42,9 +42,9 @@ class Debugger
         $default = [
             /** ひっかけるレスポンスヘッダー */
             'rewrite'      => [
-                'text/.*'          => fn($contents) => $contents,
-                'application/json' => [static::class, 'formatApplicationJson'],
-                'application/xml'  => [static::class, 'formatApplicationXml'],
+                'text/(?!event-stream).*' => fn($contents) => $contents,
+                'application/json'        => [static::class, 'formatApplicationJson'],
+                'application/xml'         => [static::class, 'formatApplicationXml'],
             ],
             /** bool PRG パターンの抑止フラグ */
             'stopprg'      => true,
@@ -198,7 +198,7 @@ class Debugger
             }
 
             // Ajax でない通常リクエストで特定ヘッダーならアグレッシブに書き換える（html 化してデバッグを容易にする）
-            if (!$this->request['is_ajax']) {
+            if (!$this->request['is_ajax'] && !preg_match('#^Content-Disposition:\s*attachment#mi', $headers)) {
                 foreach ($this->options['rewrite'] as $ctype => $callback) {
                     // $ctype を preg_quote していないのでは意図的（"text/.*?" みたいに引っ掛けたい）
                     if (!preg_match('#^Content-Type:\s*text/html#mi', $headers) && preg_match("#^Content-Type:\s*($ctype.*)$#mi", $headers, $matches)) {

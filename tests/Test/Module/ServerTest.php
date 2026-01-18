@@ -101,6 +101,17 @@ class ServerTest extends AbstractTestCase
         $this->assertStringContainsString('has vulnerability', $error);
     }
 
+    function test_getCount()
+    {
+        $_GET['same'] = 'hoge';
+        $_POST['same'] = 'fuga';
+        $_SERVER['HTTPS'] = 'on';
+
+        $module = new Server();
+        $module->initialize();
+        $this->assertEquals(2, $module->getCount($module->gather([])));
+    }
+
     function test_getHtml()
     {
         $_GET['same'] = 'hoge';
