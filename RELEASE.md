@@ -20,6 +20,10 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 2.0.5
+
+- Merge remote-tracking branch 'remotes/origin/master' into v2.0
+
 ## 1.3.3
 
 - [feature] Link モジュールを追加
