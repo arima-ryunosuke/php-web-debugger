@@ -20,6 +20,10 @@
 
 - 初期化が割と煩雑なのをなんとかしたい
 
+## 2.0.6
+
+- Merge tag 'v1.3.5' into v2.0
+
 ## 2.0.5
 
 - Merge remote-tracking branch 'remotes/origin/master' into v2.0
