@@ -280,6 +280,20 @@ class Doctrine extends AbstractModule
         return $explains;
     }
 
+    private function quote($value)
+    {
+        if (is_bool($value)) {
+            return $value ? 'TRUE' : 'FALSE';
+        }
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+        if ($value === null) {
+            return 'NULL';
+        }
+        return $this->connection->quote($value);
+    }
+
     protected function _gather(array $request): array
     {
         $logs = [];
@@ -289,7 +303,7 @@ class Doctrine extends AbstractModule
             $sql = $log['sql'];
             $params = $log['params'];
 
-            $log['sql'] = sql_bind($sql, $params, fn($v) => $this->connection->quote($v));
+            $log['sql'] = sql_bind($sql, $params, fn($v) => $this->quote($v));
 
             $t = $log['time'] ?? null;
             $time += $t;

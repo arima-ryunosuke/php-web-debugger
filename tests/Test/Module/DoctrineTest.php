@@ -141,6 +141,11 @@ class DoctrineTest extends AbstractTestCase
             $ref->setAccessible(true);
             return $ref->invoke($module, $sql, $params);
         };
+        $quote = function ($value) use ($module) {
+            $ref = new \ReflectionMethod($module, 'quote');
+            $ref->setAccessible(true);
+            return $ref->invoke($module, $value);
+        };
         $format = function ($sql) use ($module) {
             $ref = new \ReflectionProperty($module, 'formatter');
             $ref->setAccessible(true);
@@ -173,5 +178,11 @@ class DoctrineTest extends AbstractTestCase
         $exrows = $explain("create temporary table hoge select 1", []);
         $this->assertEquals('No tables used', $exrows[0]['Extra']);
         $this->assertEquals(100, array_sum($score($exrows[0])));
+
+        $this->assertEquals("NULL", $quote(null));
+        $this->assertEquals("FALSE", $quote(false));
+        $this->assertEquals("TRUE", $quote(true));
+        $this->assertEquals("123", $quote(123));
+        $this->assertEquals("'hoge'", $quote("hoge"));
     }
 }

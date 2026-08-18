@@ -24,6 +24,10 @@
 
 - Merge remote-tracking branch 'remotes/origin/master' into v2.0
 
+## 1.3.4
+
+- Merge tag 'v1.2.17'
+
 ## 1.3.3
 
 - [feature] Link モジュールを追加
@@ -43,6 +47,10 @@
 - php8.0 の対応と2系のバックポート
   - doctrine のために 8.1 に対応したけど、8.0 環境も多く、7.4 のままだと非常につらい
   - むしろ 8.1 の存在が皆無なのでこっちを master として 8.1 の方を future とする
+
+## 1.2.17
+
+- [fixbug] bind タイプが全て文字列で bind されていた不具合
 
 ## 1.2.16
 
